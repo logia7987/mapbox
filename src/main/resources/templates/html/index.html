@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Mapbox</title>
+
+    <link rel="stylesheet" href="/css/reset.css">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 100vh"></div>
+
+    <script th:inline="javascript">
+        mapboxgl.accessToken = /*[[${mapboxAccessToken}]]*/ '';
+
+        var lat,lng;
+        if ("geolocation" in navigator) {
+            /* 위치정보 사용 가능 */
+            console.log("사용 가능")
+        } else {
+            /* 위치정보 사용 불가능 */
+            console.log("사용 불가능")
+        }
+
+        const map = new mapboxgl.Map({
+            container: "map",
+            center: [-68.137343, 45.137451],
+            zoom: 5,
+        });
+    </script>
+</body>
+</html>
