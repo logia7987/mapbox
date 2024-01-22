@@ -23,6 +23,11 @@ dependencies {
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
+
+	// oracle
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'com.oracle.database.jdbc:ojdbc10:19.11.0.0'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 }
 
 tasks.named('test') {
