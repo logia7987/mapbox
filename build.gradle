@@ -34,8 +34,6 @@ dependencies {
 	implementation group: 'org.geotools', name: 'gt-geojson', version: '30.1'
 	implementation group: 'org.geotools', name: 'gt-shapefile', version: '30.1'
 
-
-
 }
 
 tasks.named('test') {

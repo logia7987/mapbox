@@ -23,7 +23,7 @@ public class MainController {
          System.out.println("연결여부 카운트 로그 : 0 일때 완료임 =>" + mainMapper.getCount());
 
         model.addAttribute("mapboxAccessToken", mapboxAccessToken);
-        return "html/index";
+        return "html/main/index";
     }
 
 
