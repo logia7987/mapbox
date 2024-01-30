@@ -23,12 +23,10 @@
             <a href="#" onclick="closeSidebar()" class="sidebar-menu-list close-side ">&times;</a>
             <div class="sidebar-menu-list file-upload"> 파일 업로드 </div>
             <div id="mode-change-btn" onclick="togglewhiteMode()"><i class="fas fa-solid fa-sun" id="mdicon"></i></div>
-
             <form id="frmFile">
                 <input type="file" name="shpData" id="shpData">
             </form>
             <button onclick="uploadShpFile();">테스트 버튼</button>
-
         </div>
     </div>
 
@@ -76,9 +74,12 @@
         function togglewhiteMode() {
             var sidebar = document.getElementById("sidebar");
             var icon = document.getElementById("mdicon");
-            // var menulist = document.getElementsByClassName("sidebar-menu-list");
+            var list = document.getElementsByClassName("sidebar-menu-list");
 
-            // menulist.classList.toggle('dark-mode');
+
+            for (var i = 0; i < list.length; i++) {
+                list[i].classList.toggle('dark-mode');
+            }
             sidebar.classList.toggle('dark-mode');
             icon.classList.toggle('fa-moon');
             icon.classList.toggle('fa-sun');
