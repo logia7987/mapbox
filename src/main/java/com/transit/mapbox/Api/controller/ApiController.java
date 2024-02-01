@@ -32,13 +32,17 @@ public class ApiController {
 
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.toLowerCase().endsWith(".shp")) {
+            // shp 파일 이름을 저장
+
             String filePath = uploadPath + file.getOriginalFilename();
             file.transferTo(new File(filePath));
 
-            shapeFileService.readShapeFileGeometry(filePath);
+            result.put("result", "success");
+            result.put("message", "저장되었습니다.");
+            result.put("data", shapeFileService.readShapeFileGeometry(filePath));
         } else {
             // 올바르지 않은 확장자인 경우 에러 메시지 반환
-            result.put("result", "success");
+            result.put("result", "fail");
             result.put("message", "파일형식이 올바르지 않습니다.");
         }
 

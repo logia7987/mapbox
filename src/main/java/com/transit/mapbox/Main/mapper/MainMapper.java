@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 public interface MainMapper {
 
     @Select("SELECT COUNT(1) FROM TRANSIT.CITYTABLE")
-    public String getCount();
+    String getCount();
 
 
 }
