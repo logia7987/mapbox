@@ -14,14 +14,19 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@RestController
+@MapperScan(value = {"com.transit.mapbox.Api.mapper"})
+@Controller
 @RequestMapping("/api")
 public class ApiController {
 
     @Value("${upload.path}")
     private String uploadPath;
+
+    @Autowired
+    private ShpMapper mapper;
 
     @Autowired
     private ShapeFileService shapeFileService;
@@ -32,10 +37,14 @@ public class ApiController {
 
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.toLowerCase().endsWith(".shp")) {
-            // shp 파일 이름을 저장
+            ShpVo shpVo = new ShpVo();
 
             String filePath = uploadPath + file.getOriginalFilename();
             file.transferTo(new File(filePath));
+
+            shpVo.setShpname(originalFilename);
+
+            mapper.insert(shpVo);
 
             result.put("result", "success");
             result.put("message", "저장되었습니다.");

@@ -23,7 +23,7 @@ public class ShapeFileService {
 
         int i = 0;
         while (featureIterator.hasNext()) {
-            SimpleFeature feature = featureIterator.next()    ;
+            SimpleFeature feature = featureIterator.next();
 
             // 공간 데이터 출력
             System.out.println("Geometry: " + feature.getDefaultGeometry());
