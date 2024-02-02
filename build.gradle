@@ -25,6 +25,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 
+	// common io
+	implementation 'commons-io:commons-io:2.11.0'
+
 	// oracle
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'com.oracle.database.jdbc:ojdbc10:19.11.0.0'
