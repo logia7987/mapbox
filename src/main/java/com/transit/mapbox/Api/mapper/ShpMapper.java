@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface ShpMapper {
-    @Insert("INSERT INTO SHPTABLE (SHP_ID, SHP_NAME, UPLOAD_DATE) values (shp_seq.NEXTVAL, #{shpname}, sysdate)")
+    @Insert("INSERT INTO SHPTABLE (SHP_ID, SHP_NAME, UPLOAD_DATE) values (shp_seq.NEXTVAL, #{shpname}, sysdate+9/24)")
     void insert(ShpVo vo);
 
 

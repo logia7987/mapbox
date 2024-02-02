@@ -1,6 +1,7 @@
 #sidebar {
+    display: none;
     height: 90%;
-    width: 0;
+    width: 250px;
     position: fixed;
     top: 0;
     right: 0;
@@ -10,6 +11,34 @@
     padding-top: 60px;
     border-radius: 20px;
     transform: translate(0%, 5%);
+}
+
+.drop-hover {
+    display: none;
+    position: fixed;
+    background-color: rgb(192, 192, 192, 0.8);
+    width: 90%;
+    height: 200px;
+    text-align: center;
+    line-height: 200px;
+    font-weight: bold;
+}
+
+#frmFile {
+    cursor: pointer;
+    border: 4px dashed;
+    height: 200px;
+    margin: 12px;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.fa-file {
+    font-size: 70px;
+    padding-bottom: 30px
 }
 
 .sidebar-menu-list {
@@ -44,7 +73,6 @@
     background-color: #ffffff;
     text-align: center;
 }
-
 #mode-change-btn {
     cursor: pointer;
     padding: 5px 6px;
@@ -64,6 +92,10 @@
     color: #fff;
 }
 
+.fa-file {
+    margin-right: 5px;
+}
+
 .sidebar-menu-list:hover {
     background-color: #343a40;
     color: #ffffff; /* Bootstrap secondary background color */
@@ -74,8 +106,19 @@
     color: #343a40; /* Bootstrap secondary background color */
 }
 
+.dz-message .dz-button {
+    display: none;
+}
+
 #loading-window {
     display: none;
+    width: 100%;
+    background-color: rgba(0,0,0,0.4);
+    height: 100vh;
+    position: relative;
+}
+
+#loading-bar {
     position: absolute;
     left: 50%;
     top: 50%;
