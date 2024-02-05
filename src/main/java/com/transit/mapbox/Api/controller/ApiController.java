@@ -3,6 +3,9 @@ package com.transit.mapbox.Api.controller;
 import com.transit.mapbox.Api.mapper.ShpMapper;
 import com.transit.mapbox.Api.vo.ShpVo;
 import com.transit.mapbox.common.service.ShapeFileService;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,36 +25,28 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ApiController {
 
-    @Value("${upload.path}")
-    private String uploadPath;
-
     @Autowired
     private ShpMapper shpMapper;
 
     @Autowired
     private ShapeFileService shapeFileService;
 
-    @PostMapping(value = "/uploadShp", consumes = "multipart/form-data")
+    @PostMapping(value = "/uploadShp", consumes = "multipart/form-data", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public Map<String, Object> uploadShp(@RequestParam("shpData") MultipartFile file) throws IOException {
+    public Map<String, Object> uploadShp(@RequestParam("shpData") MultipartFile file) throws IOException, ParseException {
         Map<String, Object> result = new HashMap<>();
 
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.toLowerCase().endsWith(".zip")) {
-            shapeFileService.convertZipToGeoJson(file, uploadPath + "geojson" + File.separator );
-//            ShpVo shpVo = new ShpVo();
+            String geoJson = shapeFileService.convertZipToGeoJson(file);
 
-//            String filePath = uploadPath + file.getOriginalFilename();
-//            file.transferTo(new File(filePath));
+            if (geoJson != null && !geoJson.equals("")) {
+                JSONParser jsonParser = new JSONParser();
+                Object obj = jsonParser.parse(geoJson);
+                JSONObject jsonObj = (JSONObject) obj;
+                result.put("data", jsonObj);
+            }
 
-//            shpVo.setShpname(originalFilename);
-
-//            shpMapper.insert(shpVo);
-//            System.out.println("New Shp ID : "+shpVo.getShpid());
-
-//            List<Map<String, Object>> geoMap = shapeFileService.readShapeFileGeometry(filePath);
-
-//            result.put("data", geoMap);
             result.put("result", "success");
             result.put("message", "저장되었습니다.");
         } else {
