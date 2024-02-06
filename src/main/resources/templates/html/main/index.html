@@ -98,56 +98,45 @@
         }
 
         function drawPolyline(data) {
-            var coordinates = [];
-            for (i=0;i<data.length;i++) {
-                var aData = data[i]
-                var aCoordArr = [];
-
-                aCoordArr.push(aData.geoX)
-                aCoordArr.push(aData.geoY)
-
-                coordinates.push(aCoordArr);
+            
+            if (map.getLayer('lines')) {
+                map.removeLayer('lines');
+                map.removeSource('lines');
             }
-            console.log(coordinates)
-
-            var polyline = {
-                type: 'Feature',
-                geometry: {
-                    type: 'LineString',
-                    coordinates: coordinates
-                }
-            };
-
-            if (map.getLayer('polyline')) {
-                map.removeLayer('polyline');
-                map.removeSource('polyline');
-            }
-
-            map.addSource('polyline', {
-                type: 'geojson',
-                data: polyline
-            });
 
             map.addLayer({
-                id: 'polyline',
-                type: 'line',
-                source: 'polyline',
-                layout: {
+                'id': 'lines',
+                'type': 'line',
+                'source': {
+                    'type': 'geojson',
+                    'data': data
+                },
+                'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
                 },
-                paint: {
-                    'line-color': '#0080ff',
+                'paint': {
+                    'line-color': '#1aa3ff',
                     'line-width': 4
                 }
             });
 
-            map.fitBounds(turf.bbox(polyline), { padding: 50 });
+            // GeoJSON 데이터의 바운더리 계산
+            var bounds = new mapboxgl.LngLatBounds();
+            data.features.forEach(function(feature) {
+                var coordinates = feature.geometry.coordinates;
+                coordinates.forEach(function(coord) {
+                    bounds.extend(coord);
+                });
+            });
+
+            // 지도 중심을 바운더리에 맞게 조정
+            map.fitBounds(bounds, { padding: 20 });
         }
 
         // dropzone 관련
         Dropzone.options.frmFile = {
-            maxFilesize: 15, // 5MB로 설정 (원하는 크기로 조절)
+            maxFilesize: 100, // 5MB로 설정 (원하는 크기로 조절)
             acceptedFiles: ".zip", // 허용할 파일 확장자를 지정
             clickable: "#frmFile, .fa-file", // 클릭 가능한 요소 추가
             paramName: "shpData",

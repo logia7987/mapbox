@@ -58,15 +58,17 @@ public class ShapeFileService {
         if (shpFile != null) {
             try {
                 File geojsonFile = convertShpToGeoJSON(shpFile, tempDir);
-                if (geojsonFile != null) {
-                    return FileUtils.readFileToString(geojsonFile, StandardCharsets.UTF_8);
-                }
+
+                String result = FileUtils.readFileToString(geojsonFile, StandardCharsets.UTF_8);
+
+                FileUtils.deleteDirectory(tempDir);
+
+                return result;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        // Clean up temporary directory
         FileUtils.deleteDirectory(tempDir);
         return null;
     }
@@ -77,19 +79,27 @@ public class ShapeFileService {
         map.put("create spatial index", Boolean.TRUE);
 
         File shxFile = findFile(tempDir, ".shx");
-        map.put("shx", shxFile.toURI().toURL());
+        if (shxFile != null) {
+            map.put("shx", shxFile.toURI().toURL());
+        }
 
         File dbfFile = findFile(tempDir, ".dbf");
-        map.put("dbf", dbfFile.toURI().toURL());
+        if (dbfFile != null) {
+            map.put("dbf", dbfFile.toURI().toURL());
+        }
 
         File prjFile = findFile(tempDir, ".prj");
-        map.put("prj", prjFile.toURI().toURL());
+        if (prjFile != null) {
+            map.put("prj", prjFile.toURI().toURL());
+        }
 
         DataStore dataStore = DataStoreFinder.getDataStore(map);
         String typeName = dataStore.getTypeNames()[0];
 
         SimpleFeatureSource featureSource = dataStore.getFeatureSource(typeName);
-        CoordinateReferenceSystem targetCRS = CRS.parseWKT(getPrjContent(prjFile));
+        if (prjFile != null) {
+            CoordinateReferenceSystem targetCRS = CRS.parseWKT(getPrjContent(prjFile));
+        }
 
         SimpleFeatureCollection reprojectedCollection = featureSource.getFeatures();
 
@@ -108,12 +118,16 @@ public class ShapeFileService {
         if (files != null && files.length > 0) {
             return files[0];
         } else {
-            // .shp 파일이 없는 경우에 대한 예외 처리
-            throw new IllegalStateException("No .shp file found in the specified directory.");
+            return null;
         }
+//        else {
+//            // .shp 파일이 없는 경우에 대한 예외 처리
+//            throw new IllegalStateException("No "+type+" file found in the specified directory.");
+//        }
     }
-
     private String getPrjContent(File prjFile) throws IOException {
         return org.apache.commons.io.FileUtils.readFileToString(prjFile, "UTF-8");
     }
+
+
 }
