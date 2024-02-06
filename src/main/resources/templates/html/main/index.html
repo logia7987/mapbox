@@ -172,6 +172,7 @@
                 });
                 this.on("success", function (file, response) {
                     // 파일 업로드 성공 시 수행할 동작
+                    console.log(response.data);
                     drawPolyline(response.data);
                     onFileHide();
                 });

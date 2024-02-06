@@ -41,6 +41,9 @@ dependencies {
 	implementation 'org.projectlombok:lombok:1.18.22'
 	runtimeOnly 'com.h2database:h2'
 
+	// json 관련
+	implementation 'javax.json:javax.json-api:1.1.4'
+	implementation 'org.glassfish:javax.json:1.1.4'
 }
 
 tasks.named('test') {
