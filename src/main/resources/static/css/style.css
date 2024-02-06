@@ -1,7 +1,7 @@
 #sidebar {
     display: none;
     height: 90%;
-    width: 250px;
+    width: 350px;
     position: fixed;
     top: 0;
     right: 0;
@@ -13,11 +13,12 @@
     transform: translate(0%, 5%);
 }
 
+
 .drop-hover {
     display: none;
     position: fixed;
     background-color: rgb(192, 192, 192, 0.8);
-    width: 90%;
+    width: 93%;
     height: 200px;
     text-align: center;
     line-height: 200px;
@@ -34,11 +35,49 @@
     flex-direction: column;
     justify-content: center;
     font-weight: bold;
+    overflow: auto;
+}
+
+.dz-preview {
+    display: flex;
+    width: auto;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.dz-size {
+    float: right;
+    margin-right: 30px;
+}
+.dz-filename {
+    overflow: hidden;
+    width: 200px;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+.dz-details {
+    font-size: 12px;
+    white-space: nowrap;
+    height: 18px;
+}
+
+.dz-success-mark, .dz-error-mark, .dz-error-message {
+    display: none;
 }
 
 .fa-file {
     font-size: 70px;
     padding-bottom: 30px
+}
+
+.dz-image {
+    width: 15px;
+    height: 15px;
+}
+
+.dz-image > .fa-file {
+    font-size: 15px;
+    display: block!important;
 }
 
 .sidebar-menu-list {
@@ -48,6 +87,11 @@
     font-size: 16px;
     padding: 10px 0 15px 20px;
     color: #343a40;
+}
+
+.dropzone .dz-remove:before {
+    content: "\f00d";
+    font-family: "Font Awesome 5 Free";
 }
 
 .sidebar-menu-list:hover {
@@ -108,6 +152,11 @@
 
 .dz-message .dz-button {
     display: none;
+}
+.dz-remove {
+    width: 15px;
+    text-decoration: none;
+    color: black;
 }
 
 #loading-window {
