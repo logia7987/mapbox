@@ -88,6 +88,15 @@
         function togglewhiteMode() {
             var icon = document.getElementById("mdicon");
             var list = document.getElementsByClassName("sidebar-menu-list");
+            var removes = document.getElementsByClassName("dz-remove");
+
+            for (var i = 0; i < removes.length; i++) {
+                if (removes[i].style.color === "black" || removes[i].style.color === "") {
+                    removes[i].style.color = "white";
+                } else {
+                    removes[i].style.color = "black";
+                }
+            }
 
             for (var i = 0; i < list.length; i++) {
                 list[i].classList.toggle('dark-mode');
@@ -140,6 +149,7 @@
             acceptedFiles: ".zip", // 허용할 파일 확장자를 지정
             clickable: "#frmFile, .fa-file", // 클릭 가능한 요소 추가
             paramName: "shpData",
+            addRemoveLinks: true,
             init: function () {
                 this.on("processing", function (file, response) {
                     // 파일 업로드 동안 수행할 동작
@@ -160,13 +170,16 @@
                     // 파일 업로드 오류 시 수행할 동작
                     onFileHide();
                 });
-
                 this.on ("dragenter", function () {
                     $('.drop-hover').show();
                 });
-                //
-                this.on ("mouseleave", function () {
+                this.on ("dragend", function () {
                     $('.drop-hover').hide();
+                });
+
+                this.on("reset", function(file) {
+                    $('.file-txt').show();
+                    $('.fa-file').show();
                 });
             }
         };
