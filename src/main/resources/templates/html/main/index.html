@@ -69,7 +69,15 @@
         var menubtn = document.getElementsByClassName("menu-btn");
         var tabcontent = document.getElementsByClassName("tab-content")
         var tablinks = document.getElementsByClassName("tab-links")
+        var dropHover = document.querySelector(".drop-hover");
+
         var lat,lng
+
+        $(document).ready(function() {
+            dropHover.ondragleave = function (e) {
+                this.style.display = "none";
+            }
+        });
 
         const map = new mapboxgl.Map({
             container: "map",
@@ -153,13 +161,11 @@
                     'line-width': 4
                 }
             });
-
-
         }
 
         // dropzone 관련
         Dropzone.options.frmFile = {
-            maxFilesize: 100, // 5MB로 설정 (원하는 크기로 조절)
+            maxFilesize: 100, // 100MB로 설정 (원하는 크기로 조절)
             acceptedFiles: ".zip", // 허용할 파일 확장자를 지정
             clickable: "#frmFile, .fa-file", // 클릭 가능한 요소 추가
             paramName: "shpData",
@@ -173,7 +179,6 @@
                 });
                 this.on("success", function (file, response) {
                     // 파일 업로드 성공 시 수행할 동작
-                    console.log(response.data);
                     drawPolyline(response.data);
                     onFileHide();
                     openTab(event, 'tab2')
@@ -197,9 +202,9 @@
                 this.on ("dragenter", function () {
                     $('.drop-hover').show();
                 });
-                this.on ("dragend", function () {
-                    $('.drop-hover').hide();
-                });
+                // this.on ("dragend", function () {
+                //     $('.drop-hover').hide();
+                // });
             }
         };
 
