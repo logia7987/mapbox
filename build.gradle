@@ -21,6 +21,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
@@ -29,10 +31,10 @@ dependencies {
 	implementation 'commons-io:commons-io:2.11.0'
 
 	// oracle
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'com.oracle.database.jdbc:ojdbc10:19.11.0.0'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 
+	// geoTools
 	implementation group: 'org.geotools', name: 'gt-main', version: '30.1'
 	implementation group: 'org.geotools', name: 'gt-geojson', version: '30.1'
 	implementation group: 'org.geotools', name: 'gt-shapefile', version: '30.1'
@@ -44,6 +46,9 @@ dependencies {
 	// json 관련
 	implementation 'javax.json:javax.json-api:1.1.4'
 	implementation 'org.glassfish:javax.json:1.1.4'
+
+	// JPA 관련
+	implementation 'org.hibernate:hibernate-spatial'
 }
 
 tasks.named('test') {

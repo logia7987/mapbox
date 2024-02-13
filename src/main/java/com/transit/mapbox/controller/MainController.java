@@ -1,6 +1,5 @@
-package com.transit.mapbox.Main.controller;
+package com.transit.mapbox.controller;
 
-import com.transit.mapbox.Main.mapper.MainMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -9,9 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class MainController {
-
-    @Autowired
-    private MainMapper mainMapper;
 
     @Value("${mapbox.accessToken}")
     private String mapboxAccessToken;

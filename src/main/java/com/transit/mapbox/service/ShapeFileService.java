@@ -1,24 +1,19 @@
-package com.transit.mapbox.common.service;
+package com.transit.mapbox.service;
 
 import org.apache.commons.io.FileUtils;
 import org.geotools.api.data.DataStore;
 import org.geotools.api.data.DataStoreFinder;
 import org.geotools.api.data.SimpleFeatureSource;
-import org.geotools.api.feature.simple.SimpleFeature;
-import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.api.referencing.FactoryException;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.geojson.GeoJSON;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.referencing.CRS;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
@@ -26,8 +21,8 @@ import java.util.zip.ZipInputStream;
 
 @Service
 public class ShapeFileService {
-    private static File tempDir = new File("C:\\mapbox\\shapefile_temp");
 
+    private static File tempDir = new File("C:\\mapbox\\shapefile_temp");
     public String convertZipToGeoJson(MultipartFile zipFile) throws IOException {
         FileUtils.forceMkdir(tempDir);
 
@@ -72,7 +67,6 @@ public class ShapeFileService {
         FileUtils.deleteDirectory(tempDir);
         return null;
     }
-
     private File convertShpToGeoJSON(File shpFile, File outputDir) throws IOException, FactoryException {
         HashMap<String, Object> map = new HashMap<>();
         map.put("url", shpFile.toURI().toURL());
@@ -112,7 +106,6 @@ public class ShapeFileService {
 
         return geojsonFile;
     }
-
     private File findFile(File directory, String type) {
         File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(type));
         if (files != null && files.length > 0) {
@@ -120,14 +113,8 @@ public class ShapeFileService {
         } else {
             return null;
         }
-//        else {
-//            // .shp 파일이 없는 경우에 대한 예외 처리
-//            throw new IllegalStateException("No "+type+" file found in the specified directory.");
-//        }
     }
     private String getPrjContent(File prjFile) throws IOException {
         return org.apache.commons.io.FileUtils.readFileToString(prjFile, "UTF-8");
     }
-
-
 }
