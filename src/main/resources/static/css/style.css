@@ -1,25 +1,23 @@
-#sidebar {
+#tab {
+    color : black;
     display: none;
     height: 90%;
-    width: 350px;
+    width: 300px;
     position: fixed;
     top: 0;
     right: 0;
-    background-color: #ffffff;
+    background-color: white;
     overflow-x: hidden;
     transition: 0.5s;
-    padding-top: 60px;
-    border-radius: 20px;
     transform: translate(0%, 5%);
 }
-
 
 .drop-hover {
     display: none;
     position: fixed;
     background-color: rgb(192, 192, 192, 0.8);
-    width: 93%;
-    height: 200px;
+    width: 252px;
+    height: 202px;
     text-align: center;
     line-height: 200px;
     font-weight: bold;
@@ -45,26 +43,6 @@
     margin: 10px 0;
 }
 
-.dz-size {
-    float: right;
-    margin-right: 30px;
-}
-.dz-filename {
-    overflow: hidden;
-    width: 200px;
-    text-overflow: ellipsis;
-    display: inline-block;
-}
-.dz-details {
-    font-size: 12px;
-    white-space: nowrap;
-    height: 18px;
-}
-
-.dz-success-mark, .dz-error-mark, .dz-error-message {
-    display: none;
-}
-
 .fa-file {
     font-size: 70px;
     padding-bottom: 30px
@@ -80,28 +58,6 @@
     display: block!important;
 }
 
-.sidebar-menu-list {
-    cursor: pointer;
-    display: block;
-    text-decoration: none;
-    font-size: 16px;
-    padding: 10px 0 15px 20px;
-    color: #343a40;
-}
-
-.dropzone .dz-remove:before {
-    content: "\f00d";
-    font-family: "Font Awesome 5 Free";
-}
-
-.sidebar-menu-list:hover {
-    background-color: #495057; /* Bootstrap secondary background color */
-}
-
-.sidebar-menu {
-    margin-top: 15px;
-}
-
 #menu-btn {
     font-size: 30px;
     cursor: pointer;
@@ -109,7 +65,6 @@
     position: fixed;
     top: 50px;
     right: 10px;
-    z-index: 999;
     border: 1px solid #E4E4E4;
     width: 50px;
     border-radius: 8px;
@@ -131,32 +86,12 @@
     font-weight: 900;
 }
 
-.dark-mode {
-    background-color: #333 !important;
-    color: #fff;
-}
-
 .fa-file {
     margin-right: 5px;
 }
 
-.sidebar-menu-list:hover {
-    background-color: #343a40;
-    color: #ffffff; /* Bootstrap secondary background color */
-}
-
-.dark-mode .sidebar-menu-list:hover {
-    background-color: #ffffff!important;;
-    color: #343a40; /* Bootstrap secondary background color */
-}
-
 .dz-message .dz-button {
     display: none;
-}
-.dz-remove {
-    width: 15px;
-    text-decoration: none;
-    color: black;
 }
 
 #loading-window {
@@ -184,4 +119,60 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Style the tab */
+.tab-menu {
+    display: flex;
+    height: 50px;
+    border: none;
+    overflow: hidden;
+    font-size: 0;
+}
+
+.tab-links {
+    background-color: #ccc;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 20px;
+    transition: 0.1s;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.tab-links:hover {
+    background-color: #ddd;
+}
+
+.tab-links.active-white {
+    border-top: 3px solid #2699E6;
+    color: #2699E6;
+    background-color: #fff;
+    transition: 0.1s;
+}
+
+.tab-links.active-dark {
+    border-top: 3px solid #2699E6;
+    color: #2699E6;
+    background-color: #666;
+    transition: 0.1s;
+}
+
+.tab-content {
+    display: none;
+    padding: 6px 12px;
+}
+
+#tab-close:hover {
+    color: #2699E6;
+    background-color: #ddd;
+}
+
+.loading-logo {
+    display: none;
+    text-align: center;
+    line-height: 100vh;
+    font-weight: 900;
 }

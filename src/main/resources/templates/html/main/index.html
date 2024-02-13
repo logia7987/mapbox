@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"/>
+    <script src="https://kit.fontawesome.com/872a12cba7.js" crossorigin="anonymous"></script>
 
     <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -29,29 +30,46 @@
 <body>
     <div id="map" style="width: 100%; height: 100vh"></div>
     <div id="loading-window">
+        <div class="loading-logo" style="color:white">loading..</div>
         <div id="loading-bar"></div>
     </div>
-    <div id="menu-btn" onclick="toggleSidebar()">
+    <div id="menu-btn" onclick="openTabmenu()">
         <i class="fas fa-solid fa-bars"></i>
     </div>
-    <div id="sidebar" class="sidebar">
-        <div class="sidebar-menu">
-            <div id="mode-change-btn" onclick="togglewhiteMode()"><i class="fas fa-solid fa-sun" id="mdicon"></i></div>
-            <form id="frmFile" class="dropzone" action="/api/uploadShp" method="POST" enctype="multipart/form-data">
-                <i class="fas fa-solid fa-file"></i>
-                <div class="file-txt">  Drag your shp file here </div>
-                <div class="drop-hover">Drop file please</div>
-                <!-- <input type="file" name="shpData" id="shpData"> -->
-            </form>
-
-        </div>
+    <div id="tab" class="tab">
+            <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>
+            <div class="tab-menu">
+                <div class="tab-links active-white" onclick="openTab(event, 'tab1')">File Upload</div>
+                <div class="tab-links" onclick="openTab(event, 'tab2')">Tools</div>
+                <div class="tab-links" onclick="openTab(event, 'tab3')">Etc</div>
+                <div id="tab-close" onclick="closeTabmenu()" class="tab-links"><i class="fas fa-solid fa-xmark"></i></div>
+            </div>
+            <div id="tab1" class="tab-content" style = "display: block;">
+                <form id="frmFile" class="dropzone" action="/api/uploadShp" method="POST" enctype="multipart/form-data">
+                    <i class="fas fa-solid fa-file"></i>
+                    <div class="loading-logo" style="line-height: normal; ">loading...</div>
+                    <div class="file-txt">  Drag your shp file here </div>
+                    <div class="drop-hover">Drop file please</div>
+                    <!-- <input type="file" name="shpData" id="shpData"> -->
+                </form>
+            </div>
+            <div id="tab2" class="tab-content">
+                도구
+            </div>
+            <div id="tab3" class="tab-content">
+                여러가지
+            </div>
     </div>
 </body>
     <script th:inline="javascript">
         mapboxgl.accessToken = /*[[${mapboxAccessToken}]]*/ '';
 
-        var sidebar = document.getElementById("sidebar");
-        var lat,lng;
+        var tabmenu = document.getElementById("tab");
+        var tabclose = document.getElementById("tab-close")
+        var menubtn = document.getElementsByClassName("menu-btn");
+        var tabcontent = document.getElementsByClassName("tab-content")
+        var tablinks = document.getElementsByClassName("tab-links")
+        var lat,lng
 
         const map = new mapboxgl.Map({
             container: "map",
@@ -77,33 +95,39 @@
 
             map.setCenter([126.88271541564299, 37.48151056694073]);
         }
-        function toggleSidebar() {
-            if (sidebar.style.display === "none") {
-                sidebar.style.display = "block";
-            } else {
-                sidebar.style.display = "none";
+        function openTabmenu() {
+            for (var i = 0; i < menubtn.length; i++) {
+                menubtn[i].style.display = "none";
             }
+            tabmenu.style.display = "block";
+            tabclose.style.display = "block";
         }
-
-        function togglewhiteMode() {
+        function closeTabmenu() {
+            for (var i = 0; i < menubtn.length; i++) {
+                menubtn[i].style.display = "block";
+            }
+            tabmenu.style.display = "none";
+            tabclose.style.display = "none";
+        }
+        function toggleWhiteMode() {
             var icon = document.getElementById("mdicon");
-            var list = document.getElementsByClassName("sidebar-menu-list");
-            var removes = document.getElementsByClassName("dz-remove");
 
-            for (var i = 0; i < removes.length; i++) {
-                if (removes[i].style.color === "black" || removes[i].style.color === "") {
-                    removes[i].style.color = "white";
-                } else {
-                    removes[i].style.color = "black";
-                }
-            }
+            if (tabmenu.style.color === "black" || tabmenu.style.color === "") {
+                tabmenu.style.color = "white" // 다크 모드
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                tabmenu.style.backgroundColor = "#666";
+                document.getElementsByClassName('active-white')[0].classList.add('active-dark');
+                document.getElementsByClassName('active-dark')[0].classList.remove('active-white');
+            } else {
+                tabmenu.style.color = "black" // 화이트 모드
+                icon.classList.add('fa-moon');
+                icon.classList.remove('fa-sun');
+                tabmenu.style.backgroundColor = "#fff"
+                document.getElementsByClassName('active-dark')[0].classList.add('active-white');
+                document.getElementsByClassName('active-white')[0].classList.remove('active-dark');
 
-            for (var i = 0; i < list.length; i++) {
-                list[i].classList.toggle('dark-mode');
             }
-            sidebar.classList.toggle('dark-mode');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
         }
 
         function drawPolyline(data) {
@@ -130,17 +154,7 @@
                 }
             });
 
-            // GeoJSON 데이터의 바운더리 계산
-            var bounds = new mapboxgl.LngLatBounds();
-            data.features.forEach(function(feature) {
-                var coordinates = feature.geometry.coordinates;
-                coordinates.forEach(function(coord) {
-                    bounds.extend(coord);
-                });
-            });
 
-            // 지도 중심을 바운더리에 맞게 조정
-            map.fitBounds(bounds, { padding: 20 });
         }
 
         // dropzone 관련
@@ -153,10 +167,8 @@
             init: function () {
                 this.on("processing", function (file, response) {
                     // 파일 업로드 동안 수행할 동작
-                    $('#loading-window').show();
-                    $('.file-txt').hide();
-                    $('.fa-file').hide();
-                    $('.drop-hover').hide();
+                    $('#loading-window, .loading-logo').show();
+                    $('.fa-file, .drop-hover, .file-txt, .dz-preview').hide();
                     document.getElementById("map").style.position = "absolute";
                 });
                 this.on("success", function (file, response) {
@@ -164,11 +176,23 @@
                     console.log(response.data);
                     drawPolyline(response.data);
                     onFileHide();
+                    openTab(event, 'tab2')
+                    for (var i = 0; i < tablinks.length; i++) {
+                        if (tablinks[i].textContent.trim() === 'Tools') {
+                            tablinks[i].classList.add("active-white");
+                        } else {
+                            tablinks[i].classList.remove("active-white");
+                        }
+                    }
+                    $('.file-txt, .fa-file').show();
+                    $('.dz-preview, .loading-logo').hide();
                 });
 
                 this.on("error", function (file, response) {
                     // 파일 업로드 오류 시 수행할 동작
                     onFileHide();
+                    $('.loading-logo').hide();
+                    $('.file-txt, .fa-file').show();
                 });
                 this.on ("dragenter", function () {
                     $('.drop-hover').show();
@@ -176,20 +200,28 @@
                 this.on ("dragend", function () {
                     $('.drop-hover').hide();
                 });
-
-                this.on("reset", function(file) {
-                    $('.file-txt').show();
-                    $('.fa-file').show();
-                });
             }
         };
 
-        function onFileHide() {
-            $('#loading-window').hide();
-            $('.drop-hover').hide();
-            $('.file-txt').hide();
-            $('.fa-file').hide();
+        function onFileHide() { // tab menu 관련
+            $('#loading-window, .drop-hover, .file-txt, .fa-file').hide();
             document.getElementById("map").style.position = "";
+        }
+
+        function openTab(event, tab) {
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active-dark");
+                tablinks[i].classList.remove("active-white");
+            }
+            document.getElementById(tab).style.display = "block"
+            if (tabmenu.style.color === "black" || tabmenu.style.color === ""){
+                event.currentTarget.className += " active-white";
+            } else {
+                event.currentTarget.className += " active-dark";
+            }
         }
     </script>
 </html>
