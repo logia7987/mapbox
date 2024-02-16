@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "COORDINATE_TABLE")
+@Table(name = "COORDINATES_TABLE")
 public class CoordinateVo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COORD_SEQ")
@@ -19,6 +19,7 @@ public class CoordinateVo {
     @Column(name = "COORDINATE_Y")
     private Double coordinateY;
 
-    @Column(name = "FEATURE_ID")
-    private Long featureId;
+    @ManyToOne
+    @JoinColumn(name = "feature_id")
+    private FeatureVo featureVo;
 }

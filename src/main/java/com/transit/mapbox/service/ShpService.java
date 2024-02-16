@@ -20,10 +20,7 @@ public class ShpService {
         return shpRepository.findAll(Sort.by(Sort.Direction.DESC, "uploadDate"));
     }
 
-    @Transactional
-    public Long saveShp(ShpVo shp) {
-        ShpVo saveShp = shpRepository.save(shp);
-        return saveShp.getShpId();
+    public void saveShp(ShpVo shp) {
+        shpRepository.save(shp);
     }
-
 }

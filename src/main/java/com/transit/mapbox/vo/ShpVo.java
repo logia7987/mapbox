@@ -5,7 +5,6 @@ import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @Data
@@ -23,6 +22,9 @@ public class ShpVo {
     @Column(name = "UPLOAD_DATE")
     @CreatedDate
     private String uploadDate;
+
+    @OneToMany(mappedBy = "shpVo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeatureVo> featureVos;
 
     @PrePersist
     public void prePersist() {
