@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -20,6 +22,9 @@ public class ShpVo {
 
     @Column(name = "UPLOAD_DATE")
     private LocalDateTime uploadDate;
+
+    @OneToMany(mappedBy = "shpVo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeatureVo> featureVos;
 
     @PrePersist
     public void prePersist() {

@@ -3,6 +3,8 @@ package com.transit.mapbox.vo;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Data
 @Table(name = "FEATURE_TABLE")
@@ -19,6 +21,10 @@ public class FeatureVo {
     @Column(name = "SEQ")
     private int seq;
 
-    @Column(name = "SHP_ID")
-    private Long shpId;
+    @ManyToOne
+    @JoinColumn(name = "shp_id")
+    private ShpVo shpVo;
+
+    @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CoordinateVo> coordinateVos;
 }
