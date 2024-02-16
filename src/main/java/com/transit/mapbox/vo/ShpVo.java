@@ -2,8 +2,10 @@ package com.transit.mapbox.vo;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Data
@@ -19,10 +21,11 @@ public class ShpVo {
     private String shpName;
 
     @Column(name = "UPLOAD_DATE")
-    private LocalDateTime uploadDate;
+    @CreatedDate
+    private String uploadDate;
 
     @PrePersist
     public void prePersist() {
-        uploadDate = LocalDateTime.now();
+        uploadDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM.dd HH:mm:ss"));
     }
 }

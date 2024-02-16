@@ -52,9 +52,22 @@
                     <div class="drop-hover">Drop file please</div>
                     <!-- <input type="file" name="shpData" id="shpData"> -->
                 </form>
+                <div class="recent-list">
+                    <div class="recent-title">Recent List</div>
+                    <div class="recent-file-list">
+                        <div id="recent-file" th:each="shp : ${shpList}">
+                            <i class="fa-solid fa-map"></i>
+                            <div class="file-info">
+                                <div class="file-tit" th:text="${shp.shpName}"></div>
+                                <div class="file-date" th:text="${shp.uploadDate}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="tab2" class="tab-content">
-                도구
+                <div id="Save" class="tab2-content" title="SAVE"><i class="fas fa-solid fa-file-arrow-down tab2-icon"></i></div>
+                <div id="PointChange" class="tab2-content" title="POINT CHANGE"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
             </div>
             <div id="tab3" class="tab-content">
                 여러가지
@@ -134,7 +147,6 @@
                 tabmenu.style.backgroundColor = "#fff"
                 document.getElementsByClassName('active-dark')[0].classList.add('active-white');
                 document.getElementsByClassName('active-white')[0].classList.remove('active-dark');
-
             }
         }
 
