@@ -70,7 +70,19 @@
                 <div id="PointChange" class="tab2-content" title="POINT CHANGE"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
             </div>
             <div id="tab3" class="tab-content">
-                여러가지
+                <div class="map-style-change">
+                    <label for="map-style">Map Style</label>
+                    <select name="map-styles" id="map-style" >
+                        <option value="streets-v12" class="style-option">Streets</option>
+                        <option value="outdoors-v12" class="style-option">Outdoors</option>
+                        <option value="light-v11" class="style-option">Light</option>
+                        <option value="dark-v11" class="style-option">Dark</option>
+                        <option value="satellite-v9" class="style-option">Satellite</option>
+                        <option value="satellite-streets-v12" class="style-option">Satellite-streets</option>
+                        <option value="navigation-day-v1" class="style-option">Navigation-day</option>
+                        <option value="navigation-night-v1" class="style-option">Navigation-night</option>
+                    </select>
+                </div>
             </div>
     </div>
 </body>
@@ -83,8 +95,18 @@
         var tabcontent = document.getElementsByClassName("tab-content")
         var tablinks = document.getElementsByClassName("tab-links")
         var dropHover = document.querySelector(".drop-hover");
+        var Geo = {
+            type: 'Feature',
+            geometry: {
+                type: 'Line',
+                coordinates: []
+            },
+            properties: {}
+        };
 
         var lat,lng
+
+        const mapSelect = document.getElementById('map-style');
 
         $(document).ready(function() {
             dropHover.ondragleave = function (e) {
@@ -98,6 +120,17 @@
             center: [126.88271541564299, 37.48151056694073],
             zoom: 11,
         });
+
+        map.addControl(new mapboxgl.FullscreenControl());
+
+        mapSelect.onchange = (change) => {
+            const changeId = change.target.value;
+            map.setStyle('mapbox://styles/mapbox/' + changeId);
+            map.on('style.load', () => {
+                drawPolyline(Geo)
+            });
+        }
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 lat = position.coords.latitude;
@@ -132,29 +165,38 @@
         }
         function toggleWhiteMode() {
             var icon = document.getElementById("mdicon");
+            var styleOption = document.getElementsByClassName("style-option");
 
             if (tabmenu.style.color === "black" || tabmenu.style.color === "") {
-                tabmenu.style.color = "white" // 다크 모드
+                // 화이트 모드에서 다크 모드로 전환 될때
+                $("#tab, #map-style").css("color", "white");
                 icon.classList.remove('fa-moon');
                 icon.classList.add('fa-sun');
                 tabmenu.style.backgroundColor = "#666";
                 document.getElementsByClassName('active-white')[0].classList.add('active-dark');
                 document.getElementsByClassName('active-dark')[0].classList.remove('active-white');
+                for (i = 0; i < styleOption.length; i++) {
+                    styleOption[i].style.color = "white"
+                }
             } else {
-                tabmenu.style.color = "black" // 화이트 모드
+                // 다크 모드에서 화이트 모드로 전환 될때
+                $("#tab, #map-style").css("color", "black");
                 icon.classList.add('fa-moon');
                 icon.classList.remove('fa-sun');
                 tabmenu.style.backgroundColor = "#fff"
                 document.getElementsByClassName('active-dark')[0].classList.add('active-white');
                 document.getElementsByClassName('active-white')[0].classList.remove('active-dark');
+                for (i = 0; i < styleOption.length; i++) {
+                    styleOption[i].style.color = "black"
+                }
             }
         }
 
         function drawPolyline(data) {
             
             if (map.getLayer('lines')) {
-                map.removeLayer('lines');
-                map.removeSource('lines');
+                map.removeLayer('lines', 'points');
+                map.removeSource('lines', 'points');
             }
 
             map.addLayer({
@@ -170,10 +212,24 @@
                 },
                 'paint': {
                     'line-color': '#1aa3ff',
-                    'line-width': 4
+                    'line-width': 3
                 }
             });
+            // map.addLayer({
+            //    'id' : 'points',
+            //    'type' : 'circle',
+            //     'source': {
+            //         'type': 'geojson',
+            //         'data': data
+            //     },
+            //     'paint': {
+            //         'circle-radius': 4,
+            //         'circle-color': '#1aa3ff'
+            //     }
+            // });
+
         }
+
 
         // dropzone 관련
         Dropzone.options.frmFile = {
@@ -191,7 +247,9 @@
                 });
                 this.on("success", function (file, response) {
                     // 파일 업로드 성공 시 수행할 동작
+                    console.log(response.data);
                     drawPolyline(response.data);
+                    Geo = response.data;
                     onFileHide();
                     openTab(event, 'tab2')
                     for (var i = 0; i < tablinks.length; i++) {
@@ -214,9 +272,6 @@
                 this.on ("dragenter", function () {
                     $('.drop-hover').show();
                 });
-                // this.on ("dragend", function () {
-                //     $('.drop-hover').hide();
-                // });
             }
         };
 

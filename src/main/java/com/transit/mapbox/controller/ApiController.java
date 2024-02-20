@@ -61,7 +61,7 @@ public class ApiController {
 
                 ShpVo shpVo = convertToShpData(jsonObj);
 
-                saveShpData(shpVo, originalFilename);
+//                saveShpData(shpVo, originalFilename);
 
                 result.put("data", jsonObj);
                 result.put("result", "success");

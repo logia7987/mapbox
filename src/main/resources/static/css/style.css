@@ -240,3 +240,26 @@
     background-color: #cccccc;
     border-radius: 10px;
 }
+
+.map-style-change > label {
+    font-weight: 600;
+    margin-right: 15px;
+}
+
+.map-style-change {
+    margin: 10px;
+}
+
+#map-style {
+    background-color: #ccc;
+    border: 0px;
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+.style-option {
+    font-size: 14px;
+    text-align: center;
+    color : black;
+    font-weight: 600;
+}
