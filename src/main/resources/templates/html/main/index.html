@@ -28,273 +28,308 @@
     <script src='https://unpkg.com/@turf/turf'></script>
 </head>
 <body>
-    <div id="map" style="width: 100%; height: 100vh"></div>
-    <div id="loading-window">
-        <div class="loading-logo" style="color:white">loading..</div>
-        <div id="loading-bar"></div>
+<div id="map" style="width: 100%; height: 100vh"></div>
+<div id="loading-window">
+    <div class="loading-logo" style="color:white">loading..</div>
+    <div id="loading-bar"></div>
+</div>
+<div id="menu-btn" onclick="openTabmenu()">
+    <i class="fas fa-solid fa-bars"></i>
+</div>
+<div class="file-select-widow">
+    <select id="current-file">
+        <option value="No-file" id="No-file">No Current Files
+    </select>
+</div>
+<div id="tab" class="tab">
+    <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>
+    <div class="tab-menu">
+        <div class="tab-links active-white" onclick="openTab(event, 'tab1')">File</div>
+        <div class="tab-links" onclick="openTab(event, 'tab2')">Tools</div>
+        <div class="tab-links" onclick="openTab(event, 'tab3')">Etc</div>
+        <div id="tab-close" onclick="closeTabmenu()" class="tab-links"><i class="fas fa-solid fa-xmark"></i></div>
     </div>
-    <div id="menu-btn" onclick="openTabmenu()">
-        <i class="fas fa-solid fa-bars"></i>
-    </div>
-    <div id="tab" class="tab">
-            <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>
-            <div class="tab-menu">
-                <div class="tab-links active-white" onclick="openTab(event, 'tab1')">File Upload</div>
-                <div class="tab-links" onclick="openTab(event, 'tab2')">Tools</div>
-                <div class="tab-links" onclick="openTab(event, 'tab3')">Etc</div>
-                <div id="tab-close" onclick="closeTabmenu()" class="tab-links"><i class="fas fa-solid fa-xmark"></i></div>
-            </div>
-            <div id="tab1" class="tab-content" style = "display: block;">
-                <form id="frmFile" class="dropzone" action="/api/uploadShp" method="POST" enctype="multipart/form-data">
-                    <i class="fas fa-solid fa-file"></i>
-                    <div class="loading-logo" style="line-height: normal; ">loading...</div>
-                    <div class="file-txt">  Drag your shp file here </div>
-                    <div class="drop-hover">Drop file please</div>
-                    <!-- <input type="file" name="shpData" id="shpData"> -->
-                </form>
-                <div class="recent-list">
-                    <div class="recent-title">Recent List</div>
-                    <div class="recent-file-list">
-                        <div id="recent-file" th:each="shp : ${shpList}">
-                            <i class="fa-solid fa-map"></i>
-                            <div class="file-info">
-                                <div class="file-tit" th:text="${shp.shpName}"></div>
-                                <div class="file-date" th:text="${shp.uploadDate}"></div>
-                            </div>
-                        </div>
+    <div id="tab1" class="tab-content" style = "display: block;">
+        <form id="frmFile" class="dropzone" action="/api/uploadShp" method="POST" enctype="multipart/form-data">
+            <i class="fas fa-solid fa-file"></i>
+            <div class="loading-logo" style="line-height: normal; ">loading...</div>
+            <div class="file-txt">  Drag your shp file here </div>
+            <div class="drop-hover">Drop file please</div>
+            <!-- <input type="file" name="shpData" id="shpData"> -->
+        </form>
+        <div class="recent-list">
+            <div class="recent-title">Recent List</div>
+            <div class="recent-file-list">
+                <div id="recent-file" th:each="shp : ${shpList}">
+                    <i class="fa-solid fa-map"></i>
+                    <div class="file-info">
+                        <div class="file-tit" th:text="${shp.shpName}"></div>
+                        <div class="file-date" th:text="${shp.uploadDate}"></div>
                     </div>
                 </div>
             </div>
-            <div id="tab2" class="tab-content">
-                <div id="Save" class="tab2-content" title="SAVE"><i class="fas fa-solid fa-file-arrow-down tab2-icon"></i></div>
-                <div id="PointChange" class="tab2-content" title="POINT CHANGE"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
-            </div>
-            <div id="tab3" class="tab-content">
-                <div class="map-style-change">
-                    <label for="map-style">Map Style</label>
-                    <select name="map-styles" id="map-style" >
-                        <option value="streets-v12" class="style-option">Streets</option>
-                        <option value="outdoors-v12" class="style-option">Outdoors</option>
-                        <option value="light-v11" class="style-option">Light</option>
-                        <option value="dark-v11" class="style-option">Dark</option>
-                        <option value="satellite-v9" class="style-option">Satellite</option>
-                        <option value="satellite-streets-v12" class="style-option">Satellite-streets</option>
-                        <option value="navigation-day-v1" class="style-option">Navigation-day</option>
-                        <option value="navigation-night-v1" class="style-option">Navigation-night</option>
-                    </select>
-                </div>
-            </div>
+        </div>
     </div>
+    <div id="tab2" class="tab-content">
+        <div id="Save" class="tab2-content" title="SAVE"><i class="fas fa-solid fa-file-arrow-down tab2-icon" ></i></div>
+        <div id="PointChange" class="tab2-content" title="POINT CHANGE"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
+    </div>
+    <div id="tab3" class="tab-content">
+        <div class="map-style-change">
+            <label for="map-style" class="select-label">Map Style</label>
+            <select name="map-styles" id="map-style" >
+                <option value="streets-v12" class="style-option">Streets</option>
+                <option value="outdoors-v12" class="style-option">Outdoors</option>
+                <option value="light-v11" class="style-option">Light</option>
+                <option value="dark-v11" class="style-option">Dark</option>
+                <option value="satellite-v9" class="style-option">Satellite</option>
+                <option value="satellite-streets-v12" class="style-option">Satellite-streets</option>
+                <option value="navigation-day-v1" class="style-option">Navigation-day</option>
+                <option value="navigation-night-v1" class="style-option">Navigation-night</option>
+            </select>
+        </div>
+    </div>
+</div>
 </body>
-    <script th:inline="javascript">
-        mapboxgl.accessToken = /*[[${mapboxAccessToken}]]*/ '';
+<script th:inline="javascript">
+    mapboxgl.accessToken = /*[[${mapboxAccessToken}]]*/ '';
 
-        var tabmenu = document.getElementById("tab");
-        var tabclose = document.getElementById("tab-close")
-        var menubtn = document.getElementsByClassName("menu-btn");
-        var tabcontent = document.getElementsByClassName("tab-content")
-        var tablinks = document.getElementsByClassName("tab-links")
-        var dropHover = document.querySelector(".drop-hover");
-        var Geo = {
-            type: 'Feature',
-            geometry: {
-                type: 'Line',
-                coordinates: []
-            },
-            properties: {}
-        };
+    var tabmenu = document.getElementById("tab");
+    var tabclose = document.getElementById("tab-close")
+    var menubtn = document.getElementsByClassName("menu-btn");
+    var tabcontent = document.getElementsByClassName("tab-content");
+    var tablinks = document.getElementsByClassName("tab-links");
+    var dropHover = document.querySelector(".drop-hover");
+    var Geo = {
+        type: 'Feature',
+        geometry: {
+            type: 'Line',
+            coordinates: []
+        },
+        properties: {}
+    };
+    var fileInfo,lat,lng
+    var fileList = [];
+    var fileSelect = document.getElementById("current-file");
+    const mapSelect = document.getElementById('map-style');
 
-        var lat,lng
-
-        const mapSelect = document.getElementById('map-style');
-
-        $(document).ready(function() {
-            dropHover.ondragleave = function (e) {
-                this.style.display = "none";
-            }
-        });
-
-        const map = new mapboxgl.Map({
-            container: "map",
-            style: 'mapbox://styles/mapbox/streets-v12',
-            center: [126.88271541564299, 37.48151056694073],
-            zoom: 11,
-        });
-
-        map.addControl(new mapboxgl.FullscreenControl());
-
-        mapSelect.onchange = (change) => {
-            const changeId = change.target.value;
-            map.setStyle('mapbox://styles/mapbox/' + changeId);
-            map.on('style.load', () => {
-                drawPolyline(Geo)
-            });
+    $(document).ready(function() {
+        dropHover.ondragleave = function (e) {
+            this.style.display = "none";
         }
+    });
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                lat = position.coords.latitude;
-                lng = position.coords.longitude;
+    const map = new mapboxgl.Map({
+        container: "map",
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [126.88271541564299, 37.48151056694073],
+        zoom: 11,
+    });
 
-                map.setCenter([lng, lat]);
+    map.addControl(new mapboxgl.FullscreenControl());
 
-                const marker1 = new mapboxgl.Marker()
-                    .setLngLat([lng, lat])
-                    .addTo(map);
-            });
-        } else {
-            const marker2 = new mapboxgl.Marker()
-                .setLngLat([126.88271541564299, 37.48151056694073])
+    mapSelect.onchange = (change) => {
+        const changeId = change.target.value;
+        map.setStyle('mapbox://styles/mapbox/' + changeId);
+        map.on('style.load', () => {
+            drawPolyline(Geo)
+        });
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            lat = position.coords.latitude;
+            lng = position.coords.longitude;
+
+            map.setCenter([lng, lat]);
+
+            const marker1 = new mapboxgl.Marker()
+                .setLngLat([lng, lat])
                 .addTo(map);
+        });
+    } else {
+        const marker2 = new mapboxgl.Marker()
+            .setLngLat([126.88271541564299, 37.48151056694073])
+            .addTo(map);
 
-            map.setCenter([126.88271541564299, 37.48151056694073]);
+        map.setCenter([126.88271541564299, 37.48151056694073]);
+    }
+    function openTabmenu() {
+        for (var i = 0; i < menubtn.length; i++) {
+            menubtn[i].style.display = "none";
         }
-        function openTabmenu() {
-            for (var i = 0; i < menubtn.length; i++) {
-                menubtn[i].style.display = "none";
-            }
-            tabmenu.style.display = "block";
-            tabclose.style.display = "block";
+        tabmenu.style.display = "block";
+        tabclose.style.display = "block";
+    }
+    function closeTabmenu() {
+        for (var i = 0; i < menubtn.length; i++) {
+            menubtn[i].style.display = "block";
         }
-        function closeTabmenu() {
-            for (var i = 0; i < menubtn.length; i++) {
-                menubtn[i].style.display = "block";
-            }
-            tabmenu.style.display = "none";
-            tabclose.style.display = "none";
-        }
-        function toggleWhiteMode() {
-            var icon = document.getElementById("mdicon");
-            var styleOption = document.getElementsByClassName("style-option");
+        tabmenu.style.display = "none";
+        tabclose.style.display = "none";
+    }
+    function toggleWhiteMode() {
+        var icon = document.getElementById("mdicon");
+        var styleOption = document.getElementsByClassName("style-option");
 
-            if (tabmenu.style.color === "black" || tabmenu.style.color === "") {
-                // 화이트 모드에서 다크 모드로 전환 될때
-                $("#tab, #map-style").css("color", "white");
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-                tabmenu.style.backgroundColor = "#666";
-                document.getElementsByClassName('active-white')[0].classList.add('active-dark');
-                document.getElementsByClassName('active-dark')[0].classList.remove('active-white');
-                for (i = 0; i < styleOption.length; i++) {
-                    styleOption[i].style.color = "white"
-                }
-            } else {
-                // 다크 모드에서 화이트 모드로 전환 될때
-                $("#tab, #map-style").css("color", "black");
-                icon.classList.add('fa-moon');
-                icon.classList.remove('fa-sun');
-                tabmenu.style.backgroundColor = "#fff"
-                document.getElementsByClassName('active-dark')[0].classList.add('active-white');
-                document.getElementsByClassName('active-white')[0].classList.remove('active-dark');
-                for (i = 0; i < styleOption.length; i++) {
-                    styleOption[i].style.color = "black"
-                }
+        if (tabmenu.style.color === "black" || tabmenu.style.color === "") {
+            // 화이트 모드에서 다크 모드로 전환 될때
+            $("#tab, #map-style").css("color", "white");
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+            tabmenu.style.backgroundColor = "#666";
+            document.getElementsByClassName('active-white')[0].classList.add('active-dark');
+            document.getElementsByClassName('active-dark')[0].classList.remove('active-white');
+            for (i = 0; i < styleOption.length; i++) {
+                styleOption[i].style.color = "white"
+            }
+        } else {
+            // 다크 모드에서 화이트 모드로 전환 될때
+            $("#tab, #map-style").css("color", "black");
+            icon.classList.add('fa-moon');
+            icon.classList.remove('fa-sun');
+            tabmenu.style.backgroundColor = "#fff"
+            document.getElementsByClassName('active-dark')[0].classList.add('active-white');
+            document.getElementsByClassName('active-white')[0].classList.remove('active-dark');
+            for (i = 0; i < styleOption.length; i++) {
+                styleOption[i].style.color = "black"
             }
         }
+    }
 
-        function drawPolyline(data) {
-            
-            if (map.getLayer('lines')) {
-                map.removeLayer('lines', 'points');
-                map.removeSource('lines', 'points');
+    function drawPolyline(data) {
+
+        if (map.getLayer('lines')) {
+            map.removeLayer('lines', 'points');
+            map.removeSource('lines', 'points');
+        }
+
+        map.addLayer({
+            'id': 'lines',
+            'type': 'line',
+            'source': {
+                'type': 'geojson',
+                'data': data
+            },
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': '#1aa3ff',
+                'line-width': 3
             }
+        });
+        // map.addLayer({
+        //    'id' : 'points',
+        //    'type' : 'circle',
+        //     'source': {
+        //         'type': 'geojson',
+        //         'data': data
+        //     },
+        //     'paint': {
+        //         'circle-radius': 4,
+        //         'circle-color': '#1aa3ff'
+        //     }
+        // });
 
-            map.addLayer({
-                'id': 'lines',
-                'type': 'line',
-                'source': {
-                    'type': 'geojson',
-                    'data': data
-                },
-                'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                'paint': {
-                    'line-color': '#1aa3ff',
-                    'line-width': 3
-                }
+    }
+
+    // dropzone 관련
+    Dropzone.options.frmFile = {
+        maxFilesize: 100, // 100MB로 설정 (원하는 크기로 조절)
+        acceptedFiles: ".zip", // 허용할 파일 확장자를 지정
+        clickable: "#frmFile, .fa-file", // 클릭 가능한 요소 추가
+        paramName: "shpData",
+        init: function () {
+            this.on("processing", function (file, response) {
+                // 파일 업로드 동안 수행할 동작
+                $('#loading-window, .loading-logo').show();
+                $('.fa-file, .drop-hover, .file-txt, .dz-preview').hide();
+                document.getElementById("map").style.position = "absolute";
             });
-            // map.addLayer({
-            //    'id' : 'points',
-            //    'type' : 'circle',
-            //     'source': {
-            //         'type': 'geojson',
-            //         'data': data
-            //     },
-            //     'paint': {
-            //         'circle-radius': 4,
-            //         'circle-color': '#1aa3ff'
-            //     }
-            // });
-
-        }
-
-
-        // dropzone 관련
-        Dropzone.options.frmFile = {
-            maxFilesize: 100, // 100MB로 설정 (원하는 크기로 조절)
-            acceptedFiles: ".zip", // 허용할 파일 확장자를 지정
-            clickable: "#frmFile, .fa-file", // 클릭 가능한 요소 추가
-            paramName: "shpData",
-            addRemoveLinks: true,
-            init: function () {
-                this.on("processing", function (file, response) {
-                    // 파일 업로드 동안 수행할 동작
-                    $('#loading-window, .loading-logo').show();
-                    $('.fa-file, .drop-hover, .file-txt, .dz-preview').hide();
-                    document.getElementById("map").style.position = "absolute";
-                });
-                this.on("success", function (file, response) {
-                    // 파일 업로드 성공 시 수행할 동작
-                    console.log(response.data);
-                    drawPolyline(response.data);
-                    Geo = response.data;
-                    onFileHide();
-                    openTab(event, 'tab2')
-                    for (var i = 0; i < tablinks.length; i++) {
-                        if (tablinks[i].textContent.trim() === 'Tools') {
-                            tablinks[i].classList.add("active-white");
-                        } else {
-                            tablinks[i].classList.remove("active-white");
-                        }
+            this.on("success", function (file, response) {
+                fileInfo = {
+                    filename : file.name,
+                    size : file.size,
+                    url : file.url
+                };
+                console.log(response.data);
+                drawPolyline(response.data);
+                Geo = response.data;
+                onFileHide();
+                openTab(event, 'tab2')
+                for (var i = 0; i < tablinks.length; i++) {
+                    if (tablinks[i].textContent.trim() === 'Tools') {
+                        tablinks[i].classList.add("active-white");
+                    } else {
+                        tablinks[i].classList.remove("active-white");
                     }
-                    $('.file-txt, .fa-file').show();
-                    $('.dz-preview, .loading-logo').hide();
-                });
+                }
+                fileList.push(file.name);
+                var option = document.createElement("option");
+                option.value = file.name;
+                option.text = file.name;
+                fileSelect.add(option);
+                if($("#No-file").length > 0){
+                    document.getElementById("No-file").remove()
+                }
 
-                this.on("error", function (file, response) {
-                    // 파일 업로드 오류 시 수행할 동작
-                    onFileHide();
-                    $('.loading-logo').hide();
-                    $('.file-txt, .fa-file').show();
-                });
-                this.on ("dragenter", function () {
-                    $('.drop-hover').show();
-                });
-            }
-        };
+                $('.file-txt, .fa-file').show();
+                $('.dz-preview, .loading-logo').hide();
+            });
 
-        function onFileHide() { // tab menu 관련
-            $('#loading-window, .drop-hover, .file-txt, .fa-file').hide();
-            document.getElementById("map").style.position = "";
+            this.on("error", function (file, response) {
+                // 파일 업로드 오류 시 수행할 동작
+                onFileHide();
+                $('.loading-logo').hide();
+                $('.file-txt, .fa-file').show();
+            });
+            this.on ("dragenter", function () {
+                $('.drop-hover').show();
+            });
         }
+    };
 
-        function openTab(event, tab) {
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active-dark");
-                tablinks[i].classList.remove("active-white");
-            }
-            document.getElementById(tab).style.display = "block"
-            if (tabmenu.style.color === "black" || tabmenu.style.color === ""){
-                event.currentTarget.className += " active-white";
-            } else {
-                event.currentTarget.className += " active-dark";
-            }
+
+
+    function onFileHide() { // tab menu 관련
+        $('#loading-window, .drop-hover, .file-txt, .fa-file').hide();
+        document.getElementById("map").style.position = "";
+    }
+
+    function openTab(event, tab) {
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
         }
-    </script>
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active-dark");
+            tablinks[i].classList.remove("active-white");
+        }
+        document.getElementById(tab).style.display = "block"
+        if (tabmenu.style.color === "black" || tabmenu.style.color === ""){
+            event.currentTarget.className += " active-white";
+        } else {
+            event.currentTarget.className += " active-dark";
+        }
+    }
+
+    document.getElementById("Save").addEventListener('click', function (){
+        if(fileInfo != null){
+            $.ajax({
+                url : '/api/saveShp',
+                type : 'POST',
+                data : fileInfo,
+                success : function (result){
+                    console.log(result)
+                },
+                error : function (error){
+                    console.log(error)
+                }
+            })
+        }
+    });
+
+</script>
 </html>
 

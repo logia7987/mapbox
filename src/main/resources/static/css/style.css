@@ -128,13 +128,14 @@
     font-size: 0;
 }
 
+
 .tab-links {
     background-color: #ccc;
     float: left;
     border: none;
     outline: none;
     cursor: pointer;
-    padding: 14px 20px;
+    padding: 14px 27px;
     transition: 0.1s;
     font-size: 14px;
     font-weight: bold;
@@ -241,7 +242,7 @@
     border-radius: 10px;
 }
 
-.map-style-change > label {
+.select-label {
     font-weight: 600;
     margin-right: 15px;
 }
@@ -252,7 +253,7 @@
 
 #map-style {
     background-color: #ccc;
-    border: 0px;
+    border: 0;
     border-radius: 5px;
     font-weight: 600;
 }
@@ -262,4 +263,23 @@
     text-align: center;
     color : black;
     font-weight: 600;
+}
+
+#current-file {
+    display: none;
+}
+
+#current-file-selected{
+    background-color : #cccccc;
+}
+
+#current-file-selected:after {
+    position: absolute;
+    content: "";
+    top: 14px;
+    right: 10px;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-color: #fff transparent transparent transparent;
 }

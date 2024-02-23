@@ -11,21 +11,12 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -43,12 +34,11 @@ public class ApiController {
 
     @Autowired
     private ShapeFileService shapeFileService;
-
+    private JSONObject jsonObj;
     @PostMapping(value = "/uploadShp", consumes = "multipart/form-data", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Map<String, Object> uploadShp(@RequestParam("shpData") MultipartFile file) throws IOException, ParseException {
         Map<String, Object> result = new HashMap<>();
-
 
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.toLowerCase().endsWith(".zip")) {
@@ -57,16 +47,10 @@ public class ApiController {
             if (geoJson != null && !geoJson.equals("")) {
                 JSONParser jsonParser = new JSONParser();
                 Object obj = jsonParser.parse(geoJson);
-                JSONObject jsonObj = (JSONObject) obj;
-
-                ShpVo shpVo = convertToShpData(jsonObj);
-
-//                saveShpData(shpVo, originalFilename);
+                jsonObj = (JSONObject) obj;
 
                 result.put("data", jsonObj);
                 result.put("result", "success");
-                result.put("message", "저장되었습니다.");
-
             } else {
                 result.put("result", "fail");
                 result.put("message", "파일형식이 올바르지 않습니다.");
@@ -108,12 +92,16 @@ public class ApiController {
         return shpVo;
     }
 
-    public void saveShpData(ShpVo shpVo, String shpName) {
+    @PostMapping(value = "/saveShp")
+    public Map<String, Object> saveShpData(@RequestParam(value = "filename") String shpName) {
+        ShpVo shpVo = convertToShpData(jsonObj);
         shpVo.setShpName(shpName);
         shpService.saveShp(shpVo);
 
+        Map<String, Object> result = new HashMap<>();
+
         List<FeatureVo> featureVoList = shpVo.getFeatureVos();
-        int i = 0;
+         int i = 0;
         for (FeatureVo featureVo : featureVoList) {
             featureVo.setShpVo(shpVo);
 
@@ -122,6 +110,7 @@ public class ApiController {
 
             coordinateService.saveAllCoordinates(featureVo.getCoordinateVos());
         }
+        return result;
     }
     private static CoordinateVo getCoordinateVo(JSONArray o, FeatureVo featureVo) {
         JSONArray aCoor = o;
