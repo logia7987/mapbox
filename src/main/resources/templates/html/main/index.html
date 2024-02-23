@@ -392,28 +392,26 @@ console.log(data);
                 }
             });
         }
-
-        function viewLoading() {
-            $('#loading-window, .loading-logo').show();
-            $('.fa-file, .drop-hover, .file-txt, .dz-preview').hide();
-            document.getElementById("map").style.position = "absolute";
-        }
-
-        function setMapBounds(data) {
-            var bounds = new mapboxgl.LngLatBounds();
-            data.features.forEach(function (feature) {
-                var coordinates = feature.geometry.coordinates[0];
-                coordinates.forEach(function (coordinate) {
-                    bounds.extend(coordinate);
-                });
-            });
-
-            // 바운더리에 맞게 지도 조정
-            map.fitBounds(bounds, { padding: 150 });
-        }
-    </script>
     });
 
+    function setMapBounds(data) {
+        var bounds = new mapboxgl.LngLatBounds();
+        data.features.forEach(function (feature) {
+            var coordinates = feature.geometry.coordinates[0];
+            coordinates.forEach(function (coordinate) {
+                bounds.extend(coordinate);
+            });
+        });
+
+        // 바운더리에 맞게 지도 조정
+        map.fitBounds(bounds, { padding: 150 });
+    }
+
+    function viewLoading() {
+        $('#loading-window, .loading-logo').show();
+        $('.fa-file, .drop-hover, .file-txt, .dz-preview').hide();
+        document.getElementById("map").style.position = "absolute";
+    }
 </script>
 </html>
 
