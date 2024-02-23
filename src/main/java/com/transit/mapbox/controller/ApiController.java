@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -49,7 +50,6 @@ public class ApiController {
     public Map<String, Object> uploadShp(@RequestParam("shpData") MultipartFile file) throws IOException, ParseException {
         Map<String, Object> result = new HashMap<>();
 
-
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.toLowerCase().endsWith(".zip")) {
             String geoJson = shapeFileService.convertZipToGeoJson(file);
@@ -61,7 +61,7 @@ public class ApiController {
 
                 ShpVo shpVo = convertToShpData(jsonObj);
 
-                saveShpData(shpVo, originalFilename);
+//                saveShpData(shpVo, originalFilename);
 
                 result.put("data", jsonObj);
                 result.put("result", "success");
@@ -75,6 +75,22 @@ public class ApiController {
             // 올바르지 않은 확장자인 경우 에러 메시지 반환
             result.put("result", "fail");
             result.put("message", "파일형식이 올바르지 않습니다.");
+        }
+
+        return result;
+    }
+
+    @PostMapping(value = "/getShp", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public Map<String, Object>getShp(@RequestParam("shpId") String shpId) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (shpId != null) {
+            result.put("result", "success");
+            result.put("data", shpService.getShpDataById(Long.valueOf(shpId)));
+        } else {
+            result.put("result", "fail");
+            result.put("message", "불러오는데 실패했습니다. 관리자에게 문의해주세요.");
         }
 
         return result;
@@ -142,5 +158,9 @@ public class ApiController {
         coordinateVo.setCoordinateY((Double) aY);
         coordinateVo.setFeatureVo(featureVo);
         return coordinateVo;
+    }
+
+    private boolean checkFileType(String FileName) {
+        return FileName.toLowerCase().endsWith(".shp") || FileName.toLowerCase().endsWith(".dbf") || FileName.toLowerCase().endsWith(".shx");
     }
 }

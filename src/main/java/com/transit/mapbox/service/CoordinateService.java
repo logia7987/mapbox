@@ -3,6 +3,7 @@ package com.transit.mapbox.service;
 import com.transit.mapbox.repository.CoordinateRepository;
 import com.transit.mapbox.vo.CoordinateVo;
 import jakarta.transaction.Transactional;
+import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.scheduling.annotation.Async;
@@ -23,4 +24,5 @@ public class CoordinateService {
     public void saveAllCoordinates(List<CoordinateVo> coordinateList) {
         coordinateRepository.saveAll(coordinateList);
     }
+
 }
