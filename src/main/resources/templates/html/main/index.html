@@ -50,13 +50,21 @@
         <div id="tab-close" onclick="closeTabmenu()" class="tab-links"><i class="fas fa-solid fa-xmark"></i></div>
     </div>
     <div id="tab1" class="tab-content" style = "display: block;">
-        <form id="frmFile" class="dropzone" action="/api/uploadShp" method="POST" enctype="multipart/form-data">
-            <i class="fas fa-solid fa-file"></i>
-            <div class="loading-logo" style="line-height: normal; ">loading...</div>
-            <div class="file-txt">  Drag your shp file here </div>
-            <div class="drop-hover">Drop file please</div>
-            <!-- <input type="file" name="shpData" id="shpData"> -->
+        <form id="frmFile" action="/api/uploadShapeFiles" method="post" enctype="multipart/form-data">
+            <input name="shpData" type="file" multiple />
         </form>
+        <button type="button" onclick="sendFiles()">전송</button>
+<!--        <form id="frmFile" class="dropzone" action="/api/uploadShapeFiles" method="POST" enctype="multipart/form-data">-->
+<!--            <div class="fallback">-->
+<!--                <input type="files" name="shpDatas" multiple />-->
+<!--            </div>-->
+<!--&lt;!&ndash;        <form id="frmFile" class="dropzone" action="/api/uploadShp" method="POST" enctype="multipart/form-data">&ndash;&gt;-->
+<!--            <i class="fas fa-solid fa-file"></i>-->
+<!--            <div class="loading-logo" style="line-height: normal; ">loading...</div>-->
+<!--            <div class="file-txt">  Drag your shp file here </div>-->
+<!--            <div class="drop-hover">Drop file please</div>-->
+<!--            &lt;!&ndash; <input type="file" name="shpData" id="shpData"> &ndash;&gt;-->
+<!--        </form>-->
         <div class="recent-list">
             <div class="recent-title">Recent List</div>
             <div class="recent-file-list">
@@ -117,9 +125,9 @@
     const mapSelect = document.getElementById('map-style');
 
     $(document).ready(function() {
-        dropHover.ondragleave = function (e) {
-            this.style.display = "none";
-        }
+        // dropHover.ondragleave = function (e) {
+        //     this.style.display = "none";
+        // }
     });
 
     const map = new mapboxgl.Map({
@@ -286,61 +294,59 @@
     }
 
     // dropzone 관련
-    Dropzone.options.frmFile = {
-        maxFilesize: 100, // 100MB로 설정 (원하는 크기로 조절)
-        acceptedFiles: ".zip", // 허용할 파일 확장자를 지정
-        clickable: "#frmFile, .fa-file", // 클릭 가능한 요소 추가
-        paramName: "shpData",
-        init: function () {
-            this.on("processing", function (file, response) {
-                // 파일 업로드 동안 수행할 동작
-                viewLoading()
-            });
-            this.on("success", function (file, response) {
-                fileInfo = {
-                    filename : file.name,
-                    size : file.size,
-                    url : file.url
-                };
-                console.log(response.data);
-
-                drawPolyline(response.data);
-                Geo = response.data;
-                onFileHide();
-                openTab(event, 'tab2')
-                for (var i = 0; i < tablinks.length; i++) {
-                    if (tablinks[i].textContent.trim() === 'Tools') {
-                        tablinks[i].classList.add("active-white");
-                    } else {
-                        tablinks[i].classList.remove("active-white");
-                    }
-                }
-                fileList.push(file.name);
-                var option = document.createElement("option");
-                option.value = file.name;
-                option.text = file.name;
-                fileSelect.add(option);
-                if($("#No-file").length > 0){
-                    document.getElementById("No-file").remove()
-                }
-
-                $('.file-txt, .fa-file').show();
-                $('.dz-preview, .loading-logo').hide();
-            });
-
-            this.on("error", function (file, response) {
-                // 파일 업로드 오류 시 수행할 동작
-                onFileHide();
-                $('.loading-logo').hide();
-                $('.file-txt, .fa-file').show();
-            });
-            this.on ("dragenter", function () {
-                $('.drop-hover').show();
-            });
-        }
-    };
-
-
+    // Dropzone.options.frmFile = {
+    //     paramName: "shpDatas",
+    //     maxFilesize: 100,     // 업로드 파일의 최대 크기 (MB)
+    //     maxFiles: 5,
+    //     addRemoveLinks: true,  // 각 파일에 삭제 링크 추가
+    //     parallelUploads: 5,  // 동시에 업로드되는 파일 수를 5으로 설정
+    //     init: function () {
+    //         this.on("processing", function (file, response) {
+    //             // 파일 업로드 동안 수행할 동작
+    //             viewLoading()
+    //         });
+    //         this.on("success", function (file, response) {
+    //             fileInfo = {
+    //                 filename: file.name,
+    //                 size: file.size,
+    //                 url: file.url
+    //             };
+    //             console.log(response.data);
+    //
+    //             drawPolyline(response.data);
+    //             Geo = response.data;
+    //             onFileHide();
+    //             openTab(event, 'tab2')
+    //             for (var i = 0; i < tablinks.length; i++) {
+    //                 if (tablinks[i].textContent.trim() === 'Tools') {
+    //                     tablinks[i].classList.add("active-white");
+    //                 } else {
+    //                     tablinks[i].classList.remove("active-white");
+    //                 }
+    //             }
+    //             fileList.push(file.name);
+    //             var option = document.createElement("option");
+    //             option.value = file.name;
+    //             option.text = file.name;
+    //             fileSelect.add(option);
+    //             if ($("#No-file").length > 0) {
+    //                 document.getElementById("No-file").remove()
+    //             }
+    //
+    //             $('.file-txt, .fa-file').show();
+    //             $('.dz-preview, .loading-logo').hide();
+    //         });
+    //         this.on("error", function (file, response) {
+    //             // 파일 업로드 오류 시 수행할 동작
+    //             onFileHide();
+    //             $('.loading-logo').hide();
+    //             $('.file-txt, .fa-file').show();
+    //         });
+    //         this.on ("dragenter", function () {
+    //             $('.drop-hover').show();
+    //         });
+    //     }
+    // };
 
     function onFileHide() { // tab menu 관련
         $('#loading-window, .drop-hover, .file-txt, .fa-file').hide();
@@ -416,6 +422,35 @@
         $('#loading-window, .loading-logo').show();
         $('.fa-file, .drop-hover, .file-txt, .dz-preview').hide();
         document.getElementById("map").style.position = "absolute";
+    }
+
+    function sendFiles() {
+        var frmFile = $("#frmFile");
+        // 파일 선택 input 요소
+        var fileInput = frmFile.find("input[name='shpData']")[0];
+
+        // 선택한 파일 가져오기
+        var files = fileInput.files;
+        var formData = new FormData();
+
+        for (var i = 0; i < files.length; i++) {
+            formData.append('shpData', files[i]);
+        }
+
+        $.ajax({
+            url: '/api/uploadShapeFiles',  // 서버 엔드포인트
+            type: 'POST',
+            data: formData,
+            processData: false,  // 필수: FormData를 query string으로 변환하지 않음
+            contentType: false,  // 필수: 파일 전송에는 multipart/form-data 형식이 필요
+            success: function (data) {
+                console.log('File uploaded successfully:', data.data);
+                drawPolyline(data.data);
+            },
+            error: function (error) {
+                console.error('Error uploading file:', error);
+            }
+        });
     }
 </script>
 </html>

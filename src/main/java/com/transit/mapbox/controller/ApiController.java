@@ -7,6 +7,7 @@ import com.transit.mapbox.vo.CoordinateVo;
 import com.transit.mapbox.vo.FeatureVo;
 import com.transit.mapbox.vo.ShpVo;
 import com.transit.mapbox.service.ShapeFileService;
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,8 +17,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -42,6 +48,44 @@ public class ApiController {
     @Autowired
     private ShapeFileService shapeFileService;
     private JSONObject jsonObj;
+    private static File tempDir = new File("C:\\mapbox\\shapefile_temp");
+    @RequestMapping(value = "/uploadShapeFiles", consumes = "multipart/form-data", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public Map<String, Object> uploadShapeFiles(@RequestParam("shpData") List<MultipartFile> files) throws IOException, ParseException {
+        Map<String, Object> result = new HashMap<>();
+
+        System.out.println(files.size());
+
+        try {
+            FileUtils.forceMkdir(tempDir);
+            for (MultipartFile aFile : files) {
+                Path filePath = new File(tempDir, aFile.getOriginalFilename()).toPath();
+                Files.copy(aFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            File shpFile = shapeFileService.findFile(tempDir, ".shp");
+
+            if (shpFile != null) {
+                try {
+                    String jsonResult = shapeFileService.convertShpToGeoJSON(shpFile, tempDir);
+                    JSONParser jsonParser = new JSONParser();
+                    Object obj = jsonParser.parse(jsonResult);
+                    jsonObj = (JSONObject) obj;
+
+                    result.put("data", jsonObj);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    result.put("error", "Shp to GeoJSON 변환 중 오류 발생");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            result.put("error", "파일 처리 중 오류 발생");
+        }
+
+        return result;
+    }
+
     @PostMapping(value = "/uploadShp", consumes = "multipart/form-data", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public Map<String, Object> uploadShp(@RequestParam("shpData") MultipartFile file) throws IOException, ParseException {

@@ -38,14 +38,6 @@ public class ShapeFileService {
     public String convertZipToGeoJson(MultipartFile zipFile) throws IOException {
         FileUtils.forceMkdir(tempDir);
 
-//        convertToFile(zipFile);
-//        CompressionUtil cu = new CompressionUtil();
-//
-//        // 압축 풀기
-//        // zip 파일 경로, 압출을 풀을 폴더를변수로 받음
-//        cu.unzip(convertToFile(zipFile), tempDir, "UTF-8");
-
-        // ==============================================
         try (ZipInputStream zipInputStream = new ZipInputStream(zipFile.getInputStream())) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
@@ -68,7 +60,7 @@ public class ShapeFileService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // ==============================================
+
         File shpFile = findFile(tempDir, ".shp");
 
         if (shpFile != null) {
@@ -87,13 +79,14 @@ public class ShapeFileService {
         FileUtils.deleteDirectory(tempDir);
         return null;
     }
-    private String convertShpToGeoJSON(File shpFile, File outputDir) throws IOException, FactoryException {
+    public String convertShpToGeoJSON(File shpFile, File outputDir) throws IOException, FactoryException {
         HashMap<String, Object> map = new HashMap<>();
         map.put("url", shpFile.toURI().toURL());
         map.put("create spatial index", Boolean.TRUE);
 
         File shxFile = findFile(tempDir, ".shx");
         if (shxFile != null) {
+            System.out.println("dsafasfawef");
             map.put("shx", shxFile.toURI().toURL());
         }
 
@@ -122,10 +115,10 @@ public class ShapeFileService {
             String targetText = shpFile.getName().replace("shp", "");
             geoJson = geoJson.replace(targetText, "");
         }
-
+        FileUtils.deleteDirectory(tempDir);
         return geoJson;
     }
-    private File findFile(File directory, String type) {
+    public File findFile(File directory, String type) {
         File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(type));
         if (files != null && files.length > 0) {
             return files[0];
@@ -133,7 +126,7 @@ public class ShapeFileService {
             return null;
         }
     }
-    private void convertFileEncoding(File sourceFile, File targetFile, String sourceEncoding, String targetEncoding) throws IOException {
+    public void convertFileEncoding(File sourceFile, File targetFile, String sourceEncoding, String targetEncoding) throws IOException {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), sourceEncoding));
              BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), targetEncoding))) {
             String line;
