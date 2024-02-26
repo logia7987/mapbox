@@ -75,15 +75,19 @@ public class ApiController {
     @ResponseBody
     public Map<String, Object>getShp(@RequestParam("shpId") String shpId) {
         Map<String, Object> result = new HashMap<>();
+        System.out.println("============시작==============");
+        System.currentTimeMillis();
+        shpService.getShpDataById(Long.valueOf(shpId));
 
         if (shpId != null) {
             result.put("result", "success");
-            result.put("data", shpService.getShpDataById(Long.valueOf(shpId)));
+//            result.put("data", shpService.getShpDataById(Long.valueOf(shpId)));
         } else {
             result.put("result", "fail");
             result.put("message", "불러오는데 실패했습니다. 관리자에게 문의해주세요.");
         }
-
+        System.currentTimeMillis();
+        System.out.println("============종료==============");
         return result;
     }
 

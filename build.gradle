@@ -50,9 +50,8 @@ dependencies {
 	// JPA 관련
 	implementation 'org.hibernate:hibernate-spatial'
 
-	// https://mvnrepository.com/artifact/org.apache.commons/commons-csv
-	implementation 'org.apache.commons:commons-csv:1.10.0'
-
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-compress
+	implementation 'org.apache.commons:commons-compress:1.21'
 }
 
 tasks.named('test') {

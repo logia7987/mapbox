@@ -1,8 +1,12 @@
 package com.transit.mapbox.service;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
+import com.transit.mapbox.util.CompressionUtil;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FileUtils;
+
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.geotools.api.data.DataStore;
@@ -34,6 +38,14 @@ public class ShapeFileService {
     public String convertZipToGeoJson(MultipartFile zipFile) throws IOException {
         FileUtils.forceMkdir(tempDir);
 
+//        convertToFile(zipFile);
+//        CompressionUtil cu = new CompressionUtil();
+//
+//        // 압축 풀기
+//        // zip 파일 경로, 압출을 풀을 폴더를변수로 받음
+//        cu.unzip(convertToFile(zipFile), tempDir, "UTF-8");
+
+        // ==============================================
         try (ZipInputStream zipInputStream = new ZipInputStream(zipFile.getInputStream())) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
@@ -56,14 +68,13 @@ public class ShapeFileService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        // ==============================================
         File shpFile = findFile(tempDir, ".shp");
 
         if (shpFile != null) {
             try {
-                File geojsonFile = convertShpToGeoJSON(shpFile, tempDir);
 
-                String result = FileUtils.readFileToString(geojsonFile, StandardCharsets.UTF_8);
+                String result = convertShpToGeoJSON(shpFile, tempDir);
 
                 FileUtils.deleteDirectory(tempDir);
 
@@ -76,7 +87,7 @@ public class ShapeFileService {
         FileUtils.deleteDirectory(tempDir);
         return null;
     }
-    private File convertShpToGeoJSON(File shpFile, File outputDir) throws IOException, FactoryException {
+    private String convertShpToGeoJSON(File shpFile, File outputDir) throws IOException, FactoryException {
         HashMap<String, Object> map = new HashMap<>();
         map.put("url", shpFile.toURI().toURL());
         map.put("create spatial index", Boolean.TRUE);
@@ -88,37 +99,7 @@ public class ShapeFileService {
 
         File dbfFile = findFile(tempDir, ".dbf");
         if (dbfFile != null) {
-            checkDbfEncoding(shpFile);
-            checkDbfEncoding(dbfFile);
             map.put("dbf", dbfFile.toURI().toURL());
-//            try {
-//                File nbfFile = new File(outputDir, "output.dbf");
-//
-//                FileInputStream fis = new FileInputStream(dbfFile);
-//                DbaseFileReader dbfReader = new DbaseFileReader(fis.getChannel(), true, Charset.forName("Windows-949"));
-//                int colSize = dbfReader.getHeader().getNumFields();
-//                String[] headers = new String[colSize];
-//
-//                for(int i=0;i<colSize;i++) {
-//                    headers[i]=dbfReader.getHeader().getFieldName(i);
-//                }
-//
-//                FileWriter fileWriter = new FileWriter(nbfFile);
-//                CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT.withHeader(headers));
-//
-//                // 데이터 추가
-//                while (dbfReader.hasNext()) {
-//                    Object[] values = dbfReader.readEntry();
-//                    csvPrinter.printRecord(values);
-//                }
-//                csvPrinter.flush();
-//
-//                dbfReader.close();
-//
-//                map.put("dbf", nbfFile.toURI().toURL());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
         }
 
         File prjFile = findFile(tempDir, ".prj");
@@ -126,20 +107,23 @@ public class ShapeFileService {
             map.put("prj", prjFile.toURI().toURL());
         }
 
-        DataStore dataStore = DataStoreFinder.getDataStore(map);
-        String typeName = dataStore.getTypeNames()[0];
+        String geoJson;
+        shpFile.setReadOnly();
+        ShapefileDataStore store = new ShapefileDataStore(shpFile.toURI().toURL());
+        SimpleFeatureSource source = store.getFeatureSource();
+        SimpleFeatureCollection featureCollection = source.getFeatures();
+        FeatureJSON fjson = new FeatureJSON();
 
-        SimpleFeatureSource featureSource = dataStore.getFeatureSource(typeName);
-        SimpleFeatureCollection reprojectedCollection = featureSource.getFeatures();
+        try (StringWriter writer = new StringWriter()) {
+            fjson.writeFeatureCollection(featureCollection, writer);
+            geoJson = new String(writer.toString().getBytes(StandardCharsets.ISO_8859_1), "EUC-KR");
 
-        File geojsonFile = new File(outputDir, "output.geojson");
-        try (OutputStream outputStream = new FileOutputStream(geojsonFile);
-             OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            FeatureJSON featureJSON = new FeatureJSON();
-            featureJSON.writeFeatureCollection(reprojectedCollection, writer);
+            // 기본적의로 Feature ID 에 파일명과 INDEX를 같이 붙이고 있기때문에 파일명을 제거하기 위한 작업
+            String targetText = shpFile.getName().replace("shp", "");
+            geoJson = geoJson.replace(targetText, "");
         }
 
-        return geojsonFile;
+        return geoJson;
     }
     private File findFile(File directory, String type) {
         File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(type));
@@ -174,5 +158,14 @@ public class ShapeFileService {
         }
 
         return "";
+    }
+
+    public File convertToFile(MultipartFile zipfile) throws IOException {
+        File file = new File(tempDir, zipfile.getOriginalFilename());
+        file.createNewFile();
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(zipfile.getBytes());
+        fos.close();
+        return file;
     }
 }

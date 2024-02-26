@@ -100,6 +100,9 @@
     var tabcontent = document.getElementsByClassName("tab-content");
     var tablinks = document.getElementsByClassName("tab-links");
     var dropHover = document.querySelector(".drop-hover");
+    let hoveredPolygonId = null;
+    let clickedPolygonId = null;
+
     var Geo = {
         type: 'Feature',
         geometry: {
@@ -198,88 +201,89 @@
     }
 
     function drawPolyline(data) {
-console.log(data);
-        if (map.getLayer('lines')) {
-            map.removeLayer('lines', 'points');
-            map.removeSource('lines', 'points');
+        // 레이어 및 데이터 소스 확인 후 제거
+        if (map.getLayer('polygons')) {
+            map.removeLayer('polygons');
+            map.removeLayer('outline');
+        }
+        if (map.getSource('file-data')) {
+            map.removeSource('file-data');
         }
 
-            var tData = {
-                type: 'geojson',
-                data: {
-                    type : 'FeatureCollection',
-                    features :data.features
-                }
+        var tData = {
+            type: 'geojson',
+            data: {
+                type : 'FeatureCollection',
+                features :data.features
             }
-
-            setMapBounds(data);
-            map.addSource("file-data", tData);
-            map.addLayer({
-                'id': 'polygons',
-                'type': 'fill', // 'line' 대신 'fill'로 변경
-                'source': 'file-data',
-                'layout': {
-                    'visibility': 'visible'
-                },
-                'paint': {
-                    // 'fill-color': ['#1aa3ff'], // 폴리곤의 색상
-                    'fill-color': [
-                        'case',
-                        ['boolean', ['feature-state', 'selected'], false],
-                        '#007dd2', // 클릭한 폴리곤의 색상
-                        '#1aa3ff'  // 클릭하지 않은 폴리곤의 색상
-                    ],
-                    'fill-opacity': 0.5 // 폴리곤의 투명도
-                }
-            });
-
-            map.addLayer({
-                'id': 'outline',
-                'type': 'line',
-                'source': 'file-data',
-                'layout': {},
-                'paint': {
-                    'line-color': '#1aa3ff',
-                    'line-width': 2.5
-                }
-            });
-
-            map.on('click', 'polygons', function (e) {
-                console.log(e.features);
-                console.log(e.features[0].properties.name);
-                var clickedFeature = e.features[0];
-                var clickedIndex = data.features.findIndex(function (feature) {
-                    return feature.id === clickedFeature.id;
-                });
-
-                // 특정 인덱스에 대한 클릭 이벤트 처리
-                if (clickedIndex !== -1) {
-                    // 클릭한 폴리곤의 색상을 변경
-                    map.setFeatureState(
-                        {source: 'polygons', id: clickedFeature.id},
-                        {selected: true}
-                    );
-
-                    // 다른 폴리곤의 색상 초기화
-                    data.features.forEach(function (feature, index) {
-                        if (index !== clickedIndex) {
-                            map.setFeatureState(
-                                {source: 'polygons', id: feature.id},
-                                {selected: false}
-                            );
-                        }
-                    });
-                }
-            });
-
-            map.on('mouseenter', 'polygons', () => {
-                map.getCanvas().style.cursor = 'pointer';
-            });
-
-            map.on('mouseleave', 'polygons', () => {
-                map.getCanvas().style.cursor = '';
-            });
         }
+
+        setMapBounds(data);
+        map.addSource("file-data", tData);
+        map.addLayer({
+            'id': 'polygons',
+            'type': 'fill',
+            'source': 'file-data',
+            'layout': {},
+            'paint': {
+                'fill-color': [
+                    'case',
+                    ['boolean', ['feature-state', 'selected'], false],
+                    '#007dd2', // 클릭한 폴리곤의 색상
+                    ['boolean', ['feature-state', 'hover'], false],
+                    '#007dd2', // 클릭한 폴리곤의 색상
+                    '#1aa3ff',  // 클릭하지 않은 폴리곤의 색상
+                ],
+                'fill-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    1,
+                    0.5
+                ]
+            }
+        });
+
+        map.addLayer({
+            'id': 'outline',
+            'type': 'line',
+            'source': 'file-data',
+            'layout': {},
+            'paint': {
+                'line-color': '#1aa3ff',
+                'line-width': 2.5
+            }
+        });
+
+        map.on('click', 'polygons', function (e) {
+
+        });
+
+        map.on('mousemove', 'polygons', (e) => {
+            if (e.features.length > 0) {
+                if (hoveredPolygonId !== null) {
+                    map.setFeatureState(
+                        { source: 'file-data', id: hoveredPolygonId },
+                        { hover: false }
+                    );
+                }
+                hoveredPolygonId = e.features[0].id;
+                map.setFeatureState(
+                    { source: 'file-data', id: hoveredPolygonId },
+                    { hover: true }
+                );
+            }
+        });
+
+        map.on('mouseleave', 'polygons', () => {
+            if (hoveredPolygonId !== null) {
+                map.setFeatureState(
+                    { source: 'file-data', id: hoveredPolygonId },
+                    { hover: false }
+                );
+            }
+            hoveredPolygonId = null;
+        });
+    }
 
     // dropzone 관련
     Dropzone.options.frmFile = {
@@ -299,6 +303,7 @@ console.log(data);
                     url : file.url
                 };
                 console.log(response.data);
+
                 drawPolyline(response.data);
                 Geo = response.data;
                 onFileHide();
@@ -372,27 +377,27 @@ console.log(data);
                 }
             })
         }
-
-        async function getShpData(shpId) {
-            viewLoading();
-            $.ajax({
-                url : "/api/getShp",
-                type : "POST",
-                data : {
-                    shpId : shpId
-                },
-                dataType : "json",
-                success : function(data) {
-                    drawPolyline(data.data);
-
-                    viewLoading();
-                },
-                error : function() {
-
-                }
-            });
-        }
     });
+
+    async function getShpData(shpId) {
+        viewLoading();
+        $.ajax({
+            url : "/api/getShp",
+            type : "POST",
+            data : {
+                shpId : shpId
+            },
+            dataType : "json",
+            success : function(data) {
+                drawPolyline(data.data);
+
+                viewLoading();
+            },
+            error : function() {
+
+            }
+        });
+    }
 
     function setMapBounds(data) {
         var bounds = new mapboxgl.LngLatBounds();
