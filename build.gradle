@@ -39,16 +39,18 @@ dependencies {
 	implementation group: 'org.geotools', name: 'gt-geojson', version: '30.1'
 	implementation group: 'org.geotools', name: 'gt-shapefile', version: '30.1'
 
-	// lombok
-	implementation 'org.projectlombok:lombok:1.18.22'
+	// https://mvnrepository.com/artifact/org.projectlombok/lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
 	runtimeOnly 'com.h2database:h2'
 
 	// json 관련
 	implementation 'javax.json:javax.json-api:1.1.4'
 	implementation 'org.glassfish:javax.json:1.1.4'
 
-	// JPA 관련
-	implementation 'org.hibernate:hibernate-spatial'
+	// https://mvnrepository.com/artifact/org.hibernate/hibernate-spatial
+	implementation 'org.hibernate:hibernate-spatial:6.4.4.Final'
 
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-compress
 	implementation 'org.apache.commons:commons-compress:1.21'
