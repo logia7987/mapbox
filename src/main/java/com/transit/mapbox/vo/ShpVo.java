@@ -25,7 +25,7 @@ public class ShpVo {
     @CreatedDate
     private String uploadDate;
 
-    @OneToMany(mappedBy = "shpVo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "shpVo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FeatureVo> featureVos;
 
     @PrePersist

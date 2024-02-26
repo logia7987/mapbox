@@ -77,7 +77,7 @@ public class ApiController {
         Map<String, Object> result = new HashMap<>();
         System.out.println("============시작==============");
         System.currentTimeMillis();
-        shpService.getShpDataById(Long.valueOf(shpId));
+//        shpService.getShpDataById(Long.valueOf(shpId));
 
         if (shpId != null) {
             result.put("result", "success");

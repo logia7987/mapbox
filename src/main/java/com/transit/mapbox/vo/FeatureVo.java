@@ -25,6 +25,6 @@ public class FeatureVo {
     @JoinColumn(name = "shp_id")
     private ShpVo shpVo;
 
-    @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CoordinateVo> coordinateVos;
 }
