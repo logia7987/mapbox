@@ -17,6 +17,5 @@ public interface CoordinateRepository extends JpaRepository<CoordinateVo, Long> 
     @Query(value = "SELECT * FROM COORDINATES_TABLE WHERE FEATURE_ID = :featureId", nativeQuery = true)
     List<CoordinateVo> findByFeatureIdNative(@Param("featureId") Long featureId);
 
-    @Query("select COORDINATE_X, COORDINATE_Y from COORDINATES_TABLE")
-    Stream<CoordinateVo> streamAllCoordinate();
+
 }

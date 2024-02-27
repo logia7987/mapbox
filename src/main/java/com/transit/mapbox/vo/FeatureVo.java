@@ -2,9 +2,11 @@ package com.transit.mapbox.vo;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
+@Cacheable
 @Entity
 @Data
 @Table(name = "FEATURE_TABLE")
@@ -26,5 +28,6 @@ public class FeatureVo {
     private ShpVo shpVo;
 
     @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 10)
     private List<CoordinateVo> coordinateVos;
 }

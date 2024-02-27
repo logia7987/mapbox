@@ -9,6 +9,5 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface ShpRepository extends JpaRepository<ShpVo, Long> {
-    @Query("select SHP_ID, SHP_NAME from SHP_TABLE")
-    Stream<ShpVo> streamAll();
+
 }

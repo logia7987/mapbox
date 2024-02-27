@@ -6,6 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Cacheable
 @Entity
 @Data
 @Table(name = "COORDINATES_TABLE")
