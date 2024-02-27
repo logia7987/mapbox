@@ -10,20 +10,56 @@
 }
 
 #frmFile {
-    cursor: pointer;
-    border: 4px dashed;
-    height: 200px;
-    margin: 12px;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-weight: bold;
-    overflow: auto;
+    /*cursor: pointer;*/
+    /*border: 4px dashed;*/
+    /*height: 200px;*/
+    /*margin: 12px;*/
+    /*align-items: center;*/
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*justify-content: center;*/
+    /*font-weight: bold;*/
+    /*overflow: auto;*/
+    border-radius: 2.5rem;
+    border: 3px solid white;
+    background: white;
+    height: 275px;
+    width: 275px;
+    max-width: 21.875rem;
+    margin: auto;
+    box-shadow: 0 0.625rem 1.25rem #0000001a;
 }
 
 #frmFile:hover {
-    color: #2699E6;
+    /*color: #2699E6;*/
+}
+
+#lbShpData {
+    width: 100%;
+    height: 100%;
+}
+#lbShpData > #file_intro {
+    width: 100%;
+    height: 100%;
+    line-height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#lbShpData > div h4{
+    font-weight: bold;
+}
+
+#lbShpData > div h4,
+#lbShpData > div p {
+    text-align: center;
+}
+
+.comment {
+    font-size: .75rem;
+    opacity: .5;
 }
 
 .fa-file {
@@ -198,7 +234,7 @@
 
 .recent-file-list {
     height: 470px;
-    width: 252px;
+    width: auto;
     border: 2px solid;
     margin: 12px;
     overflow: auto;
@@ -345,4 +381,9 @@
 /* 드롭다운 옵션 호버 효과 */
 .custom-select .options a:hover {
     background-color: #f0f0f0;
+}
+
+.btn-send {
+    width: 100%;
+    margin: 10px 0;
 }
