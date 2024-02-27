@@ -21,10 +21,10 @@ public class FeatureVo {
     @Column(name = "SEQ")
     private int seq;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shp_id")
     private ShpVo shpVo;
 
-    @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CoordinateVo> coordinateVos;
 }

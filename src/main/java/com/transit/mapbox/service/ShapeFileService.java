@@ -1,31 +1,17 @@
 package com.transit.mapbox.service;
 
-import com.transit.mapbox.util.CompressionUtil;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FileUtils;
 
-import org.apache.commons.io.output.FileWriterWithEncoding;
-import org.apache.tomcat.util.codec.binary.StringUtils;
-import org.geotools.api.data.DataStore;
-import org.geotools.api.data.DataStoreFinder;
 import org.geotools.api.data.SimpleFeatureSource;
 import org.geotools.api.referencing.FactoryException;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.geojson.feature.FeatureJSON;
-import org.geotools.referencing.CRS;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
@@ -86,7 +72,6 @@ public class ShapeFileService {
 
         File shxFile = findFile(tempDir, ".shx");
         if (shxFile != null) {
-            System.out.println("dsafasfawef");
             map.put("shx", shxFile.toURI().toURL());
         }
 

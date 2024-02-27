@@ -18,9 +18,8 @@ public class MainController{
 
     @GetMapping("/")
     public String main(Model model) {
-
         // DB 연결 테스트
-//        System.out.println("연결여부 카운트 로그 : 0 일때 완료임 =>" + mainMapper.getCount());
+        // System.out.println("연결여부 카운트 로그 : 0 일때 완료임 =>" + mainMapper.getCount());
         model.addAttribute("shpList", shpService.selectShp());
         model.addAttribute("mapboxAccessToken", mapboxAccessToken);
         return "html/main/index";

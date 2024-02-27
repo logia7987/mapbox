@@ -28,6 +28,15 @@
     <script src='https://unpkg.com/@turf/turf'></script>
 </head>
 <body>
+<div class="leftBox">
+    <div class="custom-select">
+        <div class="select-display">Select an option</div>
+        <div class="options">
+            <a href="#" th:each="shp : ${shpList}" th:text="${shp.shpName}" th:onclick="'getShpData(' + ${shp.shpId} + ')'"></a>
+        </div>
+    </div>
+</div>
+
 <div id="map" style="width: 100%; height: 100vh"></div>
 <div id="loading-window">
     <div class="loading-logo" style="color:white">loading..</div>
@@ -68,13 +77,13 @@
         <div class="recent-list">
             <div class="recent-title">Recent List</div>
             <div class="recent-file-list">
-                <div id="recent-file" th:each="shp : ${shpList}">
-                    <i class="fa-solid fa-map"></i>
-                    <div class="file-info" th:onclick="'getShpData(' + ${shp.shpId} + ')'">
-                        <div class="file-tit" th:text="${shp.shpName}"></div>
-                        <div class="file-date" th:text="${shp.uploadDate}"></div>
-                    </div>
-                </div>
+<!--                <div id="recent-file" th:each="shp : ${shpList}">-->
+<!--                    <i class="fa-solid fa-map"></i>-->
+<!--                    <div class="file-info" th:onclick="'getShpData(' + ${shp.shpId} + ')'">-->
+<!--                        <div class="file-tit" th:text="${shp.shpName}"></div>-->
+<!--                        <div class="file-date" th:text="${shp.uploadDate}"></div>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
         </div>
     </div>
@@ -125,9 +134,9 @@
     const mapSelect = document.getElementById('map-style');
 
     $(document).ready(function() {
-        // dropHover.ondragleave = function (e) {
-        //     this.style.display = "none";
-        // }
+        $('.custom-select').click( function() {
+            $('.options').fadeToggle();
+        } )
     });
 
     const map = new mapboxgl.Map({
@@ -208,15 +217,10 @@
         }
     }
 
+    var dataArr = [];
+    var selectedShp;
     function drawPolyline(data) {
-        // 레이어 및 데이터 소스 확인 후 제거
-        if (map.getLayer('polygons')) {
-            map.removeLayer('polygons');
-            map.removeLayer('outline');
-        }
-        if (map.getSource('file-data')) {
-            map.removeSource('file-data');
-        }
+        dataArr.push(data);
 
         var tData = {
             type: 'geojson',
@@ -227,11 +231,11 @@
         }
 
         setMapBounds(data);
-        map.addSource("file-data", tData);
+        map.addSource("file-data_"+dataArr.length, tData);
         map.addLayer({
-            'id': 'polygons',
+            'id': 'polygons_'+dataArr.length,
             'type': 'fill',
-            'source': 'file-data',
+            'source': 'file-data_'+dataArr.length,
             'layout': {},
             'paint': {
                 'fill-color': [
@@ -252,9 +256,9 @@
         });
 
         map.addLayer({
-            'id': 'outline',
+            'id': 'outline_'+dataArr.length,
             'type': 'line',
-            'source': 'file-data',
+            'source': 'file-data_'+dataArr.length,
             'layout': {},
             'paint': {
                 'line-color': '#1aa3ff',
@@ -262,30 +266,33 @@
             }
         });
 
-        map.on('click', 'polygons', function (e) {
+        map.on('click', 'polygons_'+dataArr.length, function (e) {
+            selectedShp = e.features[0];
 
+            // 선택된 폴리곤에 대한 작업 수행
+            console.log('Selected Polygon:', selectedShp);
         });
 
-        map.on('mousemove', 'polygons', (e) => {
+        map.on('mousemove', 'polygons_'+dataArr.length, (e) => {
             if (e.features.length > 0) {
                 if (hoveredPolygonId !== null) {
                     map.setFeatureState(
-                        { source: 'file-data', id: hoveredPolygonId },
+                        { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
                         { hover: false }
                     );
                 }
                 hoveredPolygonId = e.features[0].id;
                 map.setFeatureState(
-                    { source: 'file-data', id: hoveredPolygonId },
+                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
                     { hover: true }
                 );
             }
         });
 
-        map.on('mouseleave', 'polygons', () => {
+        map.on('mouseleave', 'polygons_'+dataArr.length, () => {
             if (hoveredPolygonId !== null) {
                 map.setFeatureState(
-                    { source: 'file-data', id: hoveredPolygonId },
+                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
                     { hover: false }
                 );
             }
@@ -396,10 +403,8 @@
             dataType : "json",
             success : function(data) {
                 drawPolyline(data.data);
-
-                viewLoading();
             },
-            error : function() {
+            error: function () {
 
             }
         });
@@ -444,14 +449,32 @@
             processData: false,  // 필수: FormData를 query string으로 변환하지 않음
             contentType: false,  // 필수: 파일 전송에는 multipart/form-data 형식이 필요
             success: function (data) {
-                console.log('File uploaded successfully:', data.data);
+                console.log(data.data);
                 drawPolyline(data.data);
+
+                var html = "";
+                html += '<div id="recent-file-'+dataArr.length+'" class="recent-file">';
+                html += '<i class="fa-solid fa-map"></i>';
+                html += '<div class="file-info">';
+                html += '<div class="file-tit">파일-' + dataArr.length + '</div>';
+                html += '<div class="file-date" onclick="removePolygon('+dataArr.length+')">삭제하기</div>'
+                html += '</div>';
+                html += '</div>';
+
+                $(".recent-file-list").append(html);
             },
             error: function (error) {
                 console.error('Error uploading file:', error);
             }
         });
     }
+
+    function removePolygon(idx) {
+        map.removeLayer('polygons_'+idx);
+        map.removeLayer('outline_'+idx);
+
+        map.removeSource('file-data_'+idx);
+        $("#recent-file-"+idx).remove();
+    }
 </script>
 </html>
-

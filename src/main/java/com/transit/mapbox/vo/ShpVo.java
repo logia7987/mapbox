@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@Cacheable
 @Entity
 @Data
 @Table(name = "SHP_TABLE")

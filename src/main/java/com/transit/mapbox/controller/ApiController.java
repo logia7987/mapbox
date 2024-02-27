@@ -54,8 +54,6 @@ public class ApiController {
     public Map<String, Object> uploadShapeFiles(@RequestParam("shpData") List<MultipartFile> files) throws IOException, ParseException {
         Map<String, Object> result = new HashMap<>();
 
-        System.out.println(files.size());
-
         try {
             FileUtils.forceMkdir(tempDir);
             for (MultipartFile aFile : files) {
@@ -119,19 +117,19 @@ public class ApiController {
     @ResponseBody
     public Map<String, Object>getShp(@RequestParam("shpId") String shpId) {
         Map<String, Object> result = new HashMap<>();
-        System.out.println("============시작==============");
-        System.currentTimeMillis();
-//        shpService.getShpDataById(Long.valueOf(shpId));
 
-        if (shpId != null) {
-            result.put("result", "success");
-//            result.put("data", shpService.getShpDataById(Long.valueOf(shpId)));
-        } else {
-            result.put("result", "fail");
-            result.put("message", "불러오는데 실패했습니다. 관리자에게 문의해주세요.");
+        try {
+            if (shpId != null) {
+                result.put("result", "success");
+                result.put("data", shpService.getShpDataById(Long.valueOf(shpId)));
+//            result.put("data", convertEntityToJson(shpService.getShpDataById(Long.valueOf(shpId))));
+            } else {
+                result.put("result", "fail");
+                result.put("message", "불러오는데 실패했습니다. 관리자에게 문의해주세요.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        System.currentTimeMillis();
-        System.out.println("============종료==============");
         return result;
     }
 
@@ -177,7 +175,6 @@ public class ApiController {
             featureVo.setShpVo(shpVo);
 
             featureService.saveFeature(featureVo);
-            System.out.println("feature " + i + ": " + featureVo.getCoordinateVos().size());
 
             coordinateService.saveAllCoordinates(featureVo.getCoordinateVos());
         }
@@ -207,4 +204,48 @@ public class ApiController {
     private boolean checkFileType(String FileName) {
         return FileName.toLowerCase().endsWith(".shp") || FileName.toLowerCase().endsWith(".dbf") || FileName.toLowerCase().endsWith(".shx");
     }
+
+//    private JSONObject convertEntityToJson(ShpVo vo) {
+//        JSONObject resultJson = new JSONObject();
+//        JSONArray featureArr = new JSONArray();
+//        int featureId = 1;
+//        for (FeatureVo aFeature : vo.getFeatureVos()) {
+//            JSONObject featureJson = new JSONObject();
+//            JSONObject geometryJson = getFeatureJsonObject(aFeature);
+//
+//            featureJson.put("id", featureId);
+//            featureJson.put("type", "Feature");
+//            featureJson.put("geometry", geometryJson);
+//
+//            featureId = ++featureId;
+//
+//            featureArr.add(featureJson);
+//        }
+//        resultJson.put("features", featureArr);
+//        resultJson.put("type", "FeatureCollection");
+//
+//        return resultJson;
+//    }
+//
+//    private static JSONObject getFeatureJsonObject(FeatureVo aFeature) {
+//        JSONObject geometryJson = new JSONObject();
+//        JSONArray outCoordinatesJson = new JSONArray();
+//        JSONArray inCoordinatesJson = new JSONArray();
+//
+//        geometryJson.put("type", "MultiPolygon");
+//
+//        for (CoordinateVo aCoordinate :  aFeature.getCoordinateVos()) {
+//            JSONArray aCoordJson = new JSONArray() ;
+//
+//            aCoordJson.add(aCoordinate.getCoordinateX());
+//            aCoordJson.add(aCoordinate.getCoordinateY());
+//
+//            inCoordinatesJson.add(aCoordJson);
+//        }
+//        outCoordinatesJson.add(inCoordinatesJson);
+//        geometryJson.put("coordinates", outCoordinatesJson);
+//
+//        return geometryJson;
+//    }
 }
+

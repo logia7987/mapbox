@@ -6,18 +6,24 @@ import com.transit.mapbox.repository.ShpRepository;
 import com.transit.mapbox.vo.CoordinateVo;
 import com.transit.mapbox.vo.FeatureVo;
 import com.transit.mapbox.vo.ShpVo;
-import jakarta.transaction.Transactional;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ShpService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private ShpRepository shpRepository;
@@ -33,13 +39,11 @@ public class ShpService {
         return shpRepository.findAll(Sort.by(Sort.Direction.DESC, "uploadDate"));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ShpVo getShpDataById(Long shpId) {
         ShpVo shpVo = shpRepository.findById(shpId).orElse(null);
 
         if (shpVo != null) {
-            Hibernate.initialize(shpVo.getFeatureVos());
-
             for (FeatureVo featureVo : shpVo.getFeatureVos()) {
                 Hibernate.initialize(featureVo.getCoordinateVos());
             }
