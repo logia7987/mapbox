@@ -1,12 +1,9 @@
 package com.transit.mapbox.controller;
 
-import com.transit.mapbox.service.CoordinateService;
-import com.transit.mapbox.service.FeatureService;
-import com.transit.mapbox.service.ShpService;
-import com.transit.mapbox.vo.CoordinateVo;
+import com.transit.mapbox.service.*;
 import com.transit.mapbox.vo.FeatureVo;
+import com.transit.mapbox.vo.GeometryVo;
 import com.transit.mapbox.vo.ShpVo;
-import com.transit.mapbox.service.ShapeFileService;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -18,18 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -43,11 +32,10 @@ public class ApiController {
     private FeatureService featureService;
 
     @Autowired
-    private CoordinateService coordinateService;
+    private GeometryService geometryService;
 
     @Autowired
     private ShapeFileService shapeFileService;
-    private JSONObject jsonObj;
     private static File tempDir = new File("C:\\mapbox\\shapefile_temp");
     @RequestMapping(value = "/uploadShapeFiles", consumes = "multipart/form-data", produces = "application/json; charset=UTF-8")
     @ResponseBody
@@ -68,8 +56,9 @@ public class ApiController {
                     String jsonResult = shapeFileService.convertShpToGeoJSON(shpFile, tempDir);
                     JSONParser jsonParser = new JSONParser();
                     Object obj = jsonParser.parse(jsonResult);
-                    jsonObj = (JSONObject) obj;
+                    JSONObject jsonObj = (JSONObject) obj;
 
+                    result.put("fileName", shpFile.getName().replace(".shp", ""));
                     result.put("data", jsonObj);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -96,7 +85,7 @@ public class ApiController {
             if (geoJson != null && !geoJson.equals("")) {
                 JSONParser jsonParser = new JSONParser();
                 Object obj = jsonParser.parse(geoJson);
-                jsonObj = (JSONObject) obj;
+                JSONObject jsonObj = (JSONObject) obj;
 
                 result.put("data", jsonObj);
                 result.put("result", "success");
@@ -142,18 +131,29 @@ public class ApiController {
             JSONObject aObj = (JSONObject) jsonArray.get(i);
 
             FeatureVo featureVo = new FeatureVo();
+            GeometryVo geometryVo = new GeometryVo();
+
+            // feature 저장
+            featureVo.setFeatureId((long) (i+1));
             featureVo.setType((String) aObj.get("type"));
             featureVo.setSeq(i);
+            featureVo.setProperties(aObj.get("properties").toString());
 
-            JSONArray geoArr = (JSONArray) ((JSONArray) ((JSONArray) ((JSONObject)aObj.get("geometry")).get("coordinates")).get(0)).get(0);
+            // feature별 geometry 저장
+            JSONObject geometryJson = (JSONObject) aObj.get("geometry");
+            geometryVo.setType((String) geometryJson.get("type"));
+            geometryVo.setCoordinates(geometryJson.get("coordinates").toString());
 
-            List<CoordinateVo> coordinateVos = new ArrayList<>();
-            for (Object o : geoArr) {
-                CoordinateVo coordinateVo = getCoordinateVo((JSONArray) o, featureVo);
-                coordinateVos.add(coordinateVo);
-            }
+//            JSONArray geoArr = (JSONArray) ((JSONArray) ((JSONArray) ((JSONObject)aObj.get("geometry")).get("coordinates")).get(0)).get(0);
 
-            featureVo.setCoordinateVos(coordinateVos);
+//            List<CoordinateVo> coordinateVos = new ArrayList<>();
+//            for (Object o : geoArr) {
+//                CoordinateVo coordinateVo = getCoordinateVo((JSONArray) o, featureVo);
+//                coordinateVos.add(coordinateVo);
+//            }
+
+//            featureVo.setCoordinateVos(coordinateVos);
+//            featureVo.setGeometryVo(geometryVo);
             featureVos.add(featureVo);
         }
         shpVo.setFeatureVos(featureVos);
@@ -162,7 +162,7 @@ public class ApiController {
     }
 
     @PostMapping(value = "/saveShp")
-    public Map<String, Object> saveShpData(@RequestParam(value = "filename") String shpName) {
+    public Map<String, Object> saveShpData(@RequestParam(value = "fileName") String shpName, @RequestParam(value = "jsonObject") JSONObject jsonObj) {
         ShpVo shpVo = convertToShpData(jsonObj);
         shpVo.setShpName(shpName);
         shpService.saveShp(shpVo);
@@ -176,29 +176,10 @@ public class ApiController {
 
             featureService.saveFeature(featureVo);
 
-            coordinateService.saveAllCoordinates(featureVo.getCoordinateVos());
+            geometryService.saveGeometry(featureVo.getGeometryVo());
+//            coordinateService.saveAllCoordinates(featureVo.getCoordinateVos());
         }
         return result;
-    }
-    private static CoordinateVo getCoordinateVo(JSONArray o, FeatureVo featureVo) {
-        JSONArray aCoor = o;
-
-        Object aX = aCoor.get(0);
-        Object aY = aCoor.get(1);
-
-        if (aX instanceof Long) {
-            aX = ((Long) aX).doubleValue();
-        }
-
-        if (aY instanceof Long) {
-            aY = ((Long) aY).doubleValue();
-        }
-
-        CoordinateVo coordinateVo = new CoordinateVo();
-        coordinateVo.setCoordinateX((Double) aX);
-        coordinateVo.setCoordinateY((Double) aY);
-        coordinateVo.setFeatureVo(featureVo);
-        return coordinateVo;
     }
 
     private boolean checkFileType(String FileName) {

@@ -341,21 +341,22 @@
         }
     }
 
-    document.getElementById("Save").addEventListener('click', function (){
-        if(fileInfo != null){
-            $.ajax({
-                url : '/api/saveShp',
-                type : 'POST',
-                data : fileInfo,
-                success : function (result){
-                    console.log(result)
-                },
-                error : function (error){
-                    console.log(error)
-                }
-            })
-        }
-    });
+    function saveShp(idx, filename) {
+        $.ajax({
+            url : '/api/saveShp',
+            type : 'POST',
+            data : {
+                fileName : filename,
+                jsonObject : dataArr[idx]
+            },
+            success : function (result){
+                console.log(result)
+            },
+            error : function (error){
+                console.log(error)
+            }
+        })
+    }
 
     async function getShpData(shpId) {
         viewLoading();
@@ -422,7 +423,8 @@
                 html += '<i class="fa-solid fa-map"></i>';
                 html += '<div class="file-info">';
                 html += '<div class="file-tit">파일-' + dataArr.length + '</div>';
-                html += '<div class="file-date" onclick="removePolygon('+dataArr.length+')">삭제하기</div>'
+                html += '<div class="file-date" onclick="saveShp('+(dataArr.length-1)+', '+'\'파일-' + dataArr.length + '\')">저장하기</div>'
+                html += '<div class="file-date" onclick="removePolygon('+(dataArr.length-1)+')">삭제하기</div>'
                 html += '</div>';
                 html += '</div>';
 
