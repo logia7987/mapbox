@@ -49,9 +49,9 @@
 <div id="tab" class="tab">
     <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>
     <div class="tab-menu">
-        <div class="tab-links active-white" onclick="openTab(event, 'tab1')">File</div>
-        <div class="tab-links" onclick="openTab(event, 'tab2')">Tools</div>
-        <div class="tab-links" onclick="openTab(event, 'tab3')">Etc</div>
+        <div class="tab-links active-white" onclick="openTab(event, 'tab1')">레이어</div>
+        <div class="tab-links" onclick="openTab(event, 'tab2')">도구</div>
+        <div class="tab-links" onclick="openTab(event, 'tab3')">기타</div>
         <div id="tab-close" onclick="closeTabmenu()" class="tab-links"><i class="fas fa-solid fa-xmark"></i></div>
     </div>
     <div id="tab1" class="tab-content" style = "display: block;">
@@ -212,7 +212,7 @@
         var icon = document.getElementById("mdicon");
         var styleOption = document.getElementsByClassName("style-option");
 
-        if (tabmenu.style.color === "black" || tabmenu.style.color === "") {
+        if (tabmenu.style.color === "#020202" || tabmenu.style.color === "") {
             // 화이트 모드에서 다크 모드로 전환 될때
             $("#tab, #map-style").css("color", "white");
             icon.classList.remove('fa-moon');
@@ -225,7 +225,7 @@
             }
         } else {
             // 다크 모드에서 화이트 모드로 전환 될때
-            $("#tab, #map-style").css("color", "black");
+            $("#tab, #map-style").css("color", "#020202");
             icon.classList.add('fa-moon');
             icon.classList.remove('fa-sun');
             tabmenu.style.backgroundColor = "#fff"
@@ -334,7 +334,7 @@
             tablinks[i].classList.remove("active-white");
         }
         document.getElementById(tab).style.display = "block"
-        if (tabmenu.style.color === "black" || tabmenu.style.color === ""){
+        if (tabmenu.style.color === "#020202" || tabmenu.style.color === ""){
             event.currentTarget.className += " active-white";
         } else {
             event.currentTarget.className += " active-dark";
