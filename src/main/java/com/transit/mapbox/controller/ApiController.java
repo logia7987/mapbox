@@ -266,11 +266,21 @@ public class ApiController {
 
     private static String convertToJSONString(String input) throws IOException {
         // 키와 값을 더블 쿼트로 둘러싸기
-        String jsonString = input.replaceAll("(\\w+)(=)", "\"$1\"$2")
-                .replaceAll("([^\\s,={}]+)", "\"$1\"");
-
+        String jsonString = input.replaceAll("(\\w+)=([^,{}]+)", "\"$1\":\"$2\"");
         return jsonString;
     }
+
+//    private static String convertToJSONArrayString(String input) throws IOException {
+//        // 키와 값을 더블 쿼트로 둘러싸기
+//        String cleanedInput = input.replaceAll("\"", "").replaceAll("\\\\", "");
+//
+//        // JSONArray로 파싱
+//        JSONArray jsonArray = new JSONArray(cleanedInput);
+//
+//        // JSON 형식으로 변환
+//        String jsonString = jsonArray.toString();
+//        return jsonString;
+//    }
 
     private static String concatenateArray(String arrayString) throws IOException {
         // 대괄호 안의 문자열만 추출
