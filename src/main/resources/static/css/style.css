@@ -144,7 +144,7 @@
 
 /* 탭 메뉴 */
 #tab {
-    color : black;
+    color : #020202;
     display: none;
     height: 90%;
     width: 300px;
@@ -297,7 +297,7 @@
 .style-option {
     font-size: 14px;
     text-align: center;
-    color : black;
+    color : #020202;
     font-weight: 600;
 }
 
