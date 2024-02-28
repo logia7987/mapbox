@@ -15,7 +15,11 @@ public class FeatureService {
     @Autowired
     private FeatureRepository featureRepository;
 
-    public void saveFeature(FeatureVo feature) {
-        featureRepository.save(feature);
+    public FeatureVo saveFeature(FeatureVo feature) {
+        return featureRepository.save(feature);
+    }
+
+    public List<FeatureVo> getFeatures(ShpVo shpVo) {
+        return featureRepository.findByShpVo(shpVo);
     }
 }

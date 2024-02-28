@@ -8,5 +8,4 @@ import java.util.List;
 
 public interface FeatureRepository extends JpaRepository<FeatureVo, Long> {
     List<FeatureVo> findByShpVo(ShpVo shpVo);
-
 }

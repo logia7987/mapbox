@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ShpService {
@@ -44,8 +45,12 @@ public class ShpService {
         return shpVo;
     }
 
-    public void saveShp(ShpVo shp) {
-        shpRepository.save(shp);
+    public ShpVo getShp(Long shpId) {
+        return shpRepository.findById(shpId).orElse(null);
+    }
+    public ShpVo saveShp(ShpVo shp) {
+        ShpVo savedShp = shpRepository.save(shp);
+        return savedShp;
     }
 
 }

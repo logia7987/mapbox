@@ -346,11 +346,46 @@
             url : '/api/saveShp',
             type : 'POST',
             data : {
-                fileName : filename,
-                jsonObject : dataArr[idx]
+                shpName : filename
             },
             success : function (result){
                 console.log(result)
+                var shpId = result.shpId;
+
+                for (var i = 0; i < dataArr[idx].features.length; i++) {
+                    saveFeature(shpId, dataArr[idx].features[i]);
+                }
+
+            },
+            complete: function(xhr, status) {
+                if (status === 'error' || !xhr.responseText) {
+                    console.log('Network error or empty response.');
+                }
+            },
+            error : function (error){
+                console.log(error)
+            }
+        })
+    }
+
+    function saveFeature(shpId, jsonObj) {
+        // console.log(jsonObj);
+        $.ajax({
+            url : '/api/saveFeature',
+            type : 'POST',
+            dataType: 'json',
+            contentType: 'application/json', // JSON으로 데이터를 전송함을 명시
+            data: JSON.stringify({
+                shpId: shpId,
+                jsonObject: jsonObj
+            }),
+            success : function (result){
+                console.log(result)
+            },
+            complete: function(xhr, status) {
+                if (status === 'error' || !xhr.responseText) {
+                    console.log('Network error or empty response.');
+                }
             },
             error : function (error){
                 console.log(error)
