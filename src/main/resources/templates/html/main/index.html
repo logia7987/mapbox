@@ -353,7 +353,7 @@
                 var shpId = result.shpId;
 
                 for (var i = 0; i < dataArr[idx].features.length; i++) {
-                    saveFeature(shpId, dataArr[idx].features[i]);
+                    saveFeature(shpId, dataArr[idx].features[i], idx);
                 }
 
             },
@@ -368,7 +368,7 @@
         })
     }
 
-    function saveFeature(shpId, jsonObj) {
+    function saveFeature(shpId, jsonObj, idx) {
         // console.log(jsonObj);
         $.ajax({
             url : '/api/saveFeature',
@@ -377,6 +377,7 @@
             contentType: 'application/json', // JSON으로 데이터를 전송함을 명시
             data: JSON.stringify({
                 shpId: shpId,
+                seq : idx,
                 jsonObject: jsonObj
             }),
             success : function (result){
@@ -403,6 +404,7 @@
             },
             dataType : "json",
             success : function(data) {
+                var featureArr = data.data.features
                 drawPolyline(data.data);
             },
             error: function () {

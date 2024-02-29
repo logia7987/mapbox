@@ -6,24 +6,26 @@ import com.transit.mapbox.vo.FeatureVo;
 import com.transit.mapbox.vo.GeometryVo;
 import com.transit.mapbox.vo.ShpVo;
 import org.apache.commons.io.FileUtils;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api")
@@ -116,15 +118,11 @@ public class ApiController {
                 ShpVo shpVo = shpService.getShp(Long.valueOf(shpId));
                 List<FeatureVo> features = featureService.getFeatures(shpVo);
                 for (FeatureVo feature: features) {
-                    Long featureId = feature.getFeatureId();
-
                     feature.setGeometryVo(geometryService.getGeometryByFeature(feature));
                 }
 
                 result.put("result", "success");
                 result.put("data", convertToGeoJson(features));
-//                result.put("data", shpService.getShpDataById(Long.valueOf(shpId)));
-//            result.put("data", convertEntityToJson(shpService.getShpDataById(Long.valueOf(shpId))));
             } else {
                 result.put("result", "fail");
                 result.put("message", "불러오는데 실패했습니다. 관리자에게 문의해주세요.");
@@ -135,64 +133,12 @@ public class ApiController {
         return result;
     }
 
-    public ShpVo convertToShpData(JSONObject object) {
-        ShpVo shpVo = new ShpVo();
-        List<FeatureVo> featureVos = new ArrayList<>();
-
-        JSONArray jsonArray = (JSONArray) object.get("features");
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONObject aObj = (JSONObject) jsonArray.get(i);
-
-            FeatureVo featureVo = new FeatureVo();
-            GeometryVo geometryVo = new GeometryVo();
-
-            // feature 저장
-            featureVo.setFeatureId((long) (i+1));
-            featureVo.setType((String) aObj.get("type"));
-            featureVo.setSeq(i);
-            featureVo.setProperties(aObj.get("properties").toString());
-
-            // feature별 geometry 저장
-            JSONObject geometryJson = (JSONObject) aObj.get("geometry");
-            geometryVo.setType((String) geometryJson.get("type"));
-            geometryVo.setCoordinates(geometryJson.get("coordinates").toString());
-
-            featureVos.add(featureVo);
-        }
-        shpVo.setFeatureVos(featureVos);
-
-        return shpVo;
-    }
-
     @PostMapping(value = "/saveShp")
     @ResponseBody
     public ShpVo saveShpData(@RequestParam(value = "shpName") String shpName) {
         ShpVo shpVo = new ShpVo();
         shpVo.setShpName(shpName);
         return shpService.saveShp(shpVo);
-
-//        try {
-//            ShpVo shpVo = convertToShpData(jsonObj);
-//            shpVo.setShpName(shpName);
-//            shpService.saveShp(shpVo);
-//
-//            List<FeatureVo> featureVoList = shpVo.getFeatureVos();
-//            for (FeatureVo featureVo : featureVoList) {
-//                featureVo.setShpVo(shpVo);
-//                featureService.saveFeature(featureVo);
-//                geometryService.saveGeometry(featureVo.getGeometryVo());
-//            }
-//
-//            Map<String, Object> result = new HashMap<>();
-//            result.put("success", true);
-//            return ResponseEntity.ok(result);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Map<String, Object> result = new HashMap<>();
-//            result.put("success", false);
-//            result.put("error", e.getMessage());
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
-//        }
     }
 
     @PostMapping(value = "/saveFeature")
@@ -201,13 +147,15 @@ public class ApiController {
         Map<String, Object> resultMap = new HashMap<>();
 
         Long shpId = Long.valueOf((int) params.get("shpId"));
+        int seq = Integer.valueOf(params.get("seq")+"");
+
         ShpVo shpVo = shpService.getShp(Long.valueOf(shpId));
 
-        List<FeatureVo> featureVoList = new ArrayList<>();
         Map<String, Object> dataMap = (Map<String, Object>) params.get("jsonObject");
 
         FeatureVo featureVo = new FeatureVo();
         featureVo.setShpVo(shpVo);
+        featureVo.setSeq(seq);
         featureVo.setType((String) dataMap.get("type"));
         featureVo.setProperties(convertToJSONString(String.valueOf(dataMap.get("properties"))));
 
@@ -217,13 +165,12 @@ public class ApiController {
         GeometryVo geometryVo = new GeometryVo();
         geometryVo.setFeatureVo(nFeature);
         geometryVo.setType((String) geometry.get("type"));
-        geometryVo.setCoordinates(concatenateArray(geometry.get("coordinates").toString()));
+        geometryVo.setCoordinates(geometry.get("coordinates").toString());
 
         geometryService.saveGeometry(geometryVo);
 
         return params;
     }
-
 
     private boolean checkFileType(String FileName) {
         return FileName.toLowerCase().endsWith(".shp") || FileName.toLowerCase().endsWith(".dbf") || FileName.toLowerCase().endsWith(".shx");
@@ -247,7 +194,7 @@ public class ApiController {
             jsonGeometry.put("type", geometryVos.getType());
 
             JSONArray coordinates = new JSONArray();
-            coordinates.add(parser.parse(geometryVos.getCoordinates()));
+            coordinates.add(geometryVos.getCoordinates());
 
             jsonGeometry.put("coordinates", coordinates);
 
@@ -266,35 +213,19 @@ public class ApiController {
 
     private static String convertToJSONString(String input) throws IOException {
         // 키와 값을 더블 쿼트로 둘러싸기
-        String jsonString = input.replaceAll("(\\w+)=([^,{}]+)", "\"$1\":\"$2\"");
-        return jsonString;
+        return input.replaceAll("(\\w+)=([^,{}]+)", "\"$1\":\"$2\"");
     }
 
-//    private static String convertToJSONArrayString(String input) throws IOException {
-//        // 키와 값을 더블 쿼트로 둘러싸기
-//        String cleanedInput = input.replaceAll("\"", "").replaceAll("\\\\", "");
-//
-//        // JSONArray로 파싱
-//        JSONArray jsonArray = new JSONArray(cleanedInput);
-//
-//        // JSON 형식으로 변환
-//        String jsonString = jsonArray.toString();
-//        return jsonString;
-//    }
+    private static JsonArray convertToJsonArray(String jsonCoordinates) {
+        // JsonArrayBuilder 생성
+        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
-    private static String concatenateArray(String arrayString) throws IOException {
-        // 대괄호 안의 문자열만 추출
-        String content = arrayString.substring(1, arrayString.length() - 1);
+        // JSON 문자열을 파싱하여 JsonArray로 변환
+        // 여기서는 간단하게 JsonArray의 첫 번째 요소로만 변환하였습니다.
+        jsonArrayBuilder.add(Json.createReader(new StringReader(jsonCoordinates)).readArray());
 
-        // 문자열을 쉼표로 분리하여 리스트로 변환
-        List<String> values = Arrays.asList(content.split("\\s*,\\s*"));
-
-        // 각 값을 따옴표로 둘러싸인 문자열로 변환하여 합치기
-        String concatenatedString = values.stream()
-                .map(value -> "\"" + value + "\"")
-                .collect(Collectors.joining(", "));
-
-        return concatenatedString;
+        // 완성된 JsonArray 반환
+        return jsonArrayBuilder.build();
     }
 }
 
