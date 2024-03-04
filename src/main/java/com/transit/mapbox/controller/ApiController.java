@@ -165,7 +165,8 @@ public class ApiController {
         GeometryVo geometryVo = new GeometryVo();
         geometryVo.setFeatureVo(nFeature);
         geometryVo.setType((String) geometry.get("type"));
-        geometryVo.setCoordinates(geometry.get("coordinates").toString());
+        geometryVo.setCoordinates(geometry.toString());
+//        geometryVo.setCoordinates(geometry.get("coordinates").toString());
 
         geometryService.saveGeometry(geometryVo);
 
@@ -191,11 +192,14 @@ public class ApiController {
 
             GeometryVo geometryVos = feature.getGeometryVo();
             JSONObject jsonGeometry = new JSONObject();
-            jsonGeometry.put("type", geometryVos.getType());
 
             JSONArray coordinates = new JSONArray();
             coordinates.add(geometryVos.getCoordinates());
 
+//            JSONObject jsonObject = new JSONObject(geometryVos.getCoordinates().toString());
+
+
+            jsonGeometry.put("type", geometryVos.getType());
             jsonGeometry.put("coordinates", coordinates);
 
             jsonFeature.put("geometry", jsonGeometry);

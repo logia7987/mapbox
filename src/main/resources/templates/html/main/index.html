@@ -353,7 +353,7 @@
                 var shpId = result.shpId;
 
                 for (var i = 0; i < dataArr[idx].features.length; i++) {
-                    saveFeature(shpId, dataArr[idx].features[i], idx);
+                    saveFeature(shpId, dataArr[idx].features[i], (i+1));
                 }
 
             },
