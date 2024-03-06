@@ -4,6 +4,7 @@ import com.transit.mapbox.repository.GeometryRepository;
 import com.transit.mapbox.vo.FeatureVo;
 import com.transit.mapbox.vo.GeometryVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

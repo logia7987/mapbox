@@ -1,5 +1,6 @@
 package com.transit.mapbox.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.transit.mapbox.service.*;
 import com.transit.mapbox.vo.FeatureVo;
@@ -165,23 +166,17 @@ public class ApiController {
         GeometryVo geometryVo = new GeometryVo();
         geometryVo.setFeatureVo(nFeature);
         geometryVo.setType((String) geometry.get("type"));
-        geometryVo.setCoordinates(geometry.toString());
-//        geometryVo.setCoordinates(geometry.get("coordinates").toString());
+//        geometryVo.setCoordinates(geometry.toString());
+        geometryVo.setCoordinates(geometry.get("coordinates").toString());
 
         geometryService.saveGeometry(geometryVo);
 
         return params;
     }
 
-    private boolean checkFileType(String FileName) {
-        return FileName.toLowerCase().endsWith(".shp") || FileName.toLowerCase().endsWith(".dbf") || FileName.toLowerCase().endsWith(".shx");
-    }
-
     public JSONObject convertToGeoJson(List<FeatureVo> features) throws ParseException, IOException {
         JSONObject result = new JSONObject();
         result.put("type", "FeatureCollection");
-
-        JSONParser parser = new JSONParser();
 
         JSONArray jsonFeatures = new JSONArray();
         for (FeatureVo feature : features) {
@@ -193,14 +188,8 @@ public class ApiController {
             GeometryVo geometryVos = feature.getGeometryVo();
             JSONObject jsonGeometry = new JSONObject();
 
-            JSONArray coordinates = new JSONArray();
-            coordinates.add(geometryVos.getCoordinates());
-
-//            JSONObject jsonObject = new JSONObject(geometryVos.getCoordinates().toString());
-
-
             jsonGeometry.put("type", geometryVos.getType());
-            jsonGeometry.put("coordinates", coordinates);
+            jsonGeometry.put("coordinates", parseStringToArray(geometryVos.getCoordinates(), String.valueOf(feature.getSeq())));
 
             jsonFeature.put("geometry", jsonGeometry);
             jsonFeatures.add(jsonFeature);
@@ -213,6 +202,50 @@ public class ApiController {
     private static Map<String, Object> parseStringToMap(String input) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(input, Map.class);
+    }
+
+    private static JSONArray parseStringToArray(String jsonString, String id) throws IOException {
+        try {
+
+            JSONArray coordinateInArr = new JSONArray();
+            JSONArray coordinateOutArr = new JSONArray();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(jsonString);
+
+            // Coordinates에 접근
+            // 더 깊게 접근하려면 반복문 사용
+            for (JsonNode coordinatesNode : jsonNode) {
+                for (JsonNode node : coordinatesNode) {
+                    JSONArray coordinateArr = new JSONArray();
+                    for (JsonNode subNode : node) {
+                        JSONArray aCoordinate = new JSONArray();
+
+                        double longitude = subNode.get(0).asDouble();
+                        double latitude = subNode.get(1).asDouble();
+
+                        aCoordinate.add(longitude);
+                        aCoordinate.add(latitude);
+
+                        coordinateArr.add(aCoordinate);
+                    }
+
+//                    if (jsonNode.size() > 1) {
+//                        JSONArray skinArr = new JSONArray();
+//                        skinArr.add(coordinateArr);
+//                        coordinateOutArr.add(skinArr);
+//                    } else {
+                        coordinateOutArr.add(coordinateArr);
+//                    }
+                }
+            }
+            coordinateInArr.add(coordinateOutArr);
+
+            return coordinateInArr;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static String convertToJSONString(String input) throws IOException {

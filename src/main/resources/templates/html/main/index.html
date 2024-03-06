@@ -251,6 +251,7 @@
         }
 
         setMapBounds(data);
+
         map.addSource("file-data_"+dataArr.length, tData);
         map.addLayer({
             'id': 'polygons_'+dataArr.length,
@@ -286,38 +287,38 @@
             }
         });
 
-        map.on('click', 'polygons_'+dataArr.length, function (e) {
-            selectedShp = e.features[0];
-
-            // 선택된 폴리곤에 대한 작업 수행
-            console.log('Selected Polygon:', selectedShp);
-        });
-
-        map.on('mousemove', 'polygons_'+dataArr.length, (e) => {
-            if (e.features.length > 0) {
-                if (hoveredPolygonId !== null) {
-                    map.setFeatureState(
-                        { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-                        { hover: false }
-                    );
-                }
-                hoveredPolygonId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'polygons_'+dataArr.length, () => {
-            if (hoveredPolygonId !== null) {
-                map.setFeatureState(
-                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-                    { hover: false }
-                );
-            }
-            hoveredPolygonId = null;
-        });
+        // map.on('click', 'polygons_'+dataArr.length, function (e) {
+        //     selectedShp = e.features[0];
+        //
+        //     // 선택된 폴리곤에 대한 작업 수행
+        //     console.log('Selected Polygon:', selectedShp);
+        // });
+        //
+        // map.on('mousemove', 'polygons_'+dataArr.length, (e) => {
+        //     if (e.features.length > 0) {
+        //         if (hoveredPolygonId !== null) {
+        //             map.setFeatureState(
+        //                 { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+        //                 { hover: false }
+        //             );
+        //         }
+        //         hoveredPolygonId = e.features[0].id;
+        //         map.setFeatureState(
+        //             { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+        //             { hover: true }
+        //         );
+        //     }
+        // });
+        //
+        // map.on('mouseleave', 'polygons_'+dataArr.length, () => {
+        //     if (hoveredPolygonId !== null) {
+        //         map.setFeatureState(
+        //             { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+        //             { hover: false }
+        //         );
+        //     }
+        //     hoveredPolygonId = null;
+        // });
     }
 
     function onFileHide() { // tab menu 관련
@@ -394,17 +395,15 @@
         })
     }
 
-    async function getShpData(shpId) {
-        viewLoading();
+    function getShpData(shpId) {
         $.ajax({
             url : "/api/getShp",
             type : "POST",
             data : {
                 shpId : shpId
             },
-            dataType : "json",
             success : function(data) {
-                var featureArr = data.data.features
+                // console.log(data.data)
                 drawPolyline(data.data);
             },
             error: function () {
