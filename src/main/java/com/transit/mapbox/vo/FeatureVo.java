@@ -6,7 +6,6 @@ import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
-@Cacheable
 @Entity
 @Data
 @Table(name = "FEATURE_TABLE")
@@ -23,11 +22,18 @@ public class FeatureVo {
     @Column(name = "SEQ")
     private int seq;
 
+    @Column(name = "PROPERTIES")
+    private String properties;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shp_id")
     private ShpVo shpVo;
 
-    @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @BatchSize(size = 10)
-    private List<CoordinateVo> coordinateVos;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "geometry_id", unique = true) // unique 속성으로 일대일 관계를 설정
+    private GeometryVo geometryVo;
+
+//    @OneToMany(mappedBy = "featureVo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    @BatchSize(size = 10)
+//    private List<CoordinateVo> coordinateVos;
 }
