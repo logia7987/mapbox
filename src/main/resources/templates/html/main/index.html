@@ -38,7 +38,7 @@
     <div class="loading-logo" style="color:white">loading..</div>
     <div id="loading-bar"></div>
 </div>
-<div id="menu-btn" onclick="openTabmenu()">
+<div id="menu-btn" onclick="openTabMenu()">
     <i class="fas fa-solid fa-bars"></i>
 </div>
 <div class="file-select-widow">
@@ -51,8 +51,8 @@
     <div class="tab-menu">
         <div class="tab-links active-white" onclick="openTab(event, 'tab1')">레이어</div>
         <div class="tab-links" onclick="openTab(event, 'tab2')">도구</div>
-        <div class="tab-links" onclick="openTab(event, 'tab3')">기타</div>
-        <div id="tab-close" onclick="closeTabmenu()" class="tab-links"><i class="fas fa-solid fa-xmark"></i></div>
+        <div id="tab-close" onclick="closeTab
+        ()"><i class="fas fa-solid fa-xmark"></i></div>
     </div>
     <div id="tab1" class="tab-content" style = "display: block;">
         <form id="frmFile" action="/api/uploadShapeFiles" method="post" enctype="multipart/form-data">
@@ -70,16 +70,15 @@
         </form>
         <button type="button" class="btn btn-primary btn-send" onclick="sendFiles()">전송</button>
 
-        <div class="recent-list">
-            <div class="recent-title">레이어</div>
-            <div class="recent-file-list">
-
+        <div class="layer-list">
+            <div class="layer-title">레이어</div>
+                <div class="layer-file-list">
             </div>
         </div>
     </div>
     <div id="tab2" class="tab-content">
-        <div id="Save" class="tab2-content" title="SAVE"><i class="fas fa-solid fa-file-arrow-down tab2-icon" ></i></div>
-        <div id="PointChange" class="tab2-content" title="POINT CHANGE"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
+        <div id="Save" class="tab2-content"><i class="fas fa-solid fa-file-arrow-down tab2-icon" ></i></div>
+        <div id="PointChange" class="tab2-content"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
     </div>
     <div id="tab3" class="tab-content">
         <div class="map-style-change">
@@ -194,14 +193,14 @@
 
         map.setCenter([126.88271541564299, 37.48151056694073]);
     }
-    function openTabmenu() {
+    function openTabMenu() {
         for (var i = 0; i < menubtn.length; i++) {
             menubtn[i].style.display = "none";
         }
         tabmenu.style.display = "block";
         tabclose.style.display = "block";
     }
-    function closeTabmenu() {
+    function closeTab() {
         for (var i = 0; i < menubtn.length; i++) {
             menubtn[i].style.display = "block";
         }
@@ -212,9 +211,9 @@
         var icon = document.getElementById("mdicon");
         var styleOption = document.getElementsByClassName("style-option");
 
-        if (tabmenu.style.color === "#020202" || tabmenu.style.color === "") {
+        if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === 'rgb(2, 2, 2)') {
             // 화이트 모드에서 다크 모드로 전환 될때
-            $("#tab, #map-style").css("color", "white");
+            $("#tab, #map-style").css("color", "#ffffff");
             icon.classList.remove('fa-moon');
             icon.classList.add('fa-sun');
             tabmenu.style.backgroundColor = "#666";
@@ -335,7 +334,7 @@
             tablinks[i].classList.remove("active-white");
         }
         document.getElementById(tab).style.display = "block"
-        if (tabmenu.style.color === "#020202" || tabmenu.style.color === ""){
+        if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
             event.currentTarget.className += " active-white";
         } else {
             event.currentTarget.className += " active-dark";
@@ -455,7 +454,7 @@
                 drawPolyline(data.data);
 
                 var html = "";
-                html += '<div id="recent-file-'+dataArr.length+'" class="recent-file">';
+                html += '<div id="layer-file-'+dataArr.length+'" class="layer-file">';
                 html += '<i class="fa-solid fa-map"></i>';
                 html += '<div class="file-info">';
                 html += '<div class="file-tit">파일-' + dataArr.length + '</div>';
@@ -464,7 +463,7 @@
                 html += '</div>';
                 html += '</div>';
 
-                $(".recent-file-list").append(html);
+                $(".layer-file-list").append(html);
             },
             error: function (error) {
                 console.error('Error uploading file:', error);
@@ -477,7 +476,7 @@
         map.removeLayer('outline_'+idx);
 
         map.removeSource('file-data_'+idx);
-        $("#recent-file-"+idx).remove();
+        $("#layer-file-"+idx).remove();
     }
 </script>
 </html>

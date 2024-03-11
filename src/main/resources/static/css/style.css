@@ -10,16 +10,6 @@
 }
 
 #frmFile {
-    /*cursor: pointer;*/
-    /*border: 4px dashed;*/
-    /*height: 200px;*/
-    /*margin: 12px;*/
-    /*align-items: center;*/
-    /*display: flex;*/
-    /*flex-direction: column;*/
-    /*justify-content: center;*/
-    /*font-weight: bold;*/
-    /*overflow: auto;*/
     border-radius: 2.5rem;
     border: 3px solid white;
     background: white;
@@ -31,7 +21,7 @@
 }
 
 #frmFile:hover {
-    /*color: #2699E6;*/
+    color: #2699E6;
 }
 
 #lbShpData {
@@ -171,25 +161,36 @@
     border: none;
     outline: none;
     cursor: pointer;
-    padding: 14px 27px;
+    padding: 14px;
     transition: 0.1s;
     font-size: 14px;
     font-weight: bold;
+    text-align: center;
+    width: 110%;
 }
 
 .tab-links:hover {
     background-color: #ddd;
 }
 
+#tab-close {
+    display: block;
+    background-color: #ccc;
+    font-size: 14px;
+    padding: 14px 20px;
+}
+
+#tab-close:hover {
+    background-color: #ddd;
+}
+
 .tab-links.active-white {
-    border-top: 3px solid #2699E6;
     color: #2699E6;
     background-color: #fff;
     transition: 0.1s;
 }
 
 .tab-links.active-dark {
-    border-top: 3px solid #2699E6;
     color: #2699E6;
     background-color: #666;
     transition: 0.1s;
@@ -200,10 +201,6 @@
     padding: 6px 12px;
 }
 
-#tab-close:hover {
-    color: #2699E6;
-    background-color: #ddd;
-}
 
 .tab2-content {
     display: inline-block;
@@ -226,21 +223,23 @@
 
 /*최근 파일 목록*/
 
-.recent-title {
+.layer-title {
     margin-left: 10px;
     font-weight: 900;
     font-size: 18px;
+
 }
 
-.recent-file-list {
-    height: 470px;
+.layer-file-list {
+    height: 430px;
     width: auto;
-    border: 2px solid;
+    border: 3px solid;
     margin: 12px;
     overflow: auto;
+    border-radius: 10px;
 }
 
-.recent-file {
+.layer-file {
     display: flex;
     margin-left: 10px;
     margin-top: 10px;
@@ -248,7 +247,7 @@
     margin-bottom: 20px;
 }
 
-.recent-file:hover {
+.layer-file:hover {
     color: #2699E6;
 }
 
@@ -269,11 +268,11 @@
     font-size: 10px;
 }
 
-.recent-file-list::-webkit-scrollbar {
+.layer-file-list::-webkit-scrollbar {
     width: 12px;
 }
 
-.recent-file-list::-webkit-scrollbar-thumb {
+.layer-file-list::-webkit-scrollbar-thumb {
     background-color: #cccccc;
     border-radius: 10px;
 }
