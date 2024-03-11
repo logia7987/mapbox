@@ -208,7 +208,6 @@ public class ApiController {
         try {
 
             JSONArray coordinateInArr = new JSONArray();
-            JSONArray coordinateOutArr = new JSONArray();
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonString);
@@ -216,6 +215,8 @@ public class ApiController {
             // Coordinates에 접근
             // 더 깊게 접근하려면 반복문 사용
             for (JsonNode coordinatesNode : jsonNode) {
+                JSONArray coordinateOutArr = new JSONArray();
+
                 for (JsonNode node : coordinatesNode) {
                     JSONArray coordinateArr = new JSONArray();
                     for (JsonNode subNode : node) {
@@ -230,16 +231,10 @@ public class ApiController {
                         coordinateArr.add(aCoordinate);
                     }
 
-//                    if (jsonNode.size() > 1) {
-//                        JSONArray skinArr = new JSONArray();
-//                        skinArr.add(coordinateArr);
-//                        coordinateOutArr.add(skinArr);
-//                    } else {
-                        coordinateOutArr.add(coordinateArr);
-//                    }
+                    coordinateOutArr.add(coordinateArr);
                 }
+                coordinateInArr.add(coordinateOutArr);
             }
-            coordinateInArr.add(coordinateOutArr);
 
             return coordinateInArr;
         } catch (Exception e) {
