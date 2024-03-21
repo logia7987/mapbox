@@ -198,6 +198,7 @@
 
 .tab-content {
     display: none;
+    height: 88%;
     padding: 6px 12px;
 }
 
@@ -230,12 +231,15 @@
 
 }
 
+.layer-list {
+    height: 48%;
+}
+
 .layer-file-list {
-    height: 430px;
-    width: auto;
-    border: 3px solid;
-    margin: 12px;
-    overflow: auto;
+    height: 100%;
+    width: 100%;
+    border: 2px solid #ccc;
+    margin-top: 10px;
     border-radius: 10px;
 }
 
@@ -279,7 +283,7 @@
 
 .select-label {
     font-weight: 600;
-    margin-right: 15px;
+    margin-right: 10px;
 }
 
 .map-style-change {
@@ -308,16 +312,6 @@
     background-color : #cccccc;
 }
 
-#current-file-selected:after {
-    position: absolute;
-    content: "";
-    top: 14px;
-    right: 10px;
-    width: 0;
-    height: 0;
-    border: 6px solid transparent;
-    border-color: #fff transparent transparent transparent;
-}
 .leftBox {
     position: absolute;
     left: 5px;
@@ -385,4 +379,8 @@
 .btn-send {
     width: 100%;
     margin: 10px 0;
+}
+
+.polygon-popup {
+
 }

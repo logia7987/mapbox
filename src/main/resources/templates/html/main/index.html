@@ -4,8 +4,8 @@
     <title>Mapbox</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"/>
     <script src="https://kit.fontawesome.com/872a12cba7.js" crossorigin="anonymous"></script>
 
@@ -41,18 +41,12 @@
 <div id="menu-btn" onclick="openTabMenu()">
     <i class="fas fa-solid fa-bars"></i>
 </div>
-<div class="file-select-widow">
-    <select id="current-file">
-        <option value="No-file" id="No-file">No Current Files
-    </select>
-</div>
 <div id="tab" class="tab">
     <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>
     <div class="tab-menu">
         <div class="tab-links active-white" onclick="openTab(event, 'tab1')">레이어</div>
         <div class="tab-links" onclick="openTab(event, 'tab2')">도구</div>
-        <div id="tab-close" onclick="closeTab
-        ()"><i class="fas fa-solid fa-xmark"></i></div>
+        <div id="tab-close" onclick="closeTab()"><i class="fas fa-solid fa-xmark"></i></div>
     </div>
     <div id="tab1" class="tab-content" style = "display: block;">
         <form id="frmFile" action="/api/uploadShapeFiles" method="post" enctype="multipart/form-data">
@@ -77,12 +71,8 @@
         </div>
     </div>
     <div id="tab2" class="tab-content">
-        <div id="Save" class="tab2-content"><i class="fas fa-solid fa-file-arrow-down tab2-icon" ></i></div>
-        <div id="PointChange" class="tab2-content"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
-    </div>
-    <div id="tab3" class="tab-content">
         <div class="map-style-change">
-            <label for="map-style" class="select-label">Map Style</label>
+            <label for="map-style" class="select-label">지도 스타일</label>
             <select name="map-styles" id="map-style" >
                 <option value="streets-v12" class="style-option">Streets</option>
                 <option value="outdoors-v12" class="style-option">Outdoors</option>
@@ -94,7 +84,10 @@
                 <option value="navigation-night-v1" class="style-option">Navigation-night</option>
             </select>
         </div>
+        <div id="Save" class="tab2-content"><i class="fas fa-solid fa-file-arrow-down tab2-icon" ></i></div>
+        <div id="PointChange" class="tab2-content"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
     </div>
+
 </div>
 </body>
 <script th:inline="javascript">
@@ -105,31 +98,28 @@
     var menubtn = document.getElementsByClassName("menu-btn");
     var tabcontent = document.getElementsByClassName("tab-content");
     var tablinks = document.getElementsByClassName("tab-links");
-    var dropHover = document.querySelector(".drop-hover");
     let hoveredPolygonId = null;
     let clickedPolygonId = null;
 
     var Geo = {
-        type: 'Feature',
-        geometry: {
-            type: 'Line',
-            coordinates: []
-        },
-        properties: {}
-    };
-    var fileInfo,lat,lng
-    var fileList = [];
-    var fileSelect = document.getElementById("current-file");
+        type: 'geojson',
+        data: {
+            type : '',
+            features : ''
+        }
+    }
+
+    var lat,lng
     const mapSelect = document.getElementById('map-style');
 
     //
     const uploadContainer = document.getElementById('frmFile');
     const fileInput = document.getElementById('fileInput');
-    const previewImage = document.getElementById('previewImage');
 
     uploadContainer.addEventListener('dragover', handleDragOver);
     uploadContainer.addEventListener('dragleave', handleDragLeave);
     uploadContainer.addEventListener('drop', handleDrop);
+
 
     function handleDragOver(e) {
         e.preventDefault();
@@ -150,14 +140,15 @@
             fileInput.files = files;
         }
     }
-    //
 
+    // 저장된 파일 고르는 함수
     $(document).ready(function() {
         $('.custom-select').click( function() {
             $('.options').fadeToggle();
         } )
     });
 
+    // 맵박스 함수
     const map = new mapboxgl.Map({
         container: "map",
         style: 'mapbox://styles/mapbox/streets-v12',
@@ -167,32 +158,16 @@
 
     map.addControl(new mapboxgl.FullscreenControl());
 
+    // 지도 스타일 변경하는 함수
     mapSelect.onchange = (change) => {
         const changeId = change.target.value;
         map.setStyle('mapbox://styles/mapbox/' + changeId);
-        map.on('style.load', () => {
-            drawPolyline(Geo)
-        });
+        // map.on('style.load', () => {
+        //     drawPolyline()
+        // });
     }
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            lat = position.coords.latitude;
-            lng = position.coords.longitude;
-
-            map.setCenter([lng, lat]);
-
-            const marker1 = new mapboxgl.Marker()
-                .setLngLat([lng, lat])
-                .addTo(map);
-        });
-    } else {
-        const marker2 = new mapboxgl.Marker()
-            .setLngLat([126.88271541564299, 37.48151056694073])
-            .addTo(map);
-
-        map.setCenter([126.88271541564299, 37.48151056694073]);
-    }
+    // 메뉴 여는 함수
     function openTabMenu() {
         for (var i = 0; i < menubtn.length; i++) {
             menubtn[i].style.display = "none";
@@ -200,6 +175,8 @@
         tabmenu.style.display = "block";
         tabclose.style.display = "block";
     }
+
+    // 메뉴 닫는 함수
     function closeTab() {
         for (var i = 0; i < menubtn.length; i++) {
             menubtn[i].style.display = "block";
@@ -207,6 +184,8 @@
         tabmenu.style.display = "none";
         tabclose.style.display = "none";
     }
+
+    // 메뉴 모드를 다크 모드 혹은 화이트 모드 바꾸는 함수
     function toggleWhiteMode() {
         var icon = document.getElementById("mdicon");
         var styleOption = document.getElementsByClassName("style-option");
@@ -238,6 +217,9 @@
 
     var dataArr = [];
     var selectedShp;
+    var draw = new MapboxDraw();
+
+    // Polyline 그리는 함수
     function drawPolyline(data) {
         dataArr.push(data);
 
@@ -285,46 +267,59 @@
                 'line-width': 2.5
             }
         });
+        // 선택된 폴리곤에 대한 작업 수행
+        map.on('click', 'polygons_'+dataArr.length, function (e) {
+            selectedShp = e.features[0]
+            // var controlPolygon = new MapboxDraw({
+            //     displayControlDefault: false,
+            //     controls: {
+            //         polygon: true,
+            //         trash : true
+            //     },
+            //     defaultMode: 'control_polygon'
+            // });
+            // map.addControl(controlPolygon);
 
-        // map.on('click', 'polygons_'+dataArr.length, function (e) {
-        //     selectedShp = e.features[0];
-        //
-        //     // 선택된 폴리곤에 대한 작업 수행
-        //     console.log('Selected Polygon:', selectedShp);
-        // });
-        //
-        // map.on('mousemove', 'polygons_'+dataArr.length, (e) => {
-        //     if (e.features.length > 0) {
-        //         if (hoveredPolygonId !== null) {
-        //             map.setFeatureState(
-        //                 { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-        //                 { hover: false }
-        //             );
-        //         }
-        //         hoveredPolygonId = e.features[0].id;
-        //         map.setFeatureState(
-        //             { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-        //             { hover: true }
-        //         );
-        //     }
-        // });
-        //
-        // map.on('mouseleave', 'polygons_'+dataArr.length, () => {
-        //     if (hoveredPolygonId !== null) {
-        //         map.setFeatureState(
-        //             { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-        //             { hover: false }
-        //         );
-        //     }
-        //     hoveredPolygonId = null;
-        // });
+            new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML("<div class='polygon-popup'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
+                         "시군구 : "+selectedShp.properties.F_NAME+"<br>"+
+                         "지역 코드 : "+selectedShp.properties.GCODE +"<br>"+
+                         "지역명 : "+selectedShp.properties.NAME +"</div>")
+                .addTo(map)
+
+            draw.add(selectedShp);
+        });
+
+
+        map.on('mousemove', 'polygons_'+dataArr.length, (e) => {
+            if (e.features.length > 0) {
+                if (hoveredPolygonId !== null) {
+                    map.setFeatureState(
+                        { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+                        { hover: false }
+                    );
+                }
+                hoveredPolygonId = e.features[0].id;
+                map.setFeatureState(
+                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+                    { hover: true }
+                );
+            }
+        });
+
+        map.on('mouseleave', 'polygons_'+dataArr.length, () => {
+            if (hoveredPolygonId !== null) {
+                map.setFeatureState(
+                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+                    { hover: false }
+                );
+            }
+            hoveredPolygonId = null;
+        });
     }
 
-    function onFileHide() { // tab menu 관련
-        $('#loading-window, .drop-hover, .file-txt, .fa-file').hide();
-        document.getElementById("map").style.position = "";
-    }
-
+    // 해당 탭을 여는 함수
     function openTab(event, tab) {
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
@@ -341,6 +336,7 @@
         }
     }
 
+    // 열린 shp 파일(파일 이름, 파일 저장한 날)을 db에 저장하는 함수
     function saveShp(idx, filename) {
         $.ajax({
             url : '/api/saveShp',
@@ -368,6 +364,7 @@
         })
     }
 
+    // 열린 shp 파일 내 Feature들을 db에 저장하는 함수
     function saveFeature(shpId, jsonObj, idx) {
         // console.log(jsonObj);
         $.ajax({
@@ -394,23 +391,25 @@
         })
     }
 
-    function getShpData(shpId) {
-        $.ajax({
-            url : "/api/getShp",
-            type : "POST",
-            data : {
-                shpId : shpId
-            },
-            success : function(data) {
-                // console.log(data.data)
-                drawPolyline(data.data);
-            },
-            error: function () {
+    // function getShpData(shpId) {
+    //     $.ajax({
+    //         url : "/api/getShp",
+    //         type : "POST",
+    //         data : {
+    //             shpId : shpId
+    //         },
+    //         success : function(data) {
+    //             // console.log(data.data)
+    //             drawPolyline(data.data);
+    //         },
+    //         error: function () {
+    //
+    //         }
+    //     });
+    // }
 
-            }
-        });
-    }
 
+    // 그려진 폴리곤라인 지도 내에 한눈에 보이도록 하는 함수
     function setMapBounds(data) {
         var bounds = new mapboxgl.LngLatBounds();
         data.features.forEach(function (feature) {
@@ -424,12 +423,13 @@
         map.fitBounds(bounds, { padding: 150 });
     }
 
-    function viewLoading() {
-        $('#loading-window, .loading-logo').show();
-        $('.fa-file, .drop-hover, .file-txt, .dz-preview').hide();
-        document.getElementById("map").style.position = "absolute";
-    }
+    // 로딩 화면
+    // function viewLoading() {
+    //     $('#loading-window, .loading-logo').show();
+    //     document.getElementById("map").style.position = "absolute";
+    // }
 
+    // 리스트에 db에 저장된 파일 가져오는 함수
     function sendFiles() {
         var frmFile = $("#frmFile");
         // 파일 선택 input 요소
@@ -465,18 +465,20 @@
 
                 $(".layer-file-list").append(html);
             },
+
             error: function (error) {
                 console.error('Error uploading file:', error);
             }
         });
     }
 
+    // 레이어를 삭제하는 함수
     function removePolygon(idx) {
-        map.removeLayer('polygons_'+idx);
-        map.removeLayer('outline_'+idx);
+        map.removeLayer('polygons_'+(idx+1));
+        map.removeLayer('outline_'+(idx+1));
 
-        map.removeSource('file-data_'+idx);
-        $("#layer-file-"+idx).remove();
+        map.removeSource('file-data_'+(idx+1));
+        $("#layer-file-"+(idx+1)).remove();
     }
 </script>
 </html>
