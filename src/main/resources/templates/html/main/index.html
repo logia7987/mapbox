@@ -16,6 +16,8 @@
     <!-- mapbox -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css' type='text/css' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js'></script>
 
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -63,9 +65,12 @@
             </label>
         </form>
         <button type="button" class="btn btn-primary btn-send" onclick="sendFiles()">전송</button>
-
+        <div class="property-info">
+            <h5 class="tab1-title">속성 정보</h5>
+            <div class="property-list"></div>
+        </div>
         <div class="layer-list">
-            <div class="layer-title">레이어</div>
+            <h5 class="tab1-title">레이어</h5>
                 <div class="layer-file-list">
             </div>
         </div>
@@ -93,6 +98,9 @@
 <script th:inline="javascript">
     mapboxgl.accessToken = /*[[${mapboxAccessToken}]]*/ '';
 
+    var pointList = []
+    var dataArr = [];
+    var selectedShp;
     var tabmenu = document.getElementById("tab");
     var tabclose = document.getElementById("tab-close")
     var menubtn = document.getElementsByClassName("menu-btn");
@@ -101,15 +109,6 @@
     let hoveredPolygonId = null;
     let clickedPolygonId = null;
 
-    var Geo = {
-        type: 'geojson',
-        data: {
-            type : '',
-            features : ''
-        }
-    }
-
-    var lat,lng
     const mapSelect = document.getElementById('map-style');
 
     //
@@ -155,16 +154,16 @@
         center: [126.88271541564299, 37.48151056694073],
         zoom: 11,
     });
-
     map.addControl(new mapboxgl.FullscreenControl());
-
+    var draw = new MapboxDraw({});
+    map.addControl(draw, 'bottom-left')
     // 지도 스타일 변경하는 함수
     mapSelect.onchange = (change) => {
         const changeId = change.target.value;
         map.setStyle('mapbox://styles/mapbox/' + changeId);
-        // map.on('style.load', () => {
-        //     drawPolyline()
-        // });
+        map.on('style.load', () => {
+            drawPolyline()
+        });
     }
 
     // 메뉴 여는 함수
@@ -214,13 +213,9 @@
             }
         }
     }
-
-    var dataArr = [];
-    var selectedShp;
-    var draw = new MapboxDraw();
-
     // Polyline 그리는 함수
     function drawPolyline(data) {
+        draw.add(data)
         dataArr.push(data);
 
         var tData = {
@@ -230,94 +225,183 @@
                 features :data.features
             }
         }
-
         setMapBounds(data);
 
         map.addSource("file-data_"+dataArr.length, tData);
-        map.addLayer({
-            'id': 'polygons_'+dataArr.length,
-            'type': 'fill',
-            'source': 'file-data_'+dataArr.length,
-            'layout': {},
-            'paint': {
-                'fill-color': [
-                    'case',
-                    ['boolean', ['feature-state', 'selected'], false],
-                    '#007dd2', // 클릭한 폴리곤의 색상
-                    ['boolean', ['feature-state', 'hover'], false],
-                    '#007dd2', // 클릭한 폴리곤의 색상
-                    '#1aa3ff',  // 클릭하지 않은 폴리곤의 색상
-                ],
-                'fill-opacity': [
-                    'case',
-                    ['boolean', ['feature-state', 'hover'], false],
-                    1,
-                    0.5
-                ]
-            }
+        map.on('click', function (e) {
+            selectedShp = draw.getSelected();
+                new mapboxgl.Popup()
+                    .setLngLat(e.lngLat)
+                    .setHTML("<div class='polygon-popup'> ID : "+selectedShp.features[0].properties.DIST1_ID+"<br>"+
+                             "시군구 : "+selectedShp.features[0].properties.F_NAME+"<br>"+
+                             "지역 코드 : "+selectedShp.features[0].properties.GCODE +"<br>"+
+                             "지역명 : "+selectedShp.features[0].properties.NAME +"</div>")
+                    .addTo(map)
         });
 
-        map.addLayer({
-            'id': 'outline_'+dataArr.length,
-            'type': 'line',
-            'source': 'file-data_'+dataArr.length,
-            'layout': {},
-            'paint': {
-                'line-color': '#1aa3ff',
-                'line-width': 2.5
-            }
-        });
-        // 선택된 폴리곤에 대한 작업 수행
-        map.on('click', 'polygons_'+dataArr.length, function (e) {
-            selectedShp = e.features[0]
-            // var controlPolygon = new MapboxDraw({
-            //     displayControlDefault: false,
-            //     controls: {
-            //         polygon: true,
-            //         trash : true
-            //     },
-            //     defaultMode: 'control_polygon'
-            // });
-            // map.addControl(controlPolygon);
-
-            new mapboxgl.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML("<div class='polygon-popup'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
-                         "시군구 : "+selectedShp.properties.F_NAME+"<br>"+
-                         "지역 코드 : "+selectedShp.properties.GCODE +"<br>"+
-                         "지역명 : "+selectedShp.properties.NAME +"</div>")
-                .addTo(map)
-
-            draw.add(selectedShp);
-        });
-
-
-        map.on('mousemove', 'polygons_'+dataArr.length, (e) => {
-            if (e.features.length > 0) {
-                if (hoveredPolygonId !== null) {
-                    map.setFeatureState(
-                        { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-                        { hover: false }
-                    );
-                }
-                hoveredPolygonId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'polygons_'+dataArr.length, () => {
-            if (hoveredPolygonId !== null) {
-                map.setFeatureState(
-                    { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
-                    { hover: false }
-                );
-            }
-            hoveredPolygonId = null;
-        });
+        // dataArr.push(data);
+        //
+        // var tData = {
+        //     type: 'geojson',
+        //     data: {
+        //         type : 'FeatureCollection',
+        //         features :data.features
+        //     }
+        // }
+        //
+        // setMapBounds(data);
+        //
+        // map.addSource("file-data_"+dataArr.length, tData);
+        // map.addLayer({
+        //     'id': 'polygons_'+dataArr.length,
+        //     'type': 'fill',
+        //     'source': 'file-data_'+dataArr.length,
+        //     'layout': {},
+        //     'paint': {
+        //         'fill-color': [
+        //             'case',
+        //             ['boolean', ['feature-state', 'selected'], false],
+        //             '#007dd2', // 클릭한 폴리곤의 색상
+        //             ['boolean', ['feature-state', 'hover'], false],
+        //             '#007dd2', // 클릭한 폴리곤의 색상
+        //             '#1aa3ff',  // 클릭하지 않은 폴리곤의 색상
+        //         ],
+        //         'fill-opacity': [
+        //             'case',
+        //             ['boolean', ['feature-state', 'hover'], false],
+        //             1,
+        //             0.5
+        //         ]
+        //     }
+        // });
+        //
+        // map.addLayer({
+        //     'id': 'outline_'+dataArr.length,
+        //     'type': 'line',
+        //     'source': 'file-data_'+dataArr.length,
+        //     'layout': {},
+        //     'paint': {
+        //         'line-color': '#1aa3ff',
+        //         'line-width': 2.5
+        //     }
+        // });
+        // // 선택된 폴리곤에 대한 작업 수행
+        // map.on('click', 'polygons_'+dataArr.length, function (e) {
+        //     selectedShp = e.features[0]
+        //     map.setZoom(7.5)
+        //     new mapboxgl.Popup()
+        //         .setLngLat(e.lngLat)
+        //         .setHTML("<div class='polygon-popup'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
+        //                  "시군구 : "+selectedShp.properties.F_NAME+"<br>"+
+        //                  "지역 코드 : "+selectedShp.properties.GCODE +"<br>"+
+        //                  "지역명 : "+selectedShp.properties.NAME +"</div>")
+        //                  // "<button onclick='changePoint(selectedShp)'>수정</button>")
+        //         .addTo(map)
+        // });
+        //
+        //
+        // map.on('mousemove', 'polygons_'+dataArr.length, (e) => {
+        //     if (e.features.length > 0) {
+        //         if (hoveredPolygonId !== null) {
+        //             map.setFeatureState(
+        //                 { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+        //                 { hover: false }
+        //             );
+        //         }
+        //         hoveredPolygonId = e.features[0].id;
+        //         map.setFeatureState(
+        //             { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+        //             { hover: true }
+        //         );
+        //     }
+        // });
+        //
+        // map.on('mouseleave', 'polygons_'+dataArr.length, () => {
+        //     if (hoveredPolygonId !== null) {
+        //         map.setFeatureState(
+        //             { source: 'file-data_'+dataArr.length, id: hoveredPolygonId },
+        //             { hover: false }
+        //         );
+        //     }
+        //     hoveredPolygonId = null;
+        // });
     }
+
+
+    // function changePoint(selectedShp) {
+    //     var data = selectedShp.geometry.coordinates
+    //
+    //     if (pointList.length > 0) {
+    //         for (i = 0; i < pointList.length; i++) {
+    //             map.removeLayer(pointList[i]);
+    //             map.removeSource(pointList[i]);
+    //         }
+    //         pointList = []
+    //     }
+    //
+    //     if (data.length > 1) {
+    //         for (i = 0; i < data.length; i++) {
+    //             var aArr = data[i];
+    //
+    //             for (var j = 0; j < aArr[0].length; j++) {
+    //                 var pointId = 'point_' + i + '_' + j;
+    //
+    //                 x = aArr[0][j][1];
+    //                 y = aArr[0][j][0];
+    //
+    //                 map.addSource(pointId, {
+    //                     'type' : 'geojson',
+    //                     'data' : {
+    //                         'type' : 'Point',
+    //                         'coordinates' : [y, x]
+    //                     }
+    //                 })
+    //
+    //                 map.addLayer({
+    //                     'id': pointId,
+    //                     'type': 'circle',
+    //                     'source': pointId,
+    //                     'layout': {},
+    //                     'paint': {
+    //                         'circle-radius': 6,
+    //                         'circle-color': '#fff200'
+    //                     }
+    //                 });
+    //                 pointList.push(pointId);
+    //             }
+    //
+    //         }
+    //
+    //     } else {
+    //         for (var i = 0; i < data[0].length; i++) {
+    //             var pointId = 'point_' + i
+    //             x = data[0][i][1];
+    //             y = data[0][i][0];
+    //
+    //             map.addSource(pointId, {
+    //                 'type' : 'geojson',
+    //                 'data' : {
+    //                     'type' : 'Point',
+    //                     'coordinates' : [y, x]
+    //                 }
+    //             })
+    //
+    //             map.addLayer({
+    //                 'id': pointId,
+    //                 'type': 'circle',
+    //                 'source': pointId,
+    //                 'layout': {},
+    //                 'paint': {
+    //                     'circle-radius': 6,
+    //                     'circle-color': '#fff200'
+    //                 }
+    //             });
+    //             pointList.push(pointId);
+    //         }
+    //     }
+    //
+    // }
+
 
     // 해당 탭을 여는 함수
     function openTab(event, tab) {
@@ -348,9 +432,11 @@
                 console.log(result)
                 var shpId = result.shpId;
 
-                for (var i = 0; i < dataArr[idx].features.length; i++) {
-                    saveFeature(shpId, dataArr[idx].features[i], (i+1));
+                for (var i = 0; i < draw.getAll().features.length; i++) {
+                    saveFeature(shpId, draw.getAll().features[i], (i+1));
                 }
+
+                $(".layer-file-list").append(html);
 
             },
             complete: function(xhr, status) {
@@ -391,22 +477,32 @@
         })
     }
 
-    // function getShpData(shpId) {
-    //     $.ajax({
-    //         url : "/api/getShp",
-    //         type : "POST",
-    //         data : {
-    //             shpId : shpId
-    //         },
-    //         success : function(data) {
-    //             // console.log(data.data)
-    //             drawPolyline(data.data);
-    //         },
-    //         error: function () {
-    //
-    //         }
-    //     });
-    // }
+    function getShpData(shpId) {
+        $.ajax({
+            url : "/api/getShp",
+            type : "POST",
+            data : {
+                shpId : shpId
+            },
+            success : function(data) {
+                // console.log(data.data)
+                drawPolyline(data.data);
+                var html = "";
+                html += '<div id="layer-file-'+dataArr.length+'" class="layer-file">';
+                html += '<i class="fa-solid fa-map"></i>';
+                html += '<div class="file-info">';
+                html += '<div class="file-tit">파일-' + dataArr.length + '</div>';
+                html += '<div class="file-date" onclick="saveShp('+(dataArr.length-1)+', '+'\'파일-' + dataArr.length + '\')">저장하기</div>'
+                html += '<div class="file-date" onclick="removePolygon('+(dataArr.length-1)+')">삭제하기</div>'
+                html += '</div>';
+                html += '</div>';
+                $(".layer-file-list").append(html);
+            },
+            error: function () {
+
+            }
+        });
+    }
 
 
     // 그려진 폴리곤라인 지도 내에 한눈에 보이도록 하는 함수
@@ -474,11 +570,17 @@
 
     // 레이어를 삭제하는 함수
     function removePolygon(idx) {
-        map.removeLayer('polygons_'+(idx+1));
-        map.removeLayer('outline_'+(idx+1));
-
+        draw.deleteAll()
         map.removeSource('file-data_'+(idx+1));
         $("#layer-file-"+(idx+1)).remove();
     }
+    // function removePolygon(idx) {
+    //     map.removeLayer('polygons_'+(idx+1));
+    //     map.removeLayer('outline_'+(idx+1));
+    //
+    //     map.removeSource('file-data_'+(idx+1));
+    //     $("#layer-file-"+(idx+1)).remove();
+    // }
+
 </script>
 </html>
