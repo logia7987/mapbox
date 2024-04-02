@@ -65,10 +65,6 @@
             </label>
         </form>
         <button type="button" class="btn btn-primary btn-send" onclick="sendFiles()">전송</button>
-        <div class="property-info">
-            <h5 class="tab1-title">속성 정보</h5>
-            <div class="property-list"></div>
-        </div>
         <div class="layer-list">
             <h5 class="tab1-title">레이어</h5>
                 <div class="layer-file-list">
@@ -89,8 +85,10 @@
                 <option value="navigation-night-v1" class="style-option">Navigation-night</option>
             </select>
         </div>
-        <div id="Save" class="tab2-content"><i class="fas fa-solid fa-file-arrow-down tab2-icon" ></i></div>
-        <div id="PointChange" class="tab2-content"><i class="fas fa-solid fa-up-down-left-right tab2-icon"></i></div>
+        <div class="property-info">
+            <h5 class="tab1-title">선택한 속성 정보</h5>
+            <div class="property-list"></div>
+        </div>
     </div>
 
 </div>
@@ -98,7 +96,7 @@
 <script th:inline="javascript">
     mapboxgl.accessToken = /*[[${mapboxAccessToken}]]*/ '';
 
-    var pointList = []
+    var drawItem = "";
     var dataArr = [];
     var selectedShp;
     var tabmenu = document.getElementById("tab");
@@ -154,7 +152,6 @@
         center: [126.88271541564299, 37.48151056694073],
         zoom: 11,
     });
-    map.addControl(new mapboxgl.FullscreenControl());
     var draw = new MapboxDraw({});
     map.addControl(draw, 'bottom-left')
     // 지도 스타일 변경하는 함수
@@ -214,30 +211,20 @@
         }
     }
     // Polyline 그리는 함수
+    var features = [];
     function drawPolyline(data) {
-        draw.add(data)
         dataArr.push(data);
-
+        drawItem = draw.add(data);
         var tData = {
-            type: 'geojson',
-            data: {
-                type : 'FeatureCollection',
-                features :data.features
+                type: 'geojson',
+                data: {
+                    type : draw.getAll().type,
+                    features : draw.getAll().features
+                }
             }
-        }
-        setMapBounds(data);
-
+            setMapBounds(data);
         map.addSource("file-data_"+dataArr.length, tData);
-        map.on('click', function (e) {
-            selectedShp = draw.getSelected();
-                new mapboxgl.Popup()
-                    .setLngLat(e.lngLat)
-                    .setHTML("<div class='polygon-popup'> ID : "+selectedShp.features[0].properties.DIST1_ID+"<br>"+
-                             "시군구 : "+selectedShp.features[0].properties.F_NAME+"<br>"+
-                             "지역 코드 : "+selectedShp.features[0].properties.GCODE +"<br>"+
-                             "지역명 : "+selectedShp.features[0].properties.NAME +"</div>")
-                    .addTo(map)
-        });
+        setMapBounds(data);
 
         // dataArr.push(data);
         //
@@ -288,15 +275,14 @@
         // // 선택된 폴리곤에 대한 작업 수행
         // map.on('click', 'polygons_'+dataArr.length, function (e) {
         //     selectedShp = e.features[0]
-        //     map.setZoom(7.5)
-        //     new mapboxgl.Popup()
-        //         .setLngLat(e.lngLat)
-        //         .setHTML("<div class='polygon-popup'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
+        //     if ($(".polygon-properties").length > 0) {
+        //         $(".polygon-properties").remove()
+        //     }
+        //     var html = "<div class='polygon-properties'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
         //                  "시군구 : "+selectedShp.properties.F_NAME+"<br>"+
         //                  "지역 코드 : "+selectedShp.properties.GCODE +"<br>"+
-        //                  "지역명 : "+selectedShp.properties.NAME +"</div>")
-        //                  // "<button onclick='changePoint(selectedShp)'>수정</button>")
-        //         .addTo(map)
+        //                  "지역명 : "+selectedShp.properties.NAME +"</div>"
+        //     $(".property-list").append(html)
         // });
         //
         //
@@ -326,7 +312,17 @@
         //     hoveredPolygonId = null;
         // });
     }
-
+    map.on('click', function () {
+        selectedShp = draw.getSelected();
+        if ($(".polygon-properties").length > 0) {
+            $(".polygon-properties").remove()
+        }
+        var html = "<div class='polygon-properties'> ID : "+selectedShp.features[0].properties.DIST1_ID+"<br>"+
+            "시군구 : "+selectedShp.features[0].properties.F_NAME+"<br>"+
+            "지역 코드 : "+selectedShp.features[0].properties.GCODE +"<br>"+
+            "지역명 : "+selectedShp.features[0].properties.NAME +"</div>"
+        $(".property-list").append(html)
+    });
 
     // function changePoint(selectedShp) {
     //     var data = selectedShp.geometry.coordinates
@@ -484,6 +480,12 @@
             data : {
                 shpId : shpId
             },
+            beforeSend: function( ) {
+                viewLoading()
+            },
+            complete: function( ) {
+                finishLoading();
+            },
             success : function(data) {
                 // console.log(data.data)
                 drawPolyline(data.data);
@@ -520,10 +522,16 @@
     }
 
     // 로딩 화면
-    // function viewLoading() {
-    //     $('#loading-window, .loading-logo').show();
-    //     document.getElementById("map").style.position = "absolute";
-    // }
+    function viewLoading() {
+        $('#loading-window, .loading-logo').show();
+        document.getElementById("map").style.position = "absolute";
+    }
+
+    // 로딩 종료
+    function finishLoading() {
+        $('#loading-window, .loading-logo').hide();
+        document.getElementById("map").style.position = "";
+    }
 
     // 리스트에 db에 저장된 파일 가져오는 함수
     function sendFiles() {
@@ -570,9 +578,9 @@
 
     // 레이어를 삭제하는 함수
     function removePolygon(idx) {
-        draw.deleteAll()
-        map.removeSource('file-data_'+(idx+1));
+        draw.delete(drawItem)
         $("#layer-file-"+(idx+1)).remove();
+        $(".polygon-properties").remove();
     }
     // function removePolygon(idx) {
     //     map.removeLayer('polygons_'+(idx+1));

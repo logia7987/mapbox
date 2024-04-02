@@ -380,6 +380,7 @@
     margin: 10px 0;
 }
 
-.polygon-popup {
-
+.property-list {
+    padding: 8px;
+    border: 1px solid;
 }
