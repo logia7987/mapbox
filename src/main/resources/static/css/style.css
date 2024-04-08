@@ -199,6 +199,9 @@
 .tab-content {
     display: none;
     height: 88%;
+}
+
+.padding-6-12 {
     padding: 6px 12px;
 }
 
@@ -222,12 +225,12 @@
     margin-bottom: 2px;
 }
 
-/*최근 파일 목록*/
+/*레이어 목록*/
 
-.tab1-title {
+.tab-title {
     margin-left: 10px;
     font-weight: 900;
-    font-size: 18px !important;
+    font-size: 16px !important;
 }
 
 .layer-list {
@@ -237,21 +240,34 @@
 .layer-file-list {
     height: 100%;
     width: 100%;
-    border: 2px solid #ccc;
+    border-top: 3px solid #ccc;
+    border-bottom: 3px solid #ccc;
     margin-top: 10px;
-    border-radius: 10px;
+    overflow: auto;
 }
 
 .layer-file {
+    align-items: center;
     display: flex;
-    margin-left: 10px;
-    margin-top: 10px;
+    padding: 10px;
     cursor: pointer;
-    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
 }
 
-.layer-file:hover {
+.selected {
+    background-color: #ddd;
+}
+
+.fa-map:hover, .file-info:hover, .savedelete > .file-date:hover {
     color: #2699E6;
+}
+
+.savedelete > .file-date:nth-child(2) {
+    margin-left: 5px;
+}
+
+.savedelete {
+    display: flex;
 }
 
 .fa-map {
@@ -259,20 +275,24 @@
 }
 
 .file-info {
+    width: 205px;
     margin-left: 10px;
     font-weight: 600;
 }
 
 .file-info > .file-tit {
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 12px;
 }
 
-.file-info > .file-date {
+.savedelete > .file-date {
     font-size: 10px;
+    font-weight: 600;
 }
 
 .layer-file-list::-webkit-scrollbar {
-    width: 12px;
+    width: 6px;
 }
 
 .layer-file-list::-webkit-scrollbar-thumb {
@@ -383,4 +403,86 @@
 .property-list {
     padding: 8px;
     border: 1px solid;
+}
+
+.margin-top-10 {
+    margin-top : 10px
+}
+
+.file-properties {
+    height: 90%;
+    overflow: auto;
+    font-size: 14px;
+}
+
+.file-properties::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-properties::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 10px;
+}
+
+.file-class {
+    padding-left: 10px;
+    border-bottom: 1px solid;
+    display: flex;
+    font-size: 14px;
+}
+
+.file-class-tit {
+    font-weight: 600;
+}
+
+.file-class-tit:nth-child(1) {
+    width: 50px;
+}
+
+.file-class-tit:nth-child(2) {
+    width: 70px;
+}
+
+
+.file-class-tit:nth-child(3) {
+    width: 105px;
+}
+
+.file-class-tit:nth-child(4) {
+    width: 60px;
+}
+
+.info-item {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.info-id {
+    width: 55px;
+}
+
+.info-gcode {
+    width: 70px;
+}
+
+.info-name {
+    width: 110px;
+}
+
+.info-fname {
+    width: 60px;
+}
+
+.file-info-item {
+    display: flex;
+    padding-left: 10px;
+}
+
+.file-info-item:hover {
+    color: #2699E6;
+}
+
+.layer-info {
+    display: flex;
 }

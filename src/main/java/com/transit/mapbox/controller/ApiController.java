@@ -23,6 +23,7 @@ import javax.json.JsonArrayBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -117,12 +118,14 @@ public class ApiController {
         try {
             if (shpId != null) {
                 ShpVo shpVo = shpService.getShp(Long.valueOf(shpId));
+                String shpName = shpVo.getShpName();
                 List<FeatureVo> features = featureService.getFeatures(shpVo);
                 for (FeatureVo feature: features) {
                     feature.setGeometryVo(geometryService.getGeometryByFeature(feature));
                 }
 
                 result.put("result", "success");
+                result.put("shpName", shpName);
                 result.put("data", convertToGeoJson(features));
             } else {
                 result.put("result", "fail");
