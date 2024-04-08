@@ -112,6 +112,7 @@
 
     var fileNm;
     var dataArr = [];
+    var drawArr;
     var selectedShp;
     var tabmenu = document.getElementById("tab");
     var tabclose = document.getElementById("tab-close")
@@ -228,6 +229,7 @@
         }
 
         dataArr[data.fileName] = data
+        drawArr = dataArr
 
         var tData = {
             type: 'geojson',
@@ -539,14 +541,16 @@
             tablinks[2].classList.add("active-dark")
         }
         map.on('mousemove', 'polygons_'+fileNm, (e) => {
-            if (e.features.length > 0) {
+            dataArr[fileNm]
+            selectedShp = e.features
+            if (selectedShp.length > 0) {
                 if (hoveredPolygonId !== null) {
                     map.setFeatureState(
                         { source: 'data_'+fileNm, id: hoveredPolygonId },
                         { hover: false }
                     );
                 }
-                hoveredPolygonId = e.features[0].id;
+                hoveredPolygonId = selectedShp[0].id;
                 map.setFeatureState(
                     { source: 'data_'+fileNm, id: hoveredPolygonId },
                     { hover: true }
@@ -616,17 +620,22 @@
     }
     var selectedId;
     function editShp(property) {
+        if (drawArr.length !== dataArr.length) {
+            drawArr = []
+            drawArr = dataArr
+        }
         draw.add(property)
         selectedId = Number(property.id)-1
-        dataArr[fileNm].data.features[Number(property.id)-1] = []
+        drawArr[fileNm].data.features.splice(selectedId, 1);
         map.removeLayer('polygons_'+(fileNm));
         map.removeLayer('outline_'+(fileNm));
         map.removeSource('data_'+(fileNm));
+
         var tData = {
             type: 'geojson',
             data: {
                 type : 'FeatureCollection',
-                features :dataArr[fileNm].data.features
+                features :drawArr[fileNm].data.features
             }
         }
         map.addSource("data_"+fileNm, tData);
@@ -668,7 +677,7 @@
 
     function finishPoint() {
         draw.getAll()
-        dataArr[fileNm].data.features[selectedId] = draw.getAll().features[0]
+        drawArr[fileNm].data.features.splice(selectedId,0,draw.getAll().features[0])
         map.removeLayer('polygons_'+(fileNm));
         map.removeLayer('outline_'+(fileNm));
         map.removeSource('data_'+(fileNm));
@@ -676,7 +685,7 @@
             type: 'geojson',
             data: {
                 type : 'FeatureCollection',
-                features :dataArr[fileNm].data.features
+                features :drawArr[fileNm].data.features
             }
         }
         map.addSource("data_"+fileNm, tData);
