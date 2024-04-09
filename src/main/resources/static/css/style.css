@@ -486,3 +486,11 @@
 .layer-info {
     display: flex;
 }
+
+.finish-btn {
+    margin-right: 10px;
+    border: 0;
+    border-radius: 4px;
+    margin-top: 10px;
+    float: right;
+}
