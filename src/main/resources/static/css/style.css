@@ -137,7 +137,7 @@
     color : #020202;
     display: none;
     height: 90%;
-    width: 300px;
+    width: 340px;
     position: fixed;
     top: 0;
     right: 0;
@@ -475,8 +475,8 @@
 }
 
 .file-info-item {
+    padding: 5px 5px 5px 10px;
     display: flex;
-    padding-left: 10px;
 }
 
 .file-info-item:hover {
@@ -493,4 +493,23 @@
     border-radius: 4px;
     margin-top: 10px;
     float: right;
+}
+
+.modal-body > .file-class {
+    width: 100%;
+}
+
+.modal-body > .file-class .file-class-tit {
+    width: 25%;
+}
+
+.file-info-li {
+    display: flex;
+}
+
+.info-btn {
+    font-size: 12px;
+    white-space: nowrap;
+    border: 0;
+    padding-right: 3px;
 }

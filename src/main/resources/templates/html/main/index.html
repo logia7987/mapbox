@@ -39,6 +39,20 @@
     <div class="loading-logo" style="color:white">loading..</div>
     <div id="loading-bar"></div>
 </div>
+<div class="modal" id="myModal">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <h4 class="modal-title">Modal Heading</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <!-- Modal body -->
+        <div class="modal-body">
+        </div>
+    </div>
+</div>
+</div>
 <div id="menu-btn" onclick="openTabMenu()">
     <i class="fas fa-solid fa-bars"></i>
 </div>
@@ -433,15 +447,6 @@
         });
     }
 
-    // 레이어를 삭제하는 함수
-    // function removePolygon(idx) {
-    //     draw.delete(drawItem)
-    //     $("#layer-file-"+(idx+1)).remove();
-    //     $(".polygon-properties").remove();
-    // }
-
-
-
     function removePolygon(key) {
         fileName = dataArr[key].fileName
 
@@ -514,9 +519,6 @@
         map.setPaintProperty('polygons_'+fileNm,'fill-opacity', opacity);
         // 선택된 폴리곤에 대한 작업 수행
         map.on('click', 'polygons_'+fileNm, function (e) {
-            if (draw.getAll().features.length > 0) {
-                finishPoint()
-            }
             selectedShp = e.features[0]
             var property = "";
             var id = selectedShp.properties.DIST1_ID;
@@ -526,20 +528,16 @@
                     property = info[i]
                 }
             }
-            var item = document.getElementsByClassName("file-info-item");
-            for (i = 0; i < item.length; i++) {
-                item[i].classList.remove("selected");
-            }
             $('#'+ id).addClass("selected")
 
-            if ($(".polygon-properties").length > 0) {
-                $(".polygon-properties").remove()
-            }
-            var html = "<div class='polygon-properties'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
-                "시군구 : "+selectedShp.properties.F_NAME+"<br>"+
-                "지역 코드 : "+selectedShp.properties.GCODE +"<br>"+
-                "지역명 : "+selectedShp.properties.NAME +"</div>"
-            $(".property-list").append(html)
+            // if ($(".polygon-properties").length > 0) {
+            //     $(".polygon-properties").remove()
+            // }
+            // var html = "<div class='polygon-properties'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
+            //     "시군구 : "+selectedShp.properties.F_NAME+"<br>"+
+            //     "지역 코드 : "+selectedShp.properties.GCODE +"<br>"+
+            //     "지역명 : "+selectedShp.properties.NAME +"</div>"
+            // $(".property-list").append(html)
 
             openTab(event, 'tab2')
             if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
@@ -584,50 +582,41 @@
             $(".file-info-item").remove();
         }
         for (i = 0; i < info.length; i++) {
-            html = "<div class='file-info-item' onclick='selectedProperty(this)' id ="+info[i].properties.DIST1_ID+"><div class='info-id info-item'>"+info[i].properties.DIST1_ID+"</div>"+
+            html = "<div class='file-info-item' >" +
+                "<div class='file-info-li' onclick='selectedProperty(this)' id ="+info[i].properties.DIST1_ID+">"+
+                "<div class='info-id info-item'>"+info[i].properties.DIST1_ID+"</div>"+
                 "<div class='info-gcode info-item'>"+info[i].properties.GCODE +"</div>"+
                 "<div class='info-name info-item'>"+info[i].properties.NAME+"</div>"+
-                "<div class='info-fname info-item'>"+info[i].properties.F_NAME+"</div></div>"
+                "<div class='info-fname info-item'>"+info[i].properties.F_NAME+"</div>" +
+                "</div>"+
+                "<button type='button' class='info-btn btn-primary' data-bs-toggle='modal' data-bs-target='#myModal' onclick='changeProperties("+info[i].properties.DIST1_ID+")'>수정</button>" +
+                "</div>"
             $(".file-info-list").append(html)
         }
     }
 
     function selectedProperty(obj) {
-        if (draw.getAll().features.length > 0) {
-            finishPoint()
-        }
         var property = "";
         var id = obj.querySelector('.info-id').textContent;
         var info = dataArr[fileNm].data.features
-        var item = document.getElementsByClassName("file-info-item");
-        for (i = 0; i < item.length; i++) {
-            item[i].classList.remove("selected");
-        }
-        $(obj).addClass("selected")
+        $(obj).parent().addClass("selected")
         for (i = 0; i < info.length; i++) {
             if (info[i].properties.DIST1_ID === id) {
                 property = info[i]
             }
         }
 
-        if ($(".polygon-properties").length > 0) {
-            $(".polygon-properties").remove()
-        }
-        var html = "<div class='polygon-properties'> ID : "+property.properties.DIST1_ID +"<br>"+
-            "시군구 : "+property.properties.F_NAME+"<br>"+
-            "지역 코드 : "+property.properties.GCODE +"<br>"+
-            "지역명 : "+property.properties.NAME +"</div>"
-        $(".property-list").append(html)
+        // if ($(".polygon-properties").length > 0) {
+        //     $(".polygon-properties").remove()
+        // }
+        // var html = "<div class='polygon-properties'> ID : "+property.properties.DIST1_ID +"<br>"+
+        //     "시군구 : "+property.properties.F_NAME+"<br>"+
+        //     "지역 코드 : "+property.properties.GCODE +"<br>"+
+        //     "지역명 : "+property.properties.NAME +"</div>"
+        // $(".property-list").append(html)
 
-        openTab(event, 'tab2')
-        if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-            tablinks[1].classList.add("active-white");
-        } else {
-            tablinks[1].classList.add("active-dark")
-        }
         editShp(property)
     }
-    var selectedId;
     var propertyArr = []
 
     function editShp(property) {
@@ -636,24 +625,25 @@
         map.removeSource('data_'+(fileNm));
 
         var polygonArr = []
+        drawArr = []
 
         propertyArr.push(property)
 
         for (i = 0; i < dataArr[fileNm].data.features.length; i++) {
+            var found = false;
             for (j = 0; j < propertyArr.length; j++) {
                 if (propertyArr[j].id === dataArr[fileNm].data.features[i].id) {
                     drawArr.push(dataArr[fileNm].data.features[i])
+                    found = true;
+                    break;
                 }
             }
-            for (k = 0; k < propertyArr.length; k++) {
-                if (propertyArr[k].id !== dataArr[fileNm].data.features[i].id) {
-                    polygonArr.push(dataArr[fileNm].data.features[i])
-                }
+            if (!found) {
+                polygonArr.push(dataArr[fileNm].data.features[i]);
             }
         }
 
-        console.log(propertyArr.length)
-        console.log(polygonArr)
+
         for (i = 0; i < drawArr.length; i++) {
             draw.add(drawArr[i])
         }
@@ -701,9 +691,15 @@
     }
 
     function finishPoint() {
+        var item = document.getElementsByClassName("file-info-item");
+        for (i = 0; i < item.length; i++) {
+            item[i].classList.remove("selected");
+        }
         if (draw.getAll().features.length > 0) {
             draw.getAll()
-            // dataArr[fileNm].data.features.splice(selectedId,0,draw.getAll().features[0])
+            for (i = 0; i < drawArr.length; i++) {
+                dataArr[fileNm].data.features[drawArr[i].id-1]=draw.getAll().features[i]
+            }
             map.removeLayer('polygons_'+(fileNm));
             map.removeLayer('outline_'+(fileNm));
             map.removeSource('data_'+(fileNm));
@@ -748,115 +744,12 @@
                 }
             });
             draw.deleteAll();
+            propertyArr = []
+            drawArr = []
         } else {
             alert('편집된 부분이 없습니다')
         }
     }
-
-    // function editShp(property) {
-    //     draw.add(property)
-    //     selectedId = Number(property.id)-1
-    //     dataArr[fileNm].data.features.splice(selectedId, 1);
-    //     map.removeLayer('polygons_'+(fileNm));
-    //     map.removeLayer('outline_'+(fileNm));
-    //     map.removeSource('data_'+(fileNm));
-    //
-    //     var tData = {
-    //         type: 'geojson',
-    //         data: {
-    //             type : 'FeatureCollection',
-    //             features :dataArr[fileNm].data.features
-    //         }
-    //     }
-    //     map.addSource("data_"+fileNm, tData);
-    //     map.addLayer({
-    //         'id': 'polygons_'+fileNm,
-    //         'type': 'fill',
-    //         'source': 'data_'+fileNm,
-    //
-    //         'layout': {},
-    //         'paint': {
-    //             'fill-color': [
-    //                 'case',
-    //                 ['boolean', ['feature-state', 'selected'], false],
-    //                 '#007dd2', // 클릭한 폴리곤의 색상
-    //                 ['boolean', ['feature-state', 'hover'], false],
-    //                 '#007dd2', // 클릭한 폴리곤의 색상
-    //                 '#1aa3ff',  // 클릭하지 않은 폴리곤의 색상
-    //             ],
-    //             'fill-opacity': [
-    //                 'case',
-    //                 ['boolean', ['feature-state', 'hover'], false],
-    //                 1,
-    //                 0.5
-    //             ]
-    //         }
-    //     });
-    //
-    //     map.addLayer({
-    //         'id': 'outline_'+fileNm,
-    //         'type': 'line',
-    //         'source': 'data_'+fileNm,
-    //         'layout': {},
-    //         'paint': {
-    //             'line-color': '#1aa3ff',
-    //             'line-width': 2.5
-    //         }
-    //     });
-    // }
-    //
-    // function finishPoint() {
-    //     if (draw.getAll().features.length > 0) {
-    //         draw.getAll()
-    //         dataArr[fileNm].data.features.splice(selectedId,0,draw.getAll().features[0])
-    //     map.removeLayer('polygons_'+(fileNm));
-    //         map.removeLayer('outline_'+(fileNm));
-    //         map.removeSource('data_'+(fileNm));
-    //         var tData = {
-    //             type: 'geojson',
-    //             data: {
-    //                 type : 'FeatureCollection',
-    //                 features :dataArr[fileNm].data.features
-    //             }
-    //         }
-    //         map.addSource("data_"+fileNm, tData);
-    //         map.addLayer({
-    //             'id': 'polygons_'+fileNm,
-    //             'type': 'fill',
-    //             'source': 'data_'+fileNm,
-    //             'layout': {},
-    //             'paint': {
-    //                 'fill-color': [
-    //                     'case',
-    //                     ['boolean', ['feature-state', 'selected'], false],
-    //                     '#007dd2', // 클릭한 폴리곤의 색상
-    //                     ['boolean', ['feature-state', 'hover'], false],
-    //                     '#007dd2', // 클릭한 폴리곤의 색상
-    //                     '#1aa3ff',  // 클릭하지 않은 폴리곤의 색상
-    //                 ],
-    //                 'fill-opacity': [
-    //                     'case',
-    //                     ['boolean', ['feature-state', 'hover'], false],
-    //                     1,
-    //                     0.5
-    //                 ]
-    //             }
-    //         });
-    //         map.addLayer({
-    //             'id': 'outline_'+fileNm,
-    //             'type': 'line',
-    //             'source': 'data_'+fileNm,
-    //             'layout': {},
-    //             'paint': {
-    //                 'line-color': '#1aa3ff',
-    //                 'line-width': 2.5
-    //             }
-    //         });
-    //         draw.deleteAll();
-    //     } else {
-    //         alert('편집된 부분이 없습니다')
-    //     }
-    // }
 
     function showHideLayer(Nm) {
         if ($('#check_'+Nm).is(':checked') === true) {
@@ -879,6 +772,20 @@
     //         }
     //     });
     // }
+
+    function changeProperties(id) {
+        $(".modal-body form").remove()
+        var html =
+            "<form action='method'=><label> ID  </label><input type='text' value= "+$("#"+id+" .info-id").text()+"><br>"+
+            "<label> 지역 코드 </label><input type='text' value= "+$("#"+id+" .info-gcode").text()+"><br>"+
+            "<label> 시군구 </label><input type='text' value= "+$("#"+id+" .info-name").text()+"><br>"+
+            "<label> 지역명 </label><input type='text' value= "+$("#"+id+" .info-fname").text()+"></div></form>"
+        $(".modal-body").append(html)
+    }
+
+    function finishProperties() {
+
+    }
 
 </script>
 </html>
