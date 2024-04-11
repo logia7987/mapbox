@@ -137,7 +137,7 @@
     color : #020202;
     display: none;
     height: 90%;
-    width: 340px;
+    width: 350px;
     position: fixed;
     top: 0;
     right: 0;
@@ -440,12 +440,12 @@
 }
 
 .file-class-tit:nth-child(2) {
-    width: 70px;
+    width: 75px;
 }
 
 
 .file-class-tit:nth-child(3) {
-    width: 105px;
+    width: 110px;
 }
 
 .file-class-tit:nth-child(4) {
