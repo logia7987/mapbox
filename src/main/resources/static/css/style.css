@@ -275,7 +275,7 @@
 }
 
 .file-info {
-    width: 205px;
+    width: 260px;
     margin-left: 10px;
     font-weight: 600;
 }
@@ -311,6 +311,7 @@
 
 #map-style {
     background-color: #ccc;
+    padding: 0 26px;
     border: 0;
     border-radius: 5px;
     font-weight: 600;
@@ -425,6 +426,7 @@
 }
 
 .file-class {
+    margin-bottom: 1px;
     padding-left: 10px;
     border-bottom: 1px solid;
     display: flex;
@@ -479,7 +481,7 @@
     display: flex;
 }
 
-.file-info-item:hover {
+.file-info-item:hover, .finish-btn:hover {
     color: #2699E6;
 }
 
@@ -488,10 +490,10 @@
 }
 
 .finish-btn {
+    background-color: unset;
     margin-right: 10px;
     border: 0;
     border-radius: 4px;
-    margin-top: 10px;
     float: right;
 }
 
@@ -513,3 +515,9 @@
     border: 0;
     padding-right: 3px;
 }
+
+.modal-body form label {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+

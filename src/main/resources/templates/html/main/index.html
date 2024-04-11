@@ -44,11 +44,14 @@
     <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
-            <h4 class="modal-title">Modal Heading</h4>
+            <h4 class="modal-title">속성 정보 수정</h4>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <!-- Modal body -->
-        <div class="modal-body">
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취 소</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="finishProperties()">완 료</button>
         </div>
     </div>
 </div>
@@ -88,26 +91,22 @@
 
     </div>
     <div id="tab2" class="tab-content">
-<!--        <div class="map-style-change padding-6-12">-->
-<!--            <label for="map-style" class="select-label">지도 스타일</label>-->
-<!--            <select name="map-styles" id="map-style" >-->
-<!--                <option value="streets-v12" class="style-option">Streets</option>-->
-<!--                <option value="outdoors-v12" class="style-option">Outdoors</option>-->
-<!--                <option value="light-v11" class="style-option">Light</option>-->
-<!--                <option value="dark-v11" class="style-option">Dark</option>-->
-<!--                <option value="satellite-v9" class="style-option">Satellite</option>-->
-<!--                <option value="satellite-streets-v12" class="style-option">Satellite-streets</option>-->
-<!--                <option value="navigation-day-v1" class="style-option">Navigation-day</option>-->
-<!--                <option value="navigation-night-v1" class="style-option">Navigation-night</option>-->
-<!--            </select>-->
-<!--        </div>-->
-        <div class="property-info padding-6-12">
-            <h5 class="tab-title">선택한 속성 정보</h5>
-            <div class="property-list"></div>
+        <div class="map-style-change padding-6-12">
+            <label for="map-style" class="select-label">지도 스타일</label>
+            <select name="map-styles" id="map-style" >
+                <option value="streets-v12" class="style-option">Streets</option>
+                <option value="outdoors-v12" class="style-option">Outdoors</option>
+                <option value="light-v11" class="style-option">Light</option>
+                <option value="dark-v11" class="style-option">Dark</option>
+                <option value="satellite-v9" class="style-option">Satellite</option>
+                <option value="satellite-streets-v12" class="style-option">Satellite-streets</option>
+                <option value="navigation-day-v1" class="style-option">Navigation-day</option>
+                <option value="navigation-night-v1" class="style-option">Navigation-night</option>
+            </select>
         </div>
-        <button class="finish-btn" onclick="finishPoint()">완 료</button>
     </div>
     <div id="tab3" class="tab-content">
+        <button class="finish-btn" onclick="finishPoint()"><i class="fa-solid fa-pencil"></i></button>
         <h5 class="tab-title margin-top-10">속성 정보</h5>
         <div class="file-class">
             <div class="file-class-tit">ID</div>
@@ -316,7 +315,6 @@
                 shpName : filename
             },
             success : function (result){
-                finishPoint();
                 console.log(result)
                 var shpId = result.shpId;
 
@@ -324,6 +322,9 @@
                     saveFeature(shpId, dataArr[filename].data.features[i], (i+1));
                 }
 
+                var html = ""
+                html = "<a href='#' onclick='getShpData("+shpId+")'>"+filename+"</a>"
+                $('.options').append(html)
             },
             error : function (error){
                 console.log(error)
@@ -520,6 +521,7 @@
         // 선택된 폴리곤에 대한 작업 수행
         map.on('click', 'polygons_'+fileNm, function (e) {
             selectedShp = e.features[0]
+            if (e.features[0].layer.id === 'polygons_'+fileNm) {
             var property = "";
             var id = selectedShp.properties.DIST1_ID;
             var info = dataArr[fileNm].data.features
@@ -528,41 +530,37 @@
                     property = info[i]
                 }
             }
-            $('#'+ id).addClass("selected")
+            $('#'+ id).parent().addClass("selected")
 
-            // if ($(".polygon-properties").length > 0) {
-            //     $(".polygon-properties").remove()
-            // }
-            // var html = "<div class='polygon-properties'> ID : "+selectedShp.properties.DIST1_ID +"<br>"+
-            //     "시군구 : "+selectedShp.properties.F_NAME+"<br>"+
-            //     "지역 코드 : "+selectedShp.properties.GCODE +"<br>"+
-            //     "지역명 : "+selectedShp.properties.NAME +"</div>"
-            // $(".property-list").append(html)
-
-            openTab(event, 'tab2')
+            openTab(event, 'tab3')
             if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-                tablinks[1].classList.add("active-white");
+                tablinks[2].classList.add("active-white");
             } else {
-                tablinks[1].classList.add("active-dark")
+                tablinks[2].classList.add("active-dark")
             }
+
             editShp(property)
+            }
         });
 
         map.on('mousemove', 'polygons_'+fileNm, (e) => {
             selectedShp = e.features
-            if (selectedShp.length > 0) {
-                if (hoveredPolygonId !== null) {
+            if (e.features[0].layer.id === 'polygons_'+fileNm) {
+                if (selectedShp.length > 0) {
+                    if (hoveredPolygonId !== null) {
+                        map.setFeatureState(
+                            { source: 'data_'+fileNm, id: hoveredPolygonId },
+                            { hover: false }
+                        );
+                    }
+                    hoveredPolygonId = selectedShp[0].id;
                     map.setFeatureState(
                         { source: 'data_'+fileNm, id: hoveredPolygonId },
-                        { hover: false }
+                        { hover: true }
                     );
                 }
-                hoveredPolygonId = selectedShp[0].id;
-                map.setFeatureState(
-                    { source: 'data_'+fileNm, id: hoveredPolygonId },
-                    { hover: true }
-                );
             }
+
         });
         map.on('mouseleave', 'polygons_'+fileNm, () => {
             if (hoveredPolygonId !== null) {
@@ -582,14 +580,14 @@
             $(".file-info-item").remove();
         }
         for (i = 0; i < info.length; i++) {
-            html = "<div class='file-info-item' >" +
+            html = "<div class='file-info-item' id = "+info[i].id+">" +
                 "<div class='file-info-li' onclick='selectedProperty(this)' id ="+info[i].properties.DIST1_ID+">"+
                 "<div class='info-id info-item'>"+info[i].properties.DIST1_ID+"</div>"+
                 "<div class='info-gcode info-item'>"+info[i].properties.GCODE +"</div>"+
                 "<div class='info-name info-item'>"+info[i].properties.NAME+"</div>"+
                 "<div class='info-fname info-item'>"+info[i].properties.F_NAME+"</div>" +
                 "</div>"+
-                "<button type='button' class='info-btn btn-primary' data-bs-toggle='modal' data-bs-target='#myModal' onclick='changeProperties("+info[i].properties.DIST1_ID+")'>수정</button>" +
+                "<button type='button' class='info-btn btn-primary' data-bs-toggle='modal' data-bs-target='#myModal' onclick='changeProperties("+info[i].id+")'>수정</button>" +
                 "</div>"
             $(".file-info-list").append(html)
         }
@@ -644,9 +642,29 @@
         }
 
 
+
+        // if (draw.getAll().features.length > 0) {
+        //     for (i = 0; i < drawArr.length; i++) {
+        //         var found = false;
+        //         for (j = 0; j < draw.getAll().features.length; j++) {
+        //             if (draw.getAll().features[j].id === drawArr[i].id) {
+        //                 draw.getAll().features[j] = drawArr[i]
+        //                 found = true;
+        //                 break;
+        //             }
+        //         }
+        //         if (!found) {
+        //             return false
+        //         }
+        //     }
+        //     draw.add(drawArr[i])
+        // } else {
+        //     draw.add(drawArr[0])
+        // }
         for (i = 0; i < drawArr.length; i++) {
             draw.add(drawArr[i])
         }
+
         var tData = {
             type: 'geojson',
             data: {
@@ -762,30 +780,42 @@
     }
 
     // 지도 스타일 변경하는 함수
-    // mapSelect.onchange = (change) => {
-    //     const changeId = change.target.value;
-    //     map.setStyle('mapbox://styles/mapbox/' + changeId);
-    //     map.on('style.load', () => {
-    //         for (i = 0; i < document.querySelectorAll('.file-tit').length; i++) {
-    //             var Name = document.querySelectorAll('.file-tit')[i].textContent
-    //             drawPolyline(dataArr[Name])
-    //         }
-    //     });
-    // }
-
+    mapSelect.onchange = (change) => {
+        const changeId = change.target.value;
+        map.setStyle('mapbox://styles/mapbox/' + changeId);
+        // map.on('style.load', () => {
+        //     for (i = 0; i < document.querySelectorAll('.file-tit').length; i++) {
+        //         var Name = document.querySelectorAll('.file-tit')[i].textContent
+        //         drawPolyline(dataArr[Name])
+        //     }
+        // });
+    }
+    var changeProper;
     function changeProperties(id) {
+        changeProper = id
         $(".modal-body form").remove()
         var html =
-            "<form action='method'=><label> ID  </label><input type='text' value= "+$("#"+id+" .info-id").text()+"><br>"+
-            "<label> 지역 코드 </label><input type='text' value= "+$("#"+id+" .info-gcode").text()+"><br>"+
-            "<label> 시군구 </label><input type='text' value= "+$("#"+id+" .info-name").text()+"><br>"+
-            "<label> 지역명 </label><input type='text' value= "+$("#"+id+" .info-fname").text()+"></div></form>"
+            "<form method='POST'><label> ID  </label><input id ='proper-dist1id' type='text' value= "+$("#"+id+" .info-id").text()+"><br>"+
+            "<label> 지역 코드 </label><input id ='proper-gcode' type='text' value= "+$("#"+id+" .info-gcode").text()+"><br>"+
+            "<label> 시군구 </label><input id ='proper-name' type='text' value= "+$("#"+id+" .info-name").text()+"><br>"+
+            "<label> 지역명 </label><input id ='proper-fname' type='text' value= "+$("#"+id+" .info-fname").text()+"></div></form>"
         $(".modal-body").append(html)
     }
 
     function finishProperties() {
-
+        var data = dataArr[fileNm].data.features
+        for (i = 0; i < data.length; i++) {
+            if (data[i].id == changeProper) {
+                data[i].properties["DIST1_ID"] = $('#proper-dist1id').val()
+                data[i].properties["GCODE"] = $('#proper-gcode').val()
+                data[i].properties["F_NAME"] = $('#proper-name').val()
+                data[i].properties["NAME"] = $('#proper-fname').val()
+                $("#"+changeProper+" .info-id").text($('#proper-dist1id').val())
+                $("#"+changeProper+" .info-gcode").text($('#proper-gcode').val())
+                $("#"+changeProper+" .info-name").text($('#proper-name').val())
+                $("#"+changeProper+" .info-fname").text($('#proper-fname').val())
+            }
+        }
     }
-
 </script>
 </html>
