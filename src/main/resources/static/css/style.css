@@ -461,7 +461,7 @@
 }
 
 .info-id {
-    width: 55px;
+    width: 50px;
 }
 
 .info-gcode {
@@ -521,3 +521,6 @@
     margin-bottom: 10px;
 }
 
+.colors-plan {
+    margin: 0 10px 10px 10px;
+}
