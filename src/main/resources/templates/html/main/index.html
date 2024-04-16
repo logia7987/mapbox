@@ -126,6 +126,8 @@
 
     var fileNm;
     var dataArr = [];
+    var nodeDataArr = [];
+    var linkDataArr = [];
     var drawArr = []
     var fileNmList = [];
     var selectedShp;
@@ -290,6 +292,48 @@
 
     }
 
+    function drawNodePoint(data) {
+        let count = 0;
+        for (const key in dataArr) {
+            if (key.indexOf(data.fileName) > -1) {count++;}
+        }
+        if (count > 0 ) {
+            data.fileName = data.fileName+'_'+count
+        }
+
+        dataArr[data.fileName] = data
+
+        var tData = {
+            type: 'geojson',
+            data: {
+                type : 'FeatureCollection',
+                features :data.data.features
+            }
+        }
+
+        map.addSource("nodeData_"+data.fileName, tData);
+        map.addLayer({
+            'id': 'points_'+data.fileName,
+            'type': 'fill',
+            'source': 'nodeData_'+data.fileName,
+            'layout': {},
+            'paint': {
+                'fill-color': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    '#007dd2', // 클릭한 폴리곤의 색상
+                    '#1aa3ff',  // 클릭하지 않은 폴리곤의 색상
+                ],
+                'fill-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    1,
+                    0.5
+                ]
+            }
+        });
+    }
+
     // 해당 탭을 여는 함수
     function openTab(event, tab) {
         for (i = 0; i < tabcontent.length; i++) {
@@ -387,6 +431,7 @@
     function setMapBounds(data) {
         var bounds = new mapboxgl.LngLatBounds();
         data.features.forEach(function (feature) {
+
             var coordinates = feature.geometry.coordinates[0];
             coordinates.forEach(function (coordinate) {
                 bounds.extend(coordinate);
@@ -436,9 +481,19 @@
                 finishLoading();
             },
             success: function (data) {
-                // console.log(data);
-                drawPolyline(data);
-                createLayer(data);
+                console.log(data);
+
+                const dataType = checkDataType(data);
+                if (dataType === "Point")  {
+                    // nodeDataArr 에 정보를 담는다
+                    drawNodePoint(data)
+                } else if (dataType === "MultiLineString") {
+                    // linkDataArr 에 정보를 담는다
+                    // drawLink(data)
+                } else {
+                    drawPolyline(data);
+                    createLayer(data);
+                }
             },
 
             error: function (error) {
@@ -787,5 +842,10 @@
 
     }
 
+    function checkDataType(data) {
+        // 대표로 첫번째 인덱스의 정보를 가져와서 타입 검사 실시
+        var type = data.data.features[0].geometry.type
+        return type
+    }
 </script>
 </html>

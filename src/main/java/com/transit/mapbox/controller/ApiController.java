@@ -53,12 +53,11 @@ public class ApiController {
         try {
             FileUtils.forceMkdir(tempDir);
             for (MultipartFile aFile : files) {
-                Path filePath = new File(tempDir, aFile.getOriginalFilename()).toPath();
+                Path filePath = new File(tempDir, Objects.requireNonNull(aFile.getOriginalFilename())).toPath();
                 Files.copy(aFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             }
 
             File shpFile = shapeFileService.findFile(tempDir, ".shp");
-
             if (shpFile != null) {
                 try {
                     String jsonResult = shapeFileService.convertShpToGeoJSON(shpFile, tempDir);
