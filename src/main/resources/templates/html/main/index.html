@@ -4,13 +4,14 @@
     <title>Mapbox</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"/>
     <script src="https://kit.fontawesome.com/872a12cba7.js" crossorigin="anonymous"></script>
 
     <!-- bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- mapbox -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet">
@@ -25,7 +26,6 @@
 
     <!-- Turf.js 추가 -->
     <script src='https://unpkg.com/@turf/turf'></script>
-    <link rel="stylesheet" href="/css/style.css">
 
     <!--  proj4  -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
@@ -37,14 +37,10 @@
 </head>
 <body>
 <div class="leftBox">
-    <div class="custom-select">
-        <div class="select-display">Select an option</div>
-        <div class="options">
-            <a href="#" th:each="shp : ${shpList}" th:text="${shp.shpName}" th:onclick="'getShpData(' + ${shp.shpId} + ')'"></a>
-        </div>
-    </div>
+    <button type='button' class='load-btn btn-primary' data-bs-toggle='modal' data-bs-target='#loadFile' title="불러오기"><i class="fa-solid fa-floppy-disk"></i></button>
+    <button class="finish-btn" onclick="finishPoint()"><i class="fa-solid fa-pencil"></i></button>
 </div>
-<div id="map" style="width: 100%; height: 100vh"></div>
+<div id="map" style="width: calc(100% - 45px); height: calc(100vh - 45px)"></div>
 <div id="loading-window">
     <div class="loading-logo" style="color:white">loading..</div>
     <div id="loading-bar"></div>
@@ -66,41 +62,49 @@
     </div>
 </div>
 </div>
-<div id="menu-btn" onclick="openTabMenu()">
-    <i class="fas fa-solid fa-bars"></i>
+<div class="modal" id="loadFile">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Modal Heading</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="custom-select">
+                <div class="select-display">Select an option</div>
+                <div class="options">
+                    <a href="#" th:each="shp : ${shpList}" th:text="${shp.shpName}" th:onclick="'getShpData(' + ${shp.shpId} + ')'"></a>
+                </div>
+            </div>
+            <div class="padding-6-12">
+                <form id="frmFile" action="/api/uploadShapeFiles" method="post" enctype="multipart/form-data">
+                    <label for="shpData" id="lbShpData">
+                        <div id="file_intro">
+                            <h4>파일을 드래그해서<br>올려주세요.</h4>
+                            <p class="comment">
+                                .shp, .shx, .dbf 는 필수파일입니다.
+                                <br>
+                                최소 위 3개의 파일을 같이 올려주세요.
+                            </p>
+                        </div>
+                        <input name="shpData" id="shpData" type="file" multiple  style="display: none;"/>
+                    </label>
+                </form>
+                <button type="button" class="btn btn-primary btn-send" onclick="sendFiles()">전송</button>
+            </div>
+        </div>
+    </div>
 </div>
-<div id="tab" class="tab">
-    <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>
+<!--    <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>-->
     <div class="tab-menu">
-        <div class="tab-links active-white" onclick="openTab(event, 'tab1')">레이어</div>
+        <div class="tab-links" onclick="openTab(event, 'tab1')">레이어</div>
         <div class="tab-links" onclick="openTab(event, 'tab2')">도구</div>
         <div class="tab-links" onclick="openTab(event, 'tab3')">속성</div>
-        <div id="tab-close" onclick="closeTab()"><i class="fas fa-solid fa-xmark"></i></div>
     </div>
-    <div id="tab1" class="tab-content" style = "display: block;">
-        <div class="padding-6-12">
-            <form id="frmFile" action="/api/uploadShapeFiles" method="post" enctype="multipart/form-data">
-                <label for="shpData" id="lbShpData">
-                    <div id="file_intro">
-                        <h4>파일을 드래그해서<br>올려주세요.</h4>
-                        <p class="comment">
-                            .shp, .shx, .dbf 는 필수파일입니다.
-                            <br>
-                            최소 위 3개의 파일을 같이 올려주세요.
-                        </p>
-                    </div>
-                    <input name="shpData" id="shpData" type="file" multiple  style="display: none;"/>
-                </label>
-            </form>
-            <button type="button" class="btn btn-primary btn-send" onclick="sendFiles()">전송</button>
-        </div>
-        <div class="layer-list">
-            <h5 class="tab-title">레이어</h5>
-            <div class="layer-file-list"></div>
-        </div>
-
+    <div id="tab1" class="tab" style = "display: none;">
+        <h5 class="tab-title">레이어</h5>
+        <div class="layer-file-list"></div>
     </div>
-    <div id="tab2" class="tab-content">
+    <div id="tab2" class="tab">
         <div class="map-style-change padding-6-12">
             <label for="map-style" class="select-label">지도 스타일</label>
             <select name="map-styles" id="map-style" >
@@ -117,13 +121,18 @@
         <div class="colors-plan padding-6-12">
             <div class="colors-item">
                 <label class="select-label">폴리곤 색상</label>
-                <input type="text" id="polygon-color" onchange="changeColorUp()">
+                <input type="text" id="polygon-color" onchange="changePolygonColor()">
             </div>
         </div>
+        <div class="colors-plan padding-6-12">
+            <div class="line-item" title="선 색상">
+                <input type="text" id="line-color" onchange="changeLineColor()" >
+            </div>
+            <input type="number" id="line-width" onchange="changeLineThickness()" value="2.5" title="선 굵기">
+        </div>
     </div>
-    <div id="tab3" class="tab-content">
-        <button class="finish-btn" onclick="finishPoint()"><i class="fa-solid fa-pencil"></i></button>
-        <h5 class="tab-title margin-top-10">속성 정보</h5>
+    <div id="tab3" class="tab">
+        <h5 class="tab-title">속성 정보</h5>
         <div class="file-class">
             <div class="file-class-tit">ID</div>
             <div class="file-class-tit">지역 코드</div>
@@ -147,17 +156,16 @@
     var fileNmList = [];
     var selectedShp;
     var polygonColor = '#1aa3ff';
+    var lineColor = '#020202';
+    var lineWidth = 2.5;
     var tabmenu = document.getElementById("tab");
-    var tabclose = document.getElementById("tab-close")
-    var menubtn = document.getElementsByClassName("menu-btn");
-    var tabcontent = document.getElementsByClassName("tab-content");
+    var tabcontent = document.getElementsByClassName("tab");
     var tablinks = document.getElementsByClassName("tab-links");
     let hoveredPolygonId = null;
     let clickedPolygonId = null;
 
     const mapSelect = document.getElementById('map-style');
 
-    //
     const uploadContainer = document.getElementById('frmFile');
     const fileInput = document.getElementById('fileInput');
 
@@ -182,6 +190,24 @@
             ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
         ]
     });
+    $("#line-color").spectrum({
+        showPaletteOnly: true,
+        togglePaletteOnly: true,
+        togglePaletteMoreText: '더보기',
+        togglePaletteLessText: '줄이기',
+        color : lineColor,
+        palette: [
+            ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
+            ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
+            ["#f4cccc","#fce5cd","#fff2cc","#d9ead3","#d0e0e3","#cfe2f3","#d9d2e9","#ead1dc"],
+            ["#ea9999","#f9cb9c","#ffe599","#b6d7a8","#a2c4c9","#9fc5e8","#b4a7d6","#d5a6bd"],
+            ["#e06666","#f6b26b","#ffd966","#93c47d","#76a5af","#6fa8dc","#8e7cc3","#c27ba0"],
+            ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#3d85c6","#674ea7","#a64d79"],
+            ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
+            ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
+        ]
+    });
+
     function handleDragOver(e) {
         e.preventDefault();
         uploadContainer.classList.add('drag-over');
@@ -197,9 +223,22 @@
         uploadContainer.classList.remove('drag-over');
 
         const files = e.dataTransfer.files;
+        $('#file_intro h4').remove()
+        $('.comment').remove()
+
         if (files.length > 0) {
-            fileInput.files = files;
+            for (i = 0; i < files.length ; i++) {
+                fileName = files[i].name
+                var html = ""
+                html = "<div class='dropfile'>"+fileName+"<i class=\"fas fa-solid fa-xmark\" onclick='deleteFileList()'></i></div>"
+                $("#file_intro").append(html)
+                $("#shpData").prop("files", e.dataTransfer.files)
+            }
         }
+    }
+
+    function deleteFileList() {
+
     }
 
     // 저장된 파일 고르는 함수
@@ -220,24 +259,6 @@
     map.addControl(language);
     var draw = new MapboxDraw({});
     map.addControl(draw, 'bottom-left')
-
-    // 메뉴 여는 함수
-    function openTabMenu() {
-        for (var i = 0; i < menubtn.length; i++) {
-            menubtn[i].style.display = "none";
-        }
-        tabmenu.style.display = "block";
-        tabclose.style.display = "block";
-    }
-
-    // 메뉴 닫는 함수
-    function closeTab() {
-        for (var i = 0; i < menubtn.length; i++) {
-            menubtn[i].style.display = "block";
-        }
-        tabmenu.style.display = "none";
-        tabclose.style.display = "none";
-    }
 
     // 메뉴 모드를 다크 모드 혹은 화이트 모드 바꾸는 함수
     function toggleWhiteMode() {
@@ -311,8 +332,8 @@
             'source': 'data_'+data.fileName,
             'layout': {},
             'paint': {
-                'line-color': '#020202',
-                'line-width': 2.5
+                'line-color': lineColor,
+                'line-width': Number(lineWidth)
             }
         });
 
@@ -408,15 +429,16 @@
             tabcontent[i].style.display = "none";
         }
         for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active-dark");
+            // tablinks[i].classList.remove("active-dark");
             tablinks[i].classList.remove("active-white");
         }
         document.getElementById(tab).style.display = "block"
-        if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-            event.currentTarget.className += " active-white";
-        } else {
-            event.currentTarget.className += " active-dark";
-        }
+        event.currentTarget.className += " active-white";
+        // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
+        //     event.currentTarget.className += " active-white";
+        // } else {
+        //     event.currentTarget.className += " active-dark";
+        // }
     }
 
     // 열린 shp 파일(파일 이름, 파일 저장한 날)을 db에 저장하는 함수
@@ -447,7 +469,6 @@
 
     // 열린 shp 파일 내 Feature들을 db에 저장하는 함수
     function saveFeature(shpId, jsonObj, idx) {
-        // console.log(jsonObj);
         $.ajax({
             url : '/api/saveFeature',
             type : 'POST',
@@ -501,7 +522,6 @@
     function setMapBounds(data) {
         var bounds = new mapboxgl.LngLatBounds();
         data.features.forEach(function (feature) {
-
             var coordinates = feature.geometry.coordinates[0];
             coordinates.forEach(function (coordinate) {
                 bounds.extend(coordinate);
@@ -534,8 +554,27 @@
         var files = fileInput.files;
         var formData = new FormData();
 
+        hasShp = false
+        hasShx = false
+        hasDdf = false
+
+
         for (var i = 0; i < files.length; i++) {
-            formData.append('shpData', files[i]);
+            if (files[i].name.indexOf('.shp') > -1) {
+                hasShp = true
+            } else if (files[i].name.indexOf('.shx') > -1) {
+                hasShx = true
+            } else if (files[i].name.indexOf('.dbf') > -1) {
+                hasDdf = true
+            }
+        }
+
+        if (hasShp === true && hasShx === true && hasDdf === true) {
+            for (var i = 0; i < files.length; i++) {
+                formData.append('shpData', files[i]);
+            }
+        } else {
+            alert ("필수 파일을 확인해주세요.")
         }
 
         $.ajax({
@@ -551,8 +590,6 @@
                 finishLoading();
             },
             success: function (data) {
-                console.log(data);
-
                 /* geojson 형식
                 * Point: [longitude, latitude]
                 * LineString: [[longitude1, latitude1], [longitude2, latitude2], ...]
@@ -598,12 +635,12 @@
                     createLayer(data);
                 }
             },
-
             error: function (error) {
                 console.error('Error uploading file:', error);
             }
         });
     }
+
 
     function removePolygon(key) {
         fileName = dataArr[key].fileName
@@ -632,6 +669,7 @@
 
     function createLayer(data) {
         var html = "";
+        var content = "";
         if ($(".file-info").length === 0) {
             html += '<div class="layer-file selected" id=\''+data.fileName+'\'>';
             selectedLayer(data.fileName);
@@ -642,15 +680,15 @@
         html += '<div class="file-info" onclick="selectedLayer('+data.fileName+')">';
         html += '<div class="file-tit">'+data.fileName+'</div>';
         html += '</div>';
-        html += '<div class="savedelete">';
-        html += '<div class="file-date" onclick="saveShp(\''+data.fileName+'\')">저장</div>'
-        html += '<div class="file-date" onclick="removePolygon(\''+data.fileName+'\')">삭제</div>'
-        html += '</div>';
-        html += '</div>';
-
+        html += '<div class="dropdown"> ' +
+            '<i class="fa-solid fa-ellipsis-vertical" data-bs-toggle="dropdown"></i></button> <ul class="dropdown-menu">' +
+            '<li onclick="saveShp(\''+data.fileName+'\')" class="dropdown-item">저장</li>' +
+            '<li onclick="removePolygon(\''+data.fileName+'\')" class="dropdown-item">삭제</li>' +
+            '</ul></div></div>'
         $(".layer-file-list").append(html);
         fileNmList.push(data.fileName)
     }
+
 
     function selectedLayer(obj) {
         if ($(".file-info").length === 0) {
@@ -663,14 +701,17 @@
             $(obj).addClass("selected")
             fileNm = $('.selected .file-tit').text()
         }
-        $(".sp-preview-inner").css("background-color", map.getPaintProperty('polygons_'+fileNm,'fill-color'))
+        $(".colors-item .sp-preview-inner").css("background-color", map.getPaintProperty('polygons_'+fileNm,'fill-color'))
+        $(".line-item .sp-preview-inner ").css("background-color", map.getPaintProperty('outline_'+fileNm,'line-color'))
+        $("#line-width").val(map.getPaintProperty('outline_'+fileNm,'line-width'))
         getProperties()
         openTab(event, 'tab3')
-        if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-            tablinks[2].classList.add("active-white");
-        } else {
-            tablinks[2].classList.add("active-dark")
-        }
+        tablinks[2].classList.add("active-white");
+        // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
+        //     tablinks[2].classList.add("active-white");
+        // } else {
+        //     tablinks[2].classList.add("active-dark")
+        // }
         for (i = 0; i < fileNmList.length; i++) {
             map.on('mousemove', 'polygons_'+ fileNmList[i], function () {})
             map.on('mouseleave', 'polygons_'+ fileNmList[i], function () {})
@@ -679,7 +720,6 @@
         }
         var opacity = ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5]
         map.setPaintProperty('polygons_'+fileNm,'fill-opacity', opacity);
-        // 선택된 폴리곤에 대한 작업 수행
         map.on('click', 'polygons_'+fileNm, function (e) {
             selectedShp = e.features[0]
             if (e.features[0].layer.id === 'polygons_'+fileNm) {
@@ -694,11 +734,12 @@
                 $('#'+ id).parent().addClass("selected")
 
                 openTab(event, 'tab3')
-                if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-                    tablinks[2].classList.add("active-white");
-                } else {
-                    tablinks[2].classList.add("active-dark")
-                }
+                tablinks[2].classList.add("active-white");
+                // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
+                //     tablinks[2].classList.add("active-white");
+                // } else {
+                //     tablinks[2].classList.add("active-dark")
+                // }
 
                 editShp(property)
             }
@@ -783,6 +824,9 @@
     var propertyArr = []
 
     function editShp(property) {
+        if(draw.getAll().features.length > 0) {
+
+        }
         map.removeLayer('polygons_'+(fileNm));
         map.removeLayer('outline_'+(fileNm));
         map.removeSource('data_'+(fileNm));
@@ -863,8 +907,8 @@
             'source': 'data_'+fileNm,
             'layout': {},
             'paint': {
-                'line-color': '#020202',
-                'line-width': 2.5
+                'line-color': lineColor,
+                'line-width': Number(lineWidth),
             }
         });
 
@@ -929,14 +973,35 @@
         return type
     }
 
-    function changeColorUp() {
-        var line = $("#polygon-color").val()
-        polygonColor = line
+    function changePolygonColor() {
+        var polygon = $("#polygon-color").val()
+        polygonColor = polygon
         for (i = 0; i < fileNmList.length; i++) {
             if(fileNm === fileNmList[i]) {
                 map.setPaintProperty('polygons_'+fileNmList[i],'fill-color', polygonColor);
             }
         }
     }
+
+    function changeLineColor() {
+        var line = $("#line-color").val()
+        lineColor = line
+        for (i = 0; i < fileNmList.length; i++) {
+            if(fileNm === fileNmList[i]) {
+                map.setPaintProperty('outline_'+fileNmList[i],'line-color', lineColor);
+            }
+        }
+    }
+
+    function  changeLineThickness() {
+        var line = $("#line-width").val()
+        lineWidth = line
+        for (i = 0; i < fileNmList.length; i++) {
+            if(fileNm === fileNmList[i]) {
+                map.setPaintProperty('outline_'+fileNmList[i],'line-width', Number(lineWidth));
+            }
+        }
+    }
+
 </script>
 </html>

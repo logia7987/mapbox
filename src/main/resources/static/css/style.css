@@ -1,3 +1,7 @@
+#map {
+    margin-top: 45px;
+}
+
 .drop-hover {
     display: none;
     position: fixed;
@@ -82,7 +86,7 @@
 #menu-btn {
     font-size: 30px;
     cursor: pointer;
-    color: #000000;
+    color: #909CAA;
     position: fixed;
     top: 50px;
     right: 10px;
@@ -133,21 +137,22 @@
 }
 
 /* 탭 메뉴 */
-#tab {
-    color : #020202;
+.tab {
+    color: #909CAA;
     display: none;
-    height: 90%;
     width: 350px;
     position: fixed;
-    top: 0;
-    right: 0;
+    height: 95%;
+    top: 45px;
+    right: 45px;
     background-color: white;
-    transition: 0.1s;
-    transform: translate(0%, 5%);
 }
 
 .tab-menu {
-    display: flex;
+    position: fixed;
+    top: 45px;
+    right: 0;
+    display: inline-table;
     height: 50px;
     border: none;
     overflow: hidden;
@@ -156,8 +161,8 @@
 
 
 .tab-links {
+    width: 45px;
     background-color: #ccc;
-    float: left;
     border: none;
     outline: none;
     cursor: pointer;
@@ -166,7 +171,6 @@
     font-size: 14px;
     font-weight: bold;
     text-align: center;
-    width: 110%;
 }
 
 .tab-links:hover {
@@ -226,36 +230,35 @@
 }
 
 /*레이어 목록*/
-
 .tab-title {
-    margin-left: 10px;
+    padding: 8px 16px;
+    color: #020202;
+    background-color: #ccc;
     font-weight: 900;
     font-size: 16px !important;
+    margin: 0;
 }
 
 .layer-list {
-    height: 48%;
+    height: 96%;
 }
 
 .layer-file-list {
     height: 100%;
     width: 100%;
-    border-top: 3px solid #ccc;
-    border-bottom: 3px solid #ccc;
-    margin-top: 10px;
     overflow: auto;
 }
 
 .layer-file {
     align-items: center;
     display: flex;
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
-    border-bottom: 1px solid #ccc;
 }
 
 .selected {
-    background-color: #ddd;
+    background-color: #DEEBFE;
+    color: #020202;
 }
 
 .fa-map:hover, .file-info:hover, .savedelete > .file-date:hover {
@@ -275,7 +278,7 @@
 }
 
 .file-info {
-    width: 260px;
+    width: 300px;
     margin-left: 10px;
     font-weight: 600;
 }
@@ -320,7 +323,7 @@
 .style-option {
     font-size: 14px;
     text-align: center;
-    color : #020202;
+    color : #909CAA;
     font-weight: 600;
 }
 
@@ -334,7 +337,7 @@
 
 .leftBox {
     position: absolute;
-    left: 5px;
+    left: 0;
     top: 5px;
     z-index: 999;
 }
@@ -490,11 +493,12 @@
 }
 
 .finish-btn {
+    padding: 0px 16px;
+    margin-left: 10px;
+    font-size: 20px;
     background-color: unset;
-    margin-right: 10px;
-    border: 0;
-    border-radius: 4px;
-    float: right;
+    color: #909CAA;
+    border: 1px solid #ebebeb;
 }
 
 .modal-body > .file-class {
@@ -523,4 +527,17 @@
 
 .colors-plan {
     margin: 0 10px 10px 10px;
+}
+
+#line-width {
+    width: 60px;
+}
+
+.load-btn {
+    padding: 0px 16px;
+    margin-left: 10px;
+    font-size: 20px;
+    background-color: unset;
+    color: #909CAA;
+    border: 1px solid #ebebeb;
 }
