@@ -8,6 +8,7 @@ import com.transit.mapbox.vo.GeometryVo;
 import com.transit.mapbox.vo.ShpVo;
 import org.apache.commons.io.FileUtils;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -58,8 +59,16 @@ public class ApiController {
             }
 
             File shpFile = shapeFileService.findFile(tempDir, ".shp");
+
             if (shpFile != null) {
                 try {
+                    File prjFile = shapeFileService.findFile(tempDir, ".prj");
+                    if (prjFile != null) {
+                        String crs = String.valueOf(shapeFileService.extractCRS(prjFile));
+
+                        result.put("crs", crs);
+                    }
+
                     String jsonResult = shapeFileService.convertShpToGeoJSON(shpFile, tempDir);
                     JSONParser jsonParser = new JSONParser();
                     Object obj = jsonParser.parse(jsonResult);
@@ -80,34 +89,34 @@ public class ApiController {
         return result;
     }
 
-    @PostMapping(value = "/uploadShp", consumes = "multipart/form-data", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public Map<String, Object> uploadShp(@RequestParam("shpData") MultipartFile file) throws IOException, ParseException {
-        Map<String, Object> result = new HashMap<>();
-
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename != null && originalFilename.toLowerCase().endsWith(".zip")) {
-            String geoJson = shapeFileService.convertZipToGeoJson(file);
-
-            if (geoJson != null && !geoJson.equals("")) {
-                JSONParser jsonParser = new JSONParser();
-                Object obj = jsonParser.parse(geoJson);
-                JSONObject jsonObj = (JSONObject) obj;
-
-                result.put("data", jsonObj);
-                result.put("result", "success");
-            } else {
-                result.put("result", "fail");
-                result.put("message", "파일형식이 올바르지 않습니다.");
-            }
-        } else {
-            // 올바르지 않은 확장자인 경우 에러 메시지 반환
-            result.put("result", "fail");
-            result.put("message", "파일형식이 올바르지 않습니다.");
-        }
-
-        return result;
-    }
+//    @PostMapping(value = "/uploadShp", consumes = "multipart/form-data", produces = "application/json; charset=UTF-8")
+//    @ResponseBody
+//    public Map<String, Object> uploadShp(@RequestParam("shpData") MultipartFile file) throws IOException, ParseException {
+//        Map<String, Object> result = new HashMap<>();
+//
+//        String originalFilename = file.getOriginalFilename();
+//        if (originalFilename != null && originalFilename.toLowerCase().endsWith(".zip")) {
+//            String geoJson = shapeFileService.convertZipToGeoJson(file);
+//
+//            if (geoJson != null && !geoJson.equals("")) {
+//                JSONParser jsonParser = new JSONParser();
+//                Object obj = jsonParser.parse(geoJson);
+//                JSONObject jsonObj = (JSONObject) obj;
+//
+//                result.put("data", jsonObj);
+//                result.put("result", "success");
+//            } else {
+//                result.put("result", "fail");
+//                result.put("message", "파일형식이 올바르지 않습니다.");
+//            }
+//        } else {
+//            // 올바르지 않은 확장자인 경우 에러 메시지 반환
+//            result.put("result", "fail");
+//            result.put("message", "파일형식이 올바르지 않습니다.");
+//        }
+//
+//        return result;
+//    }
 
     @PostMapping(value = "/getShp", produces = "application/json; charset=UTF-8")
     @ResponseBody

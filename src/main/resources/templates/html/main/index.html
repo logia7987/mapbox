@@ -27,6 +27,9 @@
     <script src='https://unpkg.com/@turf/turf'></script>
     <link rel="stylesheet" href="/css/style.css">
 
+    <!--  proj4  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
+
     <!--Spectrum-->
     <script src="https://bgrins.github.io/spectrum/spectrum.js"></script>
     <link rel='stylesheet' href='/css/spectrum.css'/>
@@ -317,14 +320,14 @@
 
     function drawNodePoint(data) {
         let count = 0;
-        for (const key in dataArr) {
+        for (const key in nodeDataArr) {
             if (key.indexOf(data.fileName) > -1) {count++;}
         }
         if (count > 0 ) {
             data.fileName = data.fileName+'_'+count
         }
 
-        dataArr[data.fileName] = data
+        nodeDataArr[data.fileName] = data
 
         var tData = {
             type: 'geojson',
@@ -337,17 +340,59 @@
         map.addSource("nodeData_"+data.fileName, tData);
         map.addLayer({
             'id': 'points_'+data.fileName,
-            'type': 'fill',
+            'type': 'circle',
             'source': 'nodeData_'+data.fileName,
-            'layout': {},
             'paint': {
-                'fill-color': [
+                'circle-radius': 6, // 점의 반지름 설정
+                'circle-color': [
                     'case',
                     ['boolean', ['feature-state', 'hover'], false],
-                    '#007dd2', // 클릭한 폴리곤의 색상
-                    '#1aa3ff',  // 클릭하지 않은 폴리곤의 색상
+                    '#007dd2', // 클릭한 점의 색상
+                    '#1aa3ff', // 클릭하지 않은 점의 색상
                 ],
-                'fill-opacity': [
+                'circle-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    1,
+                    0.5
+                ]
+            }
+        });
+    }
+
+    function drawLinkLine(data) {
+        let count = 0;
+        for (const key in linkDataArr) {
+            if (key.indexOf(data.fileName) > -1) {count++;}
+        }
+        if (count > 0 ) {
+            data.fileName = data.fileName+'_'+count
+        }
+
+        linkDataArr[data.fileName] = data
+
+        var tData = {
+            type: 'geojson',
+            data: {
+                type : 'FeatureCollection',
+                features :data.data.features
+            }
+        }
+
+        map.addSource("lineData_"+data.fileName, tData);
+        map.addLayer({
+            'id': 'lines_' + data.fileName,
+            'type': 'line',
+            'source': 'lineData_' + data.fileName, // 선의 데이터를 가리키는 소스
+            'paint': {
+                'line-color': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    '#007dd2', // 클릭한 선의 색상
+                    '#1aa3ff', // 클릭하지 않은 선의 색상
+                ],
+                'line-width': 2, // 선의 너비 설정
+                'line-opacity': [
                     'case',
                     ['boolean', ['feature-state', 'hover'], false],
                     1,
@@ -508,13 +553,46 @@
             success: function (data) {
                 console.log(data);
 
+                /* geojson 형식
+                * Point: [longitude, latitude]
+                * LineString: [[longitude1, latitude1], [longitude2, latitude2], ...]
+                * Polygon: [[[longitude1, latitude1], [longitude2, latitude2], ...], ...]
+                */
                 const dataType = checkDataType(data);
                 if (dataType === "Point")  {
                     // nodeDataArr 에 정보를 담는다
-                    drawNodePoint(data)
+                    if (data.crs.indexOf("EPSG:4326") === -1) {
+                        // 변환된 좌표 데이터로 작업 수행
+                        const wkt = data.crs;
+
+                        // WKT 형식의 CRS를 Proj4js로 변환하여 CRS 객체를 생성합니다.
+                        const crs = proj4(wkt);
+
+                        data.data.features.forEach(feature => {
+                            const transformedCoordinates = proj4(crs, 'EPSG:4326', feature.geometry.coordinates);
+                            feature.geometry.coordinates = transformedCoordinates;
+                        });
+                    }
+                    drawNodePoint(data);
                 } else if (dataType === "MultiLineString") {
                     // linkDataArr 에 정보를 담는다
-                    // drawLink(data)
+                    if (data.crs.indexOf("EPSG:4326") === -1) {
+                        // 변환된 좌표 데이터로 작업 수행
+                        const wkt = data.crs;
+
+                        // WKT 형식의 CRS를 Proj4js로 변환하여 CRS 객체를 생성합니다.
+                        const crs = proj4(wkt);
+
+                        data.data.features.forEach(feature => {
+                            // 각 feature의 geometry.coordinates에 대해 proj4를 사용하여 좌표를 변환
+                            feature.geometry.coordinates[0].forEach((coordinates, index) => {
+                                const transformedCoordinates = proj4(crs, 'EPSG:4326', coordinates);
+                                // 변환된 좌표를 해당 feature에 다시 할당
+                                feature.geometry.coordinates[index] = transformedCoordinates;
+                            });
+                        });
+                    }
+                    drawLinkLine(data)
                 } else {
                     drawPolyline(data);
                     createLayer(data);
