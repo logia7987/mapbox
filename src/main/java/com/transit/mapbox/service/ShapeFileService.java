@@ -61,7 +61,7 @@ public class ShapeFileService {
 
         try (StringWriter writer = new StringWriter()) {
             fjson.writeFeatureCollection(featureCollection, writer);
-            geoJson = writer.toString();
+            geoJson = new String(writer.toString().getBytes(StandardCharsets.ISO_8859_1), "EUC-KR");
 
             // 파일명에서 .shp 확장자 제거
             String targetText = shpFile.getName().replace(".shp", "");
