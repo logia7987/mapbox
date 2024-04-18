@@ -41,31 +41,25 @@
 
 </head>
 <body>
-    <div class="leftBox">
-        <button type='button' class='top-btn' data-bs-toggle='modal' data-bs-target='#loadFile' title="불러오기"><i class="fa-solid fa-floppy-disk"></i></button>
+    <div class="top-nav">
+        <button class='top-btn'  data-bs-toggle='modal' data-bs-target='#loadFile' title="불러오기"><i class="fa-solid fa-floppy-disk"></i></button>
         <button class="top-btn" onclick="finishPoint()"><i class="fa-solid fa-pencil"></i></button>
     </div>
+
     <div id="map" style="width: calc(100% - 45px); height: calc(100vh - 45px)"></div>
-    <div id="loading-window">
-        <div class="loading-logo" style="color:white">loading..</div>
-        <div id="loading-bar"></div>
-    </div>
-    <div class="modal" id="myModal">
-        <div th:insert="~{/html/modal/modal_attr.html::attr}"></div>
-    </div>
-    <div class="modal" id="loadFile">
-        <div th:insert="~{/html/modal/modal_loadfile.html::loadfile}"></div>
-    </div>
+
 <!--    <div id="mode-change-btn" onclick="toggleWhiteMode()"><i class="fas fa-solid fa-moon" id="mdicon"></i></div>-->
     <div class="tab-menu">
         <div class="tab-links" onclick="openTab(event, 'tab1')" data-bs-placement="left" data-bs-toggle="tooltip" title="레이어"><i class="fa-solid fa-layer-group"></i></div>
         <div class="tab-links" onclick="openTab(event, 'tab2')" data-bs-placement="left" data-bs-toggle="tooltip" title="도구"><i class="fa-solid fa-screwdriver-wrench"></i></div>
         <div class="tab-links" onclick="openTab(event, 'tab3')" data-bs-placement="left" data-bs-toggle="tooltip" title="속성"><i class="fa-solid fa-list"></i></div>
     </div>
+
     <div id="tab1" class="tab" style = "display: none;">
         <h5 class="tab-title padding-10 basic-font">레이어</h5>
         <div class="layer-file-list"></div>
     </div>
+
     <div id="tab2" class="tab">
         <div class="map-style-change padding-10">
             <label for="map-style" class="select-label">지도 스타일</label>
@@ -93,6 +87,7 @@
             <input type="number" id="line-width" onchange="changeLineThickness()" value="2.5" title="선 굵기">
         </div>
     </div>
+
     <div id="tab3" class="tab">
         <h5 class="tab-title padding-10 basic-font">속성 정보</h5>
         <div class="file-class">
@@ -104,6 +99,19 @@
         <div class="file-properties">
             <div class="file-info-list"></div>
         </div>
+    </div>
+
+    <div id="loading-window">
+        <div class="loading-logo" style="color:white">loading..</div>
+        <div id="loading-bar"></div>
+    </div>
+
+    <div class="modal" id="myModal">
+        <div th:insert="~{/html/modal/modal_attr.html::attr}"></div>
+    </div>
+
+    <div class="modal" id="loadFile">
+        <div th:insert="~{/html/modal/modal_loadfile.html::loadfile}"></div>
     </div>
 </body>
 <script th:inline="javascript">

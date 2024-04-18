@@ -83,7 +83,6 @@ function selectedLayer(obj) {
     $("#line-width").val(map.getPaintProperty('outline_'+fileNm,'line-width'))
     getProperties()
     openTab(event, 'tab3')
-    tablinks[2].classList.add("active-white");
     // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
     //     tablinks[2].classList.add("active-white");
     // } else {
@@ -111,7 +110,6 @@ function selectedLayer(obj) {
             $('#'+ id).parent().addClass("selected")
 
             openTab(event, 'tab3')
-            tablinks[2].classList.add("active-white");
             // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
             //     tablinks[2].classList.add("active-white");
             // } else {

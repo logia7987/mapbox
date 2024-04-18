@@ -147,8 +147,8 @@ function sendFiles() {
                 drawLinkLine(data)
             } else {
                 drawPolyline(data);
-                createLayer(data);
             }
+            createLayer(data);
         },
         error: function (error) {
             console.error('Error uploading file:', error);

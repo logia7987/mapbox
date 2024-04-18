@@ -5,7 +5,7 @@
 }
 
 #map {
-    margin-top: 45px;
+
 }
 
 .dropdown-item {
@@ -116,7 +116,7 @@
 /* 탭 메뉴 */
 .tab {
     z-index: 2;
-    box-shadow: -5px 5px 8px 1px rgba(0, 0, 0, 0.2);
+    /*box-shadow: -5px 5px 8px 1px rgba(0, 0, 0, 0.2);*/
     color: #909CAA;
     display: none;
     width: 350px;
@@ -125,20 +125,20 @@
     top: 45px;
     right: 45px;
     background-color: white;
-
+    border-right: 1px solid #e6e6e6;
 }
 
 .tab-menu {
     position: fixed;
-    top: 45px;
+    top: 0;
     right: 0;
     display: inline-table;
-    height: 50px;
     border: none;
     overflow: hidden;
     font-size: 0;
+    height: 100%;
+    padding-top: 45px;
 }
-
 
 .tab-links {
     width: 45px;
@@ -181,6 +181,7 @@
     font-size: 14px !important;
     margin: 0;
     font-weight: bold;
+    border-bottom: 1px solid #e6e6e6;
 }
 
 .layer-list {
@@ -265,12 +266,13 @@
 #current-file-selected{
     background-color : #cccccc;
 }
-
-.leftBox {
-    position: absolute;
-    left: 0;
-    top: 5px;
-    z-index: 999;
+ .top-nav {
+     width: 100%;
+     height: 45px;
+     vertical-align: middle;
+     display: inline-block;
+     border-bottom: #e6e6e6;
+     padding: 5px 0;
 }
 /* 셀렉트 박스 스타일 */
 .custom-select {
@@ -463,4 +465,5 @@
     background-color: unset;
     color: #909CAA;
     border: 1px solid #ebebeb;
+    height: 35px;
 }
