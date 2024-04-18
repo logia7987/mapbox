@@ -116,7 +116,7 @@
 /* 탭 메뉴 */
 .tab {
     z-index: 2;
-    /*box-shadow: -5px 5px 8px 1px rgba(0, 0, 0, 0.2);*/
+    box-shadow: -5px 5px 8px 1px rgba(0, 0, 0, 0.2);
     color: #909CAA;
     display: none;
     width: 350px;
@@ -125,20 +125,20 @@
     top: 45px;
     right: 45px;
     background-color: white;
-    border-right: 1px solid #e6e6e6;
+
 }
 
 .tab-menu {
     position: fixed;
-    top: 0;
+    top: 45px;
     right: 0;
     display: inline-table;
+    height: 50px;
     border: none;
     overflow: hidden;
     font-size: 0;
-    height: 100%;
-    padding-top: 45px;
 }
+
 
 .tab-links {
     width: 45px;
@@ -178,9 +178,19 @@
 .tab-title {
     color: #4d4d4d;
     background-color: #F7F8FA;
-    font-size: 14px !important;
     margin: 0;
     font-weight: bold;
+}
+
+#tab3 .tab-title h5 {
+    font-size: 14px !important;
+    margin: 0;
+}
+
+#tab3 .tab-title {
+    display: flex;
+    margin-bottom: 10px;
+    justify-content: space-between;
     border-bottom: 1px solid #e6e6e6;
 }
 
@@ -466,4 +476,15 @@
     color: #909CAA;
     border: 1px solid #ebebeb;
     height: 35px;
+}
+
+#btn-status {
+    float: right;
+    margin-left: 10px;
+    font-size: 15px;
+    line-height: 30px;
+    margin-bottom: 0;
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
