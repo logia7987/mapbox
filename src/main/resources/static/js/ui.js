@@ -48,10 +48,10 @@ function createLayer(data) {
     var html = "";
     var content = "";
     if ($(".file-info").length === 0) {
-        html += '<div class="layer-file selected" id=\''+data.fileName+'\'>';
+        html += '<div class="layer-file basic-font selected" id=\''+data.fileName+'\'>';
         selectedLayer(data.fileName);
     } else {
-        html += '<div id='+data.fileName+' class="layer-file">';
+        html += '<div class= "layer-file basic-font" id=\''+data.fileName+'\'>';
     }
     html += '<input type="checkbox" id="check_'+data.fileName+'" onclick="showHideLayer(\''+data.fileName+'\')" checked >';
     html += '<div class="file-info" onclick="selectedLayer('+data.fileName+')">';
@@ -159,7 +159,7 @@ function getProperties() {
         $(".file-info-item").remove();
     }
     for (i = 0; i < info.length; i++) {
-        html = "<div class='file-info-item' id = "+info[i].id+">" +
+        html = "<div class='file-info-item basic-font' id = "+info[i].id+">" +
             "<div class='file-info-li' onclick='selectedProperty(this)' id ="+info[i].properties.DIST1_ID+">"+
             "<div class='info-id info-item'>"+info[i].properties.DIST1_ID+"</div>"+
             "<div class='info-gcode info-item'>"+info[i].properties.GCODE +"</div>"+
@@ -236,4 +236,8 @@ function viewLoading() {
 function finishLoading() {
     $('#loading-window, .loading-logo').hide();
     document.getElementById("map").style.position = "";
+}
+
+function showSearch() {
+    $('#search-input').toggle()
 }

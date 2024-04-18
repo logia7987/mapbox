@@ -43,7 +43,7 @@
 <body>
     <div class="leftBox">
         <button type='button' class='top-btn' data-bs-toggle='modal' data-bs-target='#loadFile' title="불러오기"><i class="fa-solid fa-floppy-disk"></i></button>
-        <button class="top-btn" onclick="finishPoint()"><i class="fa-solid fa-pencil"></i></button>
+        <button class="top-btn" onclick="finishPoint()"><i class="fa-solid fa-pencil"></i><p id="btn-status">보기 모드</p></button>
     </div>
     <div id="map" style="width: calc(100% - 45px); height: calc(100vh - 45px)"></div>
     <div id="loading-window">
@@ -64,7 +64,7 @@
     </div>
     <div id="tab1" class="tab" style = "display: none;">
         <h5 class="tab-title padding-10 basic-font">레이어</h5>
-        <div class="layer-file-list"></div>
+        <div class="layer-file-list basic-font"></div>
     </div>
     <div id="tab2" class="tab">
         <div class="map-style-change padding-10">
@@ -94,8 +94,14 @@
         </div>
     </div>
     <div id="tab3" class="tab">
-        <h5 class="tab-title padding-10 basic-font">속성 정보</h5>
-        <div class="file-class">
+        <div class="tab-title padding-10 basic-font">
+            <h5>속성 정보</h5>
+            <i class="fa-solid fa-magnifying-glass" onclick="showSearch()"></i>
+        </div>
+        <div id="search-input" style="display: none">
+            <input type="text" ng-model="test" placeholder="검색">
+        </div>
+        <div class="file-class basic-font">
             <div class="file-class-tit">ID</div>
             <div class="file-class-tit">지역 코드</div>
             <div class="file-class-tit">지역명</div>
@@ -198,10 +204,6 @@
 
 
     function deleteFileList() {
-
-    }
-
-    function finishProperties() {
 
     }
 </script>

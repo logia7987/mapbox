@@ -182,14 +182,12 @@ function removePolygon(key) {
     }
 }
 function editShp(property) {
-    if(draw.getAll().features.length > 0) {
-
-    }
     map.removeLayer('polygons_'+(fileNm));
     map.removeLayer('outline_'+(fileNm));
     map.removeSource('data_'+(fileNm));
     var polygonArr = []
     drawArr = []
+    $('#btn-status').text("편집 모드")
 
     propertyArr.push(property)
 
@@ -215,6 +213,7 @@ function editShp(property) {
 
 function finishPoint() {
     var item = document.getElementsByClassName("file-info-item");
+    $('#btn-status').text("보기 모드")
     for (i = 0; i < item.length; i++) {
         item[i].classList.remove("selected");
     }
@@ -486,7 +485,7 @@ function handleDrop(e) {
         for (i = 0; i < files.length ; i++) {
             fileName = files[i].name
             var html = ""
-            html = "<div class='dropfile'>"+fileName+"<i class=\"fas fa-solid fa-xmark\" onclick='deleteFileList()'></i></div>"
+            html = "<div class='dropfile basic-font'>"+fileName+"<i class=\"fas fa-solid fa-xmark\" onclick='deleteFileList()'></i></div>"
             $("#file_intro").append(html)
             $("#shpData").prop("files", e.dataTransfer.files)
         }
