@@ -1,3 +1,9 @@
+function hideModal(id) {
+    var myModalEl = document.getElementById(id);
+    var modal = bootstrap.Modal.getInstance(myModalEl)
+    modal.hide();
+}
+
 // 열린 shp 파일(파일 이름, 파일 저장한 날)을 db에 저장하는 함수
 function saveShp(filename) {
     $.ajax({
@@ -91,6 +97,8 @@ function setMapBounds(data) {
 
 // 리스트에 db에 저장된 파일 가져오는 함수
 function sendFiles() {
+    hideModal('loadFile')
+
     var frmFile = $("#frmFile");
     // 파일 선택 input 요소
     var fileInput = frmFile.find("input[name='shpData']")[0];
@@ -148,7 +156,7 @@ function sendFiles() {
             } else {
                 drawPolyline(data);
             }
-            createLayer(data);
+            createLayer(data, dataType);
         },
         error: function (error) {
             console.error('Error uploading file:', error);

@@ -84,7 +84,9 @@
     width: 100%;
     background-color: rgba(0,0,0,0.4);
     height: 100vh;
-    position: relative;
+    position: absolute;
+    top: 0;
+    z-index: 999;
 }
 
 #loading-bar {
@@ -116,7 +118,7 @@
 /* 탭 메뉴 */
 .tab {
     z-index: 2;
-    box-shadow: -5px 5px 8px 1px rgba(0, 0, 0, 0.2);
+    /*box-shadow: -5px 5px 8px 1px rgba(0, 0, 0, 0.2);*/
     color: #909CAA;
     display: none;
     width: 350px;
@@ -125,15 +127,14 @@
     top: 45px;
     right: 45px;
     background-color: white;
-
+    border-right: #e6e6e6;
 }
 
 .tab-menu {
     position: fixed;
     top: 45px;
     right: 0;
-    display: inline-table;
-    height: 50px;
+    height: 100%;
     border: none;
     overflow: hidden;
     font-size: 0;
@@ -178,20 +179,15 @@
 .tab-title {
     color: #4d4d4d;
     background-color: #F7F8FA;
-    margin: 0;
     font-weight: bold;
-}
-
-#tab3 .tab-title h5 {
-    font-size: 14px !important;
-    margin: 0;
-}
-
-#tab3 .tab-title {
     display: flex;
-    margin-bottom: 10px;
     justify-content: space-between;
     border-bottom: 1px solid #e6e6e6;
+}
+
+.tab-title h5 {
+    font-size: 14px !important;
+    margin: 0;
 }
 
 .layer-list {
@@ -209,6 +205,10 @@
     display: flex;
     padding: 10px;
     cursor: pointer;
+}
+
+.layer-file i {
+    margin-left: 10px;
 }
 
 .selected {
@@ -375,13 +375,14 @@
     color: #4d4d4d;
     margin-bottom: 1px;
     padding-left: 10px;
-    border-bottom: 1px solid;
+    border-bottom: 1px solid #e6e6e6;
     display: flex;
     font-size: 14px;
 }
 
 .file-class-tit {
     font-weight: 600;
+    padding: 5px 0;
 }
 
 .file-class-tit:nth-child(1) {
