@@ -9,8 +9,6 @@ function toggleWhiteMode() {
         icon.classList.remove('fa-moon');
         icon.classList.add('fa-sun');
         tabmenu.style.backgroundColor = "#666";
-        document.getElementsByClassName('active-white')[0].classList.add('active-dark');
-        document.getElementsByClassName('active-dark')[0].classList.remove('active-white');
         for (i = 0; i < styleOption.length; i++) {
             styleOption[i].style.color = "white"
         }
@@ -20,30 +18,30 @@ function toggleWhiteMode() {
         icon.classList.add('fa-moon');
         icon.classList.remove('fa-sun');
         tabmenu.style.backgroundColor = "#fff"
-        document.getElementsByClassName('active-dark')[0].classList.add('active-white');
-        document.getElementsByClassName('active-white')[0].classList.remove('active-dark');
         for (i = 0; i < styleOption.length; i++) {
             styleOption[i].style.color = "black"
         }
     }
 }
 
-// 해당 탭을 여는 함수
-function openTab(event, tab) {
+function checkTab() {
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
     for (i = 0; i < tablinks.length; i++) {
-        // tablinks[i].classList.remove("active-dark");
-        tablinks[i].classList.remove("active-white");
+        tablinks[i].classList.remove("active");
     }
-    document.getElementById(tab).style.display = "block"
-    event.currentTarget.className += " active-white";
-    // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-    //     event.currentTarget.className += " active-white";
-    // } else {
-    //     event.currentTarget.className += " active-dark";
-    // }
+}
+
+// 해당 탭을 여는 함수
+function openTab(event, tab) {
+    if (event.currentTarget.className === "tab-links") {
+        checkTab()
+        document.getElementById(tab).style.display = "block"
+        event.currentTarget.className += " active";
+    } else {
+        checkTab()
+    }
 }
 
 function createLayer(data) {

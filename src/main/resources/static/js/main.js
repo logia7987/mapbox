@@ -377,6 +377,7 @@ function drawPolyline(data) {
             'line-width': Number(lineWidth)
         }
     });
+
 }
 
 function drawNodePoint(data) {
