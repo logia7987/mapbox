@@ -71,111 +71,135 @@ function createLayer(data, type) {
     $(".layer-file-list").append(html);
     fileNmList.push(data.fileName)
 
-    selectedLayer(data.fileName);
+    selectedLayer(data.fileName, type);
 }
 
 
-function selectedLayer(obj) {
-    if ($(".file-info").length === 0) {
-        fileNm = obj
-    } else  {
-        var layer = document.getElementsByClassName("layer-file");
-        for (i = 0; i < layer.length; i++) {
-            layer[i].classList.remove("selected");
-        }
-        $("#"+obj).addClass("selected")
-        fileNm = $('.selected .file-tit').text()
-    }
-    $(".colors-item .sp-preview-inner").css("background-color", map.getPaintProperty('polygons_'+fileNm,'fill-color'))
-    $(".line-item .sp-preview-inner ").css("background-color", map.getPaintProperty('outline_'+fileNm,'line-color'))
-    $("#line-width").val(map.getPaintProperty('outline_'+fileNm,'line-width'))
-    getProperties()
-    openTab(event, 'tab3')
-    // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-    //     tablinks[2].classList.add("active-white");
-    // } else {
-    //     tablinks[2].classList.add("active-dark")
-    // }
-    for (i = 0; i < fileNmList.length; i++) {
-        map.on('mousemove', 'polygons_'+ fileNmList[i], function () {})
-        map.on('mouseleave', 'polygons_'+ fileNmList[i], function () {})
-        map.on('click', 'polygons_'+ fileNmList[i], function () {})
-        map.setPaintProperty('polygons_'+fileNmList[i],'fill-opacity', 0.5);
-    }
-    var opacity = ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5]
-    map.setPaintProperty('polygons_'+fileNm,'fill-opacity', opacity);
-    map.on('click', 'polygons_'+fileNm, function (e) {
-        selectedShp = e.features[0]
-        if (e.features[0].layer.id === 'polygons_'+fileNm) {
-            var property = "";
-            var id = selectedShp.properties.DIST1_ID;
-            var info = dataArr[fileNm].data.features
-            for (i = 0; i < info.length; i++) {
-                if (info[i].properties.DIST1_ID === id) {
-                    property = info[i]
-                }
+    function selectedLayer(obj, type) {
+        if ($(".file-info").length === 0) {
+            fileNm = obj
+        } else  {
+            var layer = document.getElementsByClassName("layer-file");
+            for (i = 0; i < layer.length; i++) {
+                layer[i].classList.remove("selected");
             }
-            $('#'+ id).parent().addClass("selected")
-
-            openTab(event, 'tab3')
-            // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
-            //     tablinks[2].classList.add("active-white");
-            // } else {
-            //     tablinks[2].classList.add("active-dark")
-            // }
-
-            editShp(property)
+            $("#"+obj).addClass("selected")
+            fileNm = $('.selected .file-tit').text()
+            if (type === "Point")  {
+                geoData = nodeDataArr
+                getProperties(geoData)
+                openTab(event, 'tab3')
+            } else if (type === "MultiLineString") {
+                geoData = linkDataArr
+                getProperties(geoData)
+                openTab(event, 'tab3')
+            } else {
+                geoData = dataArr
+                getProperties(geoData)
+                polygonDetail()
+            }
         }
-    });
 
-    map.on('mousemove', 'polygons_'+fileNm, (e) => {
-        selectedShp = e.features
-        if (e.features[0].layer.id === 'polygons_'+fileNm) {
-            if (selectedShp.length > 0) {
-                if (hoveredPolygonId !== null) {
+    }
+    function polygonDetail() {
+        $(".colors-item .sp-preview-inner").css("background-color", map.getPaintProperty('polygons_'+fileNm,'fill-color'))
+        $(".line-item .sp-preview-inner ").css("background-color", map.getPaintProperty('outline_'+fileNm,'line-color'))
+        $("#line-width").val(map.getPaintProperty('outline_'+fileNm,'line-width'))
+        getProperties()
+        openTab(event, 'tab3')
+        // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
+        //     tablinks[2].classList.add("active-white");
+        // } else {
+        //     tablinks[2].classList.add("active-dark")
+        // }
+        for (i = 0; i < fileNmList.length; i++) {
+            map.on('mousemove', 'polygons_'+ fileNmList[i], function () {})
+            map.on('mouseleave', 'polygons_'+ fileNmList[i], function () {})
+            map.on('click', 'polygons_'+ fileNmList[i], function () {})
+            map.setPaintProperty('polygons_'+fileNmList[i],'fill-opacity', 0.5);
+        }
+        var opacity = ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5]
+        map.setPaintProperty('polygons_'+fileNm,'fill-opacity', opacity);
+        map.on('click', 'polygons_'+fileNm, function (e) {
+            selectedShp = e.features[0]
+            if (e.features[0].layer.id === 'polygons_'+fileNm) {
+                var property = "";
+                var id = selectedShp.properties.DIST1_ID;
+                var info = dataArr[fileNm].data.features
+                for (i = 0; i < info.length; i++) {
+                    if (info[i].properties.DIST1_ID === id) {
+                        property = info[i]
+                    }
+                }
+                $('#'+ id).parent().addClass("selected")
+
+                openTab(event, 'tab3')
+                // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
+                //     tablinks[2].classList.add("active-white");
+                // } else {
+                //     tablinks[2].classList.add("active-dark")
+                // }
+
+                editShp(property)
+            }
+        });
+
+        map.on('mousemove', 'polygons_'+fileNm, (e) => {
+            selectedShp = e.features
+            if (e.features[0].layer.id === 'polygons_'+fileNm) {
+                if (selectedShp.length > 0) {
+                    if (hoveredPolygonId !== null) {
+                        map.setFeatureState(
+                            { source: 'data_'+fileNm, id: hoveredPolygonId },
+                            { hover: false }
+                        );
+                    }
+                    hoveredPolygonId = selectedShp[0].id;
                     map.setFeatureState(
                         { source: 'data_'+fileNm, id: hoveredPolygonId },
-                        { hover: false }
+                        { hover: true }
                     );
                 }
-                hoveredPolygonId = selectedShp[0].id;
+            }
+
+        });
+        map.on('mouseleave', 'polygons_'+fileNm, () => {
+            if (hoveredPolygonId !== null) {
                 map.setFeatureState(
                     { source: 'data_'+fileNm, id: hoveredPolygonId },
-                    { hover: true }
+                    { hover: false }
                 );
             }
-        }
+            hoveredPolygonId = null;
+        });
+    }
 
-    });
-    map.on('mouseleave', 'polygons_'+fileNm, () => {
-        if (hoveredPolygonId !== null) {
-            map.setFeatureState(
-                { source: 'data_'+fileNm, id: hoveredPolygonId },
-                { hover: false }
-            );
-        }
-        hoveredPolygonId = null;
-    });
-}
-
-function getProperties() {
-    var info = dataArr[fileNm].data.features
+function getProperties(geoData) {
+    var info = geoData[fileNm].data.features
     var html = ""
     if (info.length > 0) {
         $(".file-info-item").remove();
     }
-    for (i = 0; i < info.length; i++) {
-        html = "<div class='file-info-item basic-font' id = "+info[i].id+">" +
-            "<div class='file-info-li' onclick='selectedProperty(this)' id ="+info[i].properties.DIST1_ID+">"+
-            "<div class='info-id info-item'>"+info[i].properties.DIST1_ID+"</div>"+
-            "<div class='info-gcode info-item'>"+info[i].properties.GCODE +"</div>"+
-            "<div class='info-name info-item'>"+info[i].properties.NAME+"</div>"+
-            "<div class='info-fname info-item'>"+info[i].properties.F_NAME+"</div>" +
-            "</div>"+
-            "<button type='button' class='info-btn btn-primary' data-bs-toggle='modal' data-bs-target='#myModal' onclick='changeProperties("+info[i].id+")'>수정</button>" +
-            "</div>"
-        $(".file-info-list").append(html)
+    var titArr = []
+
+    var title = Object.keys(info[0].properties)
+    for (var i = 0; i < title.length; i++) {
+        var tit = title[i]
+        html = "<th>" + title[i] + "</th>"
+        $(".property-tit").append(html)
+        titArr.push(tit)
     }
+
+    for (j = 0; j < info.length; j++) {
+        detail = "<tr></tr>"
+        for (k = 0; k < titArr.length; k++) {
+            html2 = "<tb>" +info[j].titArr[k].toString() + "</tb>";
+            detail.append(html2);
+        }
+        $(".property-detail").append(detail)
+    }
+
+
 }
 
 function selectedProperty(obj) {

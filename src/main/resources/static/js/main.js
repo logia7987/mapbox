@@ -140,9 +140,10 @@ function sendFiles() {
             viewLoading()
         },
         complete: function( ) {
-            finishLoading();
+            // finishLoading();
         },
         success: function (data) {
+            finishLoading();
             /* geojson 형식
             * Point: [longitude, latitude]
             * LineString: [[longitude1, latitude1], [longitude2, latitude2], ...]
