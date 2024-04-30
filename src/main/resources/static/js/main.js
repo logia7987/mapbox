@@ -1,3 +1,65 @@
+// 메뉴 모드를 다크 모드 혹은 화이트 모드 바꾸는 함수
+function toggleWhiteMode() {
+    var icon = document.getElementById("mdicon");
+    var styleOption = document.getElementsByClassName("style-option");
+
+    if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === 'rgb(2, 2, 2)') {
+        // 화이트 모드에서 다크 모드로 전환 될때
+        $("#tab, #map-style").css("color", "#ffffff");
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+        tabmenu.style.backgroundColor = "#666";
+        for (i = 0; i < styleOption.length; i++) {
+            styleOption[i].style.color = "white"
+        }
+    } else {
+        // 다크 모드에서 화이트 모드로 전환 될때
+        $("#tab, #map-style").css("color", "#020202");
+        icon.classList.add('fa-moon');
+        icon.classList.remove('fa-sun');
+        tabmenu.style.backgroundColor = "#fff"
+        for (i = 0; i < styleOption.length; i++) {
+            styleOption[i].style.color = "black"
+        }
+    }
+}
+
+function checkTab() {
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+    }
+}
+
+// 해당 탭을 여는 함수
+function openTab(event, tab) {
+    if (event.currentTarget.className === "tab-links") {
+        checkTab()
+        document.getElementById(tab).style.display = "block"
+        event.currentTarget.className += " active";
+    } else {
+        checkTab()
+    }
+}
+
+// 로딩 화면
+function viewLoading() {
+    $('#loading-window, .loading-logo').show();
+    document.getElementById("map").style.position = "absolute";
+}
+
+// 로딩 종료
+function finishLoading() {
+    $('#loading-window, .loading-logo').hide();
+    document.getElementById("map").style.position = "";
+}
+
+function showSearch() {
+    $('#search-input').toggle()
+}
+
 function hideModal(id) {
     var myModalEl = document.getElementById(id);
     var modal = bootstrap.Modal.getInstance(myModalEl)
@@ -191,9 +253,11 @@ function removePolygon(key) {
     }
 }
 function editShp(property) {
+    map.addControl(draw, 'bottom-left')
     map.removeLayer('polygons_'+(fileNm));
     map.removeLayer('outline_'+(fileNm));
     map.removeSource('data_'+(fileNm));
+
     var polygonArr = []
     drawArr = []
     $('#btn-status').text("편집 모드")
@@ -238,6 +302,7 @@ function finishPoint() {
         draw.deleteAll();
         propertyArr = []
         drawArr = []
+        map.removeControl(draw,'bottom-left')
     } else {
         alert('편집된 부분이 없습니다')
     }
@@ -279,53 +344,6 @@ function  changeLineThickness() {
     }
 }
 
-function polygon(data) {
-    var tData = {
-        type: 'geojson',
-        data: {
-            type : 'FeatureCollection',
-            features : data
-        }
-    }
-    map.addSource("data_"+fileNm, tData);
-    map.addLayer({
-        'id': 'polygons_'+fileNm,
-        'type': 'fill',
-        'source': 'data_'+fileNm,
-        'layout': {},
-        'paint': {
-            'fill-color': polygonColor,
-            'fill-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                1,
-                0.5
-            ]
-        }
-    });
-    map.addLayer({
-        'id': 'outline_'+fileNm,
-        'type': 'line',
-        'source': 'data_'+fileNm,
-        'layout': {},
-        'paint': {
-            'line-color': lineColor,
-            'line-width': Number(lineWidth),
-        }
-    });
-
-}
-
-function showHideLayer(Nm) {
-    if ($('#check_'+Nm).is(':checked') === true) {
-        map.setLayoutProperty('polygons_'+Nm, 'visibility', 'visible');
-        map.setLayoutProperty('outline_'+Nm, 'visibility', 'visible');
-    } else {
-        map.setLayoutProperty('polygons_'+Nm, 'visibility', 'none');
-        map.setLayoutProperty('outline_'+Nm, 'visibility', 'none');
-    }
-}
-
 // 지도 스타일 변경하는 함수
 mapSelect.onchange = (change) => {
     const changeId = change.target.value;
@@ -336,140 +354,6 @@ mapSelect.onchange = (change) => {
     //         drawPolyline(dataArr[Name])
     //     }
     // });
-}
-
-// Polyline 그리는 함수
-function drawPolyline(data) {
-    let count = 0;
-    for (const key in dataArr) {
-        if (key.indexOf(data.fileName) > -1) {count++;}
-    }
-    if (count > 0 ) {
-        data.fileName = data.fileName+'_'+count
-    }
-
-    dataArr[data.fileName] = data
-
-    var tData = {
-        type: 'geojson',
-        data: {
-            type : 'FeatureCollection',
-            features :data.data.features
-        }
-    }
-
-    setMapBounds(data.data);
-    map.addSource("data_"+data.fileName, tData);
-    map.addLayer({
-        'id': 'polygons_'+data.fileName,
-        'type': 'fill',
-        'source': 'data_'+data.fileName,
-        'paint': {
-            'fill-color': polygonColor,
-            'fill-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                1,
-                0.5
-            ]
-        }
-    });
-
-    map.addLayer({
-        'id': 'outline_'+data.fileName,
-        'type': 'line',
-        'source': 'data_'+data.fileName,
-        'layout': {},
-        'paint': {
-            'line-color': lineColor,
-            'line-width': Number(lineWidth)
-        }
-    });
-
-}
-
-function drawNodePoint(data) {
-    let count = 0;
-    for (const key in nodeDataArr) {
-        if (key.indexOf(data.fileName) > -1) {count++;}
-    }
-    if (count > 0 ) {
-        data.fileName = data.fileName+'_'+count
-    }
-
-    nodeDataArr[data.fileName] = data
-
-    var tData = {
-        type: 'geojson',
-        data: {
-            type : 'FeatureCollection',
-            features :data.data.features
-        }
-    }
-
-    map.addSource("nodeData_"+data.fileName, tData);
-    map.addLayer({
-        'id': 'points_'+data.fileName,
-        'type': 'circle',
-        'source': 'nodeData_'+data.fileName,
-        'paint': {
-            'circle-radius': 6, // 점의 반지름 설정
-            'circle-color': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                '#007dd2', // 클릭한 점의 색상
-                '#1aa3ff', // 클릭하지 않은 점의 색상
-            ],
-            'circle-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                1,
-                0.5
-            ]
-        }
-    });
-}
-
-function drawLinkLine(data) {
-    let count = 0;
-    for (const key in linkDataArr) {
-        if (key.indexOf(data.fileName) > -1) {count++;}
-    }
-    if (count > 0 ) {
-        data.fileName = data.fileName+'_'+count
-    }
-
-    linkDataArr[data.fileName] = data
-
-    var tData = {
-        type: 'geojson',
-        data: {
-            type : 'FeatureCollection',
-            features :data.data.features
-        }
-    }
-
-    map.addSource("lineData_"+data.fileName, tData);
-    map.addLayer({
-        'id': 'lines_' + data.fileName,
-        'type': 'line',
-        'source': 'lineData_' + data.fileName, // 선의 데이터를 가리키는 소스
-        'paint': {
-            'line-color': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                '#007dd2', // 클릭한 선의 색상
-                '#1aa3ff', // 클릭하지 않은 선의 색상
-            ],
-            'line-width': 2, // 선의 너비 설정
-            'line-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                1,
-                0.5
-            ]
-        }
-    });
 }
 
 function handleDragOver(e) {

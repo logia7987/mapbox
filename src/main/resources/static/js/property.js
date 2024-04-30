@@ -1,0 +1,71 @@
+function getProperties() {
+    var info = loadProperty[fileNm].data.features
+    var html = ""
+    if (info.length > 0) {
+        $(".prop-tit").remove();
+    }
+    var titArr = []
+
+    var title = Object.keys(info[0].properties)
+    for (var i = 0; i < title.length; i++) {
+        var tit = title[i]
+        html = "<th class='prop-tit'>" + title[i] + "</th>"
+        $(".property-tit").append(html)
+        titArr.push(tit)
+    }
+
+    for (j = 0; j < info.length; j++) {
+        detail = "<tr>"
+        for (k = 0; k < titArr.length; k++) {
+            html2 = titArr[k].toString()
+            proprty = "<td>" +info[j].properties[html2] + "</td>";
+            detail += proprty;
+        }
+        detail += "</tr>"
+        $(".property-detail").append(detail)
+    }
+}
+
+function selectedProperty(obj) {
+    if (map.getLayoutProperty('polygons_'+fileNm, 'visibility') === 'none') {
+        alert("선택하신 레이어가 지도에 없습니다")
+    } else {
+        var property = "";
+        var id = obj.querySelector('.info-id').textContent;
+        var info = dataArr[fileNm].data.features
+        $(obj).parent().addClass("selected")
+        for (i = 0; i < info.length; i++) {
+            if (info[i].properties.DIST1_ID === id) {
+                property = info[i]
+            }
+        }
+        editShp(property)
+    }
+}
+
+function changeProperties(id) {
+    changeProper = id
+    $(".modal-body form").remove()
+    var html =
+        "<form method='POST'><label> ID  </label><input id ='proper-dist1id' type='text' value= "+$("#"+id+" .info-id").text()+"><br>"+
+        "<label> 지역 코드 </label><input id ='proper-gcode' type='text' value= "+$("#"+id+" .info-gcode").text()+"><br>"+
+        "<label> 시군구 </label><input id ='proper-name' type='text' value= "+$("#"+id+" .info-name").text()+"><br>"+
+        "<label> 지역명 </label><input id ='proper-fname' type='text' value= "+$("#"+id+" .info-fname").text()+"></div></form>"
+    $(".modal-body").append(html)
+}
+
+function finishProperties() {
+    var data = dataArr[fileNm].data.features
+    for (i = 0; i < data.length; i++) {
+        if (data[i].id == changeProper) {
+            data[i].properties["DIST1_ID"] = $('#proper-dist1id').val()
+            data[i].properties["GCODE"] = $('#proper-gcode').val()
+            data[i].properties["F_NAME"] = $('#proper-name').val()
+            data[i].properties["NAME"] = $('#proper-fname').val()
+            $("#"+changeProper+" .info-id").text($('#proper-dist1id').val())
+            $("#"+changeProper+" .info-gcode").text($('#proper-gcode').val())
+            $("#"+changeProper+" .info-name").text($('#proper-name').val())
+            $("#"+changeProper+" .info-fname").text($('#proper-fname').val())
+        }
+    }
+}

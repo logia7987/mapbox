@@ -485,3 +485,25 @@
     font-weight: 400;
     font-style: normal;
 }
+
+#frmLayer table {
+    width: 100%;
+}
+
+.plusfield .tit-box {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.plusfield .item-box {
+    border: 1px solid #ddd;
+}
+
+.plusfield table {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 5px 10px;
+}

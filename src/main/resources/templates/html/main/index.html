@@ -58,6 +58,7 @@
     <div id="tab1" class="tab" style = "display: none;">
         <div class="tab-title padding-10 basic-font">
             <h5>레이어</h5>
+            <i class="fa-solid fa-file-pen"  data-bs-toggle='modal' data-bs-target='#pluslayer'></i>
         </div>
 
         <div class="layer-file-list basic-font"></div>
@@ -124,6 +125,11 @@
     <div class="modal" id="loadFile">
         <div th:insert="~{/html/modal/modal_loadfile.html::loadfile}"></div>
     </div>
+
+    <div class="modal" id="pluslayer">
+        <div th:insert="~{/html/modal/modal_layer.html::pluslayer}"></div>
+    </div>
+
 </body>
 <script th:inline="javascript">
     mapboxgl.accessToken = /*[[${mapboxAccessToken}]]*/ '';
@@ -135,6 +141,8 @@
 
     var fileNm;
     var dataArr = [];
+    var newProperty = [];
+    var loadProperty = [];
     var nodeDataArr = [];
     var linkDataArr = [];
     var drawArr = []
@@ -148,6 +156,7 @@
     var tablinks = document.getElementsByClassName("tab-links");
     var propertyArr = []
     var changeProper;
+    var draw = new MapboxDraw({});
 
     let hoveredPolygonId = null;
     let clickedPolygonId = null;
@@ -166,8 +175,6 @@
     });
     const language = new MapboxLanguage();
     map.addControl(language);
-    var draw = new MapboxDraw({});
-    map.addControl(draw, 'bottom-left')
 
     // 저장된 파일 고르는 함수
     $(document).ready(function() {
@@ -221,5 +228,9 @@
     }
 </script>
 <script src="/js/main.js"></script>
-<script src="/js/ui.js"></script>
+<script src="/js/layer.js"></script>
+<script src="/js/property.js"></script>
+<script src="/js/polygon.js"></script>
+<script src="/js/node.js"></script>
+<script src="/js/link.js"></script>
 </html>
