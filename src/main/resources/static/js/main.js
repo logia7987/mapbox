@@ -253,7 +253,6 @@ function removePolygon(key) {
     }
 }
 function editShp(property) {
-    map.addControl(draw, 'bottom-left')
     map.removeLayer('polygons_'+(fileNm));
     map.removeLayer('outline_'+(fileNm));
     map.removeSource('data_'+(fileNm));
@@ -292,9 +291,14 @@ function finishPoint() {
     }
     if (draw.getAll().features.length > 0) {
         draw.getAll()
-        for (i = 0; i < drawArr.length; i++) {
-            dataArr[fileNm].data.features[drawArr[i].id-1]=draw.getAll().features[i]
-        }
+        drawArr.forEach(function(drawElement) {
+            for (var i = 0; i < dataArr[fileNm].data.features.length; i++) {
+                if (dataArr[fileNm].data.features[i].id === drawElement.id) {
+                    dataArr[fileNm].data.features[i] = drawElement;
+                    break;
+                }
+            }
+        });
         map.removeLayer('polygons_'+(fileNm));
         map.removeLayer('outline_'+(fileNm));
         map.removeSource('data_'+(fileNm));
@@ -302,7 +306,6 @@ function finishPoint() {
         draw.deleteAll();
         propertyArr = []
         drawArr = []
-        map.removeControl(draw,'bottom-left')
     } else {
         alert('편집된 부분이 없습니다')
     }

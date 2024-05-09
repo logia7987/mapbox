@@ -107,6 +107,7 @@ public class ShapeFileService {
             while (iterator.hasNext()) {
                 SimpleFeature feature = iterator.next();
                 Geometry geometry = (Geometry) feature.getDefaultGeometry();
+
                 Geometry transformedGeometry;
                 try {
                     // 좌표 변환 적용
@@ -119,10 +120,10 @@ public class ShapeFileService {
                 SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(feature.getFeatureType());
                 featureBuilder.addAll(feature.getAttributes());
                 featureBuilder.set(feature.getDefaultGeometryProperty().getName(), transformedGeometry);
-                SimpleFeature transformedFeature = featureBuilder.buildFeature(null);
+                SimpleFeature transformedFeature = featureBuilder.buildFeature(feature.getID());
                 transformedFeatures.add(transformedFeature);
-            }
 
+            }
             // 변환된 FeatureCollection 반환
             return DataUtilities.collection(transformedFeatures);
         } finally {

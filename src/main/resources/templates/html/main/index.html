@@ -175,6 +175,7 @@
     });
     const language = new MapboxLanguage();
     map.addControl(language);
+    map.addControl(draw, 'bottom-left')
 
     // 저장된 파일 고르는 함수
     $(document).ready(function() {
