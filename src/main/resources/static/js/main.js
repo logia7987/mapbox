@@ -24,6 +24,8 @@ function toggleWhiteMode() {
     }
 }
 
+
+
 function checkTab() {
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
@@ -229,6 +231,7 @@ function sendFiles() {
 
 
 function removePolygon(key) {
+    finishPoint()
     fileName = dataArr[key].fileName
 
     if (draw.getAll().length > 0) {
@@ -245,7 +248,6 @@ function removePolygon(key) {
             fileNmList.splice(i, 1)
         }
     }
-
     delete dataArr[key]
 
     if ($(".layer-file").length === 0) {
@@ -253,6 +255,17 @@ function removePolygon(key) {
     }
 }
 function editShp(property) {
+    $('.mapboxgl-ctrl-group').show()
+    if (draw.getAll().features.length > 0) {
+        draw.getAll().features.forEach(function(drawElement) {
+            for (var i = 0; i < dataArr[fileNm].data.features.length; i++) {
+                if (dataArr[fileNm].data.features[i].id === drawElement.id) {
+                    dataArr[fileNm].data.features[i] = drawElement;
+                }
+            }
+        });
+    }
+
     map.removeLayer('polygons_'+(fileNm));
     map.removeLayer('outline_'+(fileNm));
     map.removeSource('data_'+(fileNm));
@@ -283,19 +296,68 @@ function editShp(property) {
     polygon(polygonArr);
 }
 
+document.addEventListener('contextmenu', function (){
+    var text = document.getElementById("btn-status").textContent;
+    var obj = Object.keys(dataArr[fileNm].data.features[0].properties)[0]
+    var features = draw.getAll().features;
+    var ids = dataArr[fileNm].data.features.map(feature => feature.id);
+    var maxId = Math.max.apply(null, ids)
+
+    if (draw.getMode() === 'simple_select' && $(".selected .fa-solid").length === 2 && text === '편집 모드') {
+        for (i = 0; i < features.length; i++) {
+            if (features[i].properties[obj] === undefined) {
+                draw.delete(features[i].id)
+                var newFeature = {
+                    id: maxId + 1,
+                    type: 'Feature',
+                    properties: features[i].propproperties,
+                    geometry: features[i].geometry,
+                };
+                draw.add(newFeature)
+                drawArr.push(newFeature)
+                dataArr[fileNm].data.features.push(draw.getAll().features[i])
+            }
+        }
+    }
+});
+
+function plusPolygon() {
+
+}
 function finishPoint() {
+    var deleteId = [];
+    drawArr.forEach(function(drawElement) {
+        var found = false;
+        for (var i = 0; i < draw.getAll().features.length; i++) {
+            if (draw.getAll().features[i].id === drawElement.id) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            deleteId.push(drawElement.id);
+        }
+    });
+    deleteId.forEach(function(deletePolygon) {
+        for (let i = 0; i < dataArr[fileNm].data.features.length; i++) {
+            if (dataArr[fileNm].data.features[i].id === deletePolygon) {
+                dataArr[fileNm].data.features.splice(i, 1);
+                break
+            }
+        }
+    });
+
+    $('.mapboxgl-ctrl-group').hide()
     var item = document.getElementsByClassName("file-info-item");
     $('#btn-status').text("보기 모드")
     for (i = 0; i < item.length; i++) {
         item[i].classList.remove("selected");
     }
     if (draw.getAll().features.length > 0) {
-        draw.getAll()
-        drawArr.forEach(function(drawElement) {
+        draw.getAll().features.forEach(function(drawElement) {
             for (var i = 0; i < dataArr[fileNm].data.features.length; i++) {
                 if (dataArr[fileNm].data.features[i].id === drawElement.id) {
                     dataArr[fileNm].data.features[i] = drawElement;
-                    break;
                 }
             }
         });

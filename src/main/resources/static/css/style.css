@@ -507,3 +507,7 @@
 th, td {
     padding: 5px 10px;
 }
+
+.mapboxgl-ctrl-group {
+    display: none;
+}

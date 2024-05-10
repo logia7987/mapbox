@@ -102,6 +102,7 @@ public class ShapeFileService {
 
         // FeatureCollection의 각 Geometry를 변환
         SimpleFeatureIterator iterator = featureCollection.features();
+        int id = 1;
         try {
             List<SimpleFeature> transformedFeatures = new ArrayList<>();
             while (iterator.hasNext()) {
@@ -120,9 +121,9 @@ public class ShapeFileService {
                 SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(feature.getFeatureType());
                 featureBuilder.addAll(feature.getAttributes());
                 featureBuilder.set(feature.getDefaultGeometryProperty().getName(), transformedGeometry);
-                SimpleFeature transformedFeature = featureBuilder.buildFeature(feature.getID());
+                SimpleFeature transformedFeature = featureBuilder.buildFeature(String.valueOf(id));
                 transformedFeatures.add(transformedFeature);
-
+                id++;
             }
             // 변환된 FeatureCollection 반환
             return DataUtilities.collection(transformedFeatures);

@@ -96,12 +96,12 @@ function plusLayers() {
 
 function createLayer(data, type) {
     var html = "";
-    var content = "";
-    if ($(".file-info").length === 0) {
-        html += '<div class="layer-file basic-font selected" id=\''+data.fileName+'\'>';
-    } else {
-        html += '<div class= "layer-file basic-font" id=\''+data.fileName+'\'>';
-    }
+    // if ($(".file-info").length === 0) {
+    //     html += '<div class="layer-file basic-font selected" id=\''+data.fileName+'\'>';
+    // } else {
+    //     html += '<div class= "layer-file basic-font" id=\''+data.fileName+'\'>';
+    // }
+    html += '<div class= "layer-file basic-font" id=\''+data.fileName+'\'>';
     html += '<input type="checkbox" id="check_'+data.fileName+'" onclick="showHideLayer(\''+data.fileName+'\')" checked >';
     if (type === "Point") {
         html += '<i class="fa-brands fa-hashnode"></i>'
@@ -109,6 +109,7 @@ function createLayer(data, type) {
         html += '<i class="fa-solid fa-share-nodes"></i>'
     } else {
         html += '<i class="fa-solid fa-draw-polygon"></i>'
+        drawPolyline(data)
     }
     html += '<div class="file-info" onclick="selectedLayer('+data.fileName+')">';
     html += '<div class="file-tit">'+data.fileName+'</div>';
@@ -123,14 +124,14 @@ function createLayer(data, type) {
 }
 
 
-function selectedLayer(obj, type) {
+function selectedLayer(obj) {
     var layer = document.getElementsByClassName("layer-file");
     for (i = 0; i < layer.length; i++) {
         layer[i].classList.remove("selected");
     }
     $("#"+obj.id).addClass("selected")
     fileNm = $('.selected .file-tit').text()
-    type = $(".selected .fa-solid").eq(0).attr("class");
+    var type = $(".selected .fa-solid").eq(0).attr("class");
     if (type === 'fa-solid fa-ellipsis-vertical')  {
         loadProperty = nodeDataArr
     } else if (type === 'fa-solid fa-share-nodes') {
