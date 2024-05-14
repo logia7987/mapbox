@@ -40,7 +40,7 @@ function drawPolyline(data) {
     for (const key in dataArr) {
         if (key.indexOf(data.fileName) > -1) {count++;}
     }
-    if (count > 0 ) {
+    if (count > 1 ) {
         data.fileName = data.fileName+'_'+count
     }
 
@@ -85,6 +85,8 @@ function drawPolyline(data) {
 }
 
 function polygonDetail() {
+    $('.mapboxgl-ctrl-group').show()
+    $('.mapboxgl-gl-draw_line,.mapboxgl-gl-draw_point,.mapboxgl-gl-draw_combine,.mapboxgl-gl-draw_uncombine').hide()
     $(".colors-item .sp-preview-inner").css("background-color", map.getPaintProperty('polygons_'+fileNm,'fill-color'))
     $(".line-item .sp-preview-inner ").css("background-color", map.getPaintProperty('outline_'+fileNm,'line-color'))
     $("#line-width").val(map.getPaintProperty('outline_'+fileNm,'line-width'))
@@ -127,32 +129,63 @@ function polygonDetail() {
         }
     });
 
-    // map.on('mousemove', 'polygons_'+fileNm, (e) => {
-    //     selectedShp = e.features
-    //     if (e.features[0].layer.id === 'polygons_'+fileNm) {
-    //         if (selectedShp.length > 0) {
-    //             if (hoveredPolygonId !== null) {
-    //                 map.setFeatureState(
-    //                     { source: 'data_'+fileNm, id: hoveredPolygonId },
-    //                     { hover: false }
-    //                 );
-    //             }
-    //             hoveredPolygonId = selectedShp[0].id;
-    //             map.setFeatureState(
-    //                 { source: 'data_'+fileNm, id: hoveredPolygonId },
-    //                 { hover: true }
-    //             );
-    //         }
-    //     }
-    //
-    // });
-    // map.on('mouseleave', 'polygons_'+fileNm, () => {
-    //     if (hoveredPolygonId !== null) {
-    //         map.setFeatureState(
-    //             { source: 'data_'+fileNm, id: hoveredPolygonId },
-    //             { hover: false }
-    //         );
-    //     }
-    //     hoveredPolygonId = null;
-    // });
+    map.on('mousemove', 'polygons_'+fileNm, (e) => {
+        selectedShp = e.features
+        if (e.features[0].layer.id === 'polygons_'+fileNm) {
+            if (selectedShp.length > 0) {
+                if (hoveredPolygonId !== null) {
+                    map.setFeatureState(
+                        { source: 'data_'+fileNm, id: hoveredPolygonId },
+                        { hover: false }
+                    );
+                }
+                hoveredPolygonId = selectedShp[0].id;
+                map.setFeatureState(
+                    { source: 'data_'+fileNm, id: hoveredPolygonId },
+                    { hover: true }
+                );
+            }
+        }
+
+    });
+    map.on('mouseleave', 'polygons_'+fileNm, () => {
+        if (hoveredPolygonId !== null) {
+            map.setFeatureState(
+                { source: 'data_'+fileNm, id: hoveredPolygonId },
+                { hover: false }
+            );
+        }
+        hoveredPolygonId = null;
+    });
+}
+
+function plusPolygon() {
+    var features = draw.getAll().features;
+    var obj = Object.keys(dataArr[fileNm].data.features[0].properties)
+    var ids = dataArr[fileNm].data.features.map(feature => feature.id);
+    var maxId = Math.max.apply(null, ids)
+    var property = $('#newpolygon .modal-body form').find('input')
+    var properties = {}
+
+    for (i = 0; i < property.length; i++) {
+        properties[obj[i]] = property[i].value
+    }
+
+    for (i = 0; i < features.length; i++) {
+        if (features[i].properties[obj[0]] === undefined) {
+            draw.delete(features[i].id)
+            var newFeature = {
+                id: String(maxId + 1),
+                type: 'Feature',
+                properties: properties,
+                geometry: {
+                    coordinates: features[i].geometry.coordinates,
+                    type : "Polygon"
+                },
+            };
+            draw.add(newFeature)
+            drawArr.push(newFeature)
+            dataArr[fileNm].data.features.push(draw.getAll().features[i])
+        }
+    }
 }

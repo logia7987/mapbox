@@ -46,24 +46,24 @@ function plusLayers() {
         alert('파일 이름을 입력해주세요')
     } else {
         var data = {
+            fileName : filename,
             datatype : value,
-            crs : "GEOGCS[GCS_WGS_1984, " +
-                "  DATUM[D_WGS_1984, " +
-                "  SPHEROID[WGS_1984, 6378137.0, 298.257223563]], " +
-                "  PRIMEM[Greenwich, 0.0], " +
+            crs : "GEOGCS[GCS_WGS_1984," +
+                "  DATUM[D_WGS_1984," +
+                "  SPHEROID[WGS_1984, 6378137.0, 298.257223563]]," +
+                "  PRIMEM[Greenwich, 0.0]," +
                 "  UNIT[degree, 0.017453292519943295]," +
-                "  AXIS[Longitude, EAST], " +
+                "  AXIS[Longitude, EAST]," +
                 "  AXIS[Latitude, NORTH]]",
             data : {
                 crs : {
-                    proprties : {
+                    properties : {
                         name : "EPSG:4326",
-                        type : "name"
-                    }
+                    },
+                    type : "name"
                 },
                 features : [],
                 type : "FeatureCollection",
-                fileName : filename
             }
         }
         var object = {}
@@ -72,7 +72,16 @@ function plusLayers() {
                 object[$(element).text()] = ''
             }
         });
-        newProperty[filename] = object
+        var feature = {
+            geometry: {
+                coordinates : [],
+                type : "MultiPolygon"
+            },
+            id : 1,
+            properties: object,
+            type : "Feature"
+        }
+        data.data.features.push(feature)
 
         if ($("#layer-proper").val() === "node")  {
             datatype = "Point"
@@ -90,7 +99,8 @@ function plusLayers() {
         while ($('.plusproperty').length > 0) {
             $('.plusproperty').eq(0).remove();
         }
-        createLayer(data.data, datatype)
+        drawPolyline(data);
+        createLayer(data, datatype)
     }
 }
 
@@ -109,7 +119,6 @@ function createLayer(data, type) {
         html += '<i class="fa-solid fa-share-nodes"></i>'
     } else {
         html += '<i class="fa-solid fa-draw-polygon"></i>'
-        drawPolyline(data)
     }
     html += '<div class="file-info" onclick="selectedLayer('+data.fileName+')">';
     html += '<div class="file-tit">'+data.fileName+'</div>';
@@ -125,6 +134,7 @@ function createLayer(data, type) {
 
 
 function selectedLayer(obj) {
+    $('#btn-status').text("편집 모드")
     var layer = document.getElementsByClassName("layer-file");
     for (i = 0; i < layer.length; i++) {
         layer[i].classList.remove("selected");

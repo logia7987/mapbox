@@ -147,16 +147,20 @@ function getShpData(shpId) {
 
 // 그려진 폴리곤라인 지도 내에 한눈에 보이도록 하는 함수
 function setMapBounds(data) {
-    var bounds = new mapboxgl.LngLatBounds();
-    data.features.forEach(function (feature) {
-        var coordinates = feature.geometry.coordinates[0];
-        coordinates.forEach(function (coordinate) {
-            bounds.extend(coordinate);
-        });
-    });
+    if (data.features[0].geometry.coordinates[0] === undefined) {
 
-    // 바운더리에 맞게 지도 조정
-    map.fitBounds(bounds, { padding: 150 });
+    } else {
+        var bounds = new mapboxgl.LngLatBounds();
+        data.features.forEach(function (feature) {
+            var coordinates = feature.geometry.coordinates[0];
+            coordinates.forEach(function (coordinate) {
+                bounds.extend(coordinate);
+            });
+        });
+
+        // 바운더리에 맞게 지도 조정
+        map.fitBounds(bounds, { padding: 150 });
+    }
 }
 
 // 리스트에 db에 저장된 파일 가져오는 함수
@@ -231,7 +235,6 @@ function sendFiles() {
 
 
 function removePolygon(key) {
-    finishPoint()
     fileName = dataArr[key].fileName
 
     if (draw.getAll().length > 0) {
@@ -255,7 +258,9 @@ function removePolygon(key) {
     }
 }
 function editShp(property) {
+    $('#btn-status').text("편집 모드")
     $('.mapboxgl-ctrl-group').show()
+    $('.mapboxgl-gl-draw_line,.mapboxgl-gl-draw_point,.mapboxgl-gl-draw_combine,.mapboxgl-gl-draw_uncombine').hide()
     if (draw.getAll().features.length > 0) {
         draw.getAll().features.forEach(function(drawElement) {
             for (var i = 0; i < dataArr[fileNm].data.features.length; i++) {
@@ -272,7 +277,6 @@ function editShp(property) {
 
     var polygonArr = []
     drawArr = []
-    $('#btn-status').text("편집 모드")
 
     propertyArr.push(property)
 
@@ -298,32 +302,18 @@ function editShp(property) {
 
 document.addEventListener('contextmenu', function (){
     var text = document.getElementById("btn-status").textContent;
-    var obj = Object.keys(dataArr[fileNm].data.features[0].properties)[0]
-    var features = draw.getAll().features;
-    var ids = dataArr[fileNm].data.features.map(feature => feature.id);
-    var maxId = Math.max.apply(null, ids)
 
-    if (draw.getMode() === 'simple_select' && $(".selected .fa-solid").length === 2 && text === '편집 모드') {
-        for (i = 0; i < features.length; i++) {
-            if (features[i].properties[obj] === undefined) {
-                draw.delete(features[i].id)
-                var newFeature = {
-                    id: maxId + 1,
-                    type: 'Feature',
-                    properties: features[i].propproperties,
-                    geometry: features[i].geometry,
-                };
-                draw.add(newFeature)
-                drawArr.push(newFeature)
-                dataArr[fileNm].data.features.push(draw.getAll().features[i])
-            }
+    if (draw.getMode() === 'simple_select' && $(".selected .fa-solid").length === 2 && text === '편집 모드' ) {
+        $('#newpolygon').modal('show')
+        $('#newpolygon .modal-body form').empty()
+        var property = Object.keys(dataArr[fileNm].data.features[0].properties)
+        for (var i = 0; i < property.length; i++) {
+            var html = "<label>"+property[i]+"</label> <input class='' ='property' type='text'><br>"
+            $('#newpolygon .modal-body form').append(html)
         }
     }
 });
 
-function plusPolygon() {
-
-}
 function finishPoint() {
     var deleteId = [];
     drawArr.forEach(function(drawElement) {
@@ -368,6 +358,9 @@ function finishPoint() {
         draw.deleteAll();
         propertyArr = []
         drawArr = []
+    } else if (draw.getAll().features.length === 0 && drawArr.length > 0) {
+        drawArr = []
+        propertyArr = []
     } else {
         alert('편집된 부분이 없습니다')
     }
