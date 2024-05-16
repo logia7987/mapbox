@@ -1,8 +1,14 @@
 function showHideLayer(Nm) {
     if ($('#check_'+Nm).is(':checked') === true) {
+        for (i = 0; i < newProperty[Nm].length; i++) {
+            map.setLayoutProperty(newProperty[Nm][i], 'visibility', 'visible');
+        }
         map.setLayoutProperty('polygons_'+Nm, 'visibility', 'visible');
         map.setLayoutProperty('outline_'+Nm, 'visibility', 'visible');
     } else {
+        for (i = 0; i < newProperty[Nm].length; i++) {
+            map.setLayoutProperty(newProperty[Nm][i], 'visibility', 'none');
+        }
         map.setLayoutProperty('polygons_'+Nm, 'visibility', 'none');
         map.setLayoutProperty('outline_'+Nm, 'visibility', 'none');
     }
@@ -69,19 +75,21 @@ function plusLayers() {
         var object = {}
         $(".proper-typeli td").each(function(index, element) {
             if (index % 2 === 0) {
-                object[$(element).text()] = ''
+                object[$(element).text()] = ""
             }
         });
-        var feature = {
-            geometry: {
-                coordinates : [],
-                type : "MultiPolygon"
-            },
-            id : 1,
-            properties: object,
-            type : "Feature"
-        }
-        data.data.features.push(feature)
+
+        newProperty[filename]= object
+        // var feature = {
+        //     geometry: {
+        //         coordinates : [],
+        //         type : "MultiPolygon"
+        //     },
+        //     id : 1,
+        //     properties: object,
+        //     type : "Feature"
+        // }
+        // data.data.features.push(feature)
 
         if ($("#layer-proper").val() === "node")  {
             datatype = "Point"
@@ -99,7 +107,7 @@ function plusLayers() {
         while ($('.plusproperty').length > 0) {
             $('.plusproperty').eq(0).remove();
         }
-        drawPolyline(data);
+        polygon(data.data.features)
         createLayer(data, datatype)
     }
 }
@@ -141,6 +149,14 @@ function selectedLayer(obj) {
     }
     $("#"+obj.id).addClass("selected")
     fileNm = $('.selected .file-tit').text()
+    var title = Object.keys(newProperty[fileNm])
+    var none = "<option value=\"none\">선택해주세요</option>"
+    $("#label-list").empty()
+    $("#label-list").append(none)
+    for (i = 0; i < title.length; i++) {
+        html = "<option value="+title[i]+">"+title[i]+"</option>"
+        $("#label-list").append(html)
+    }
     var type = $(".selected .fa-solid").eq(0).attr("class");
     if (type === 'fa-solid fa-ellipsis-vertical')  {
         loadProperty = nodeDataArr

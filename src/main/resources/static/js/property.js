@@ -1,12 +1,14 @@
 function getProperties() {
-    var info = loadProperty[fileNm].data.features
+    var info = newProperty[fileNm]
     var html = ""
+    var html2 = ""
     if (info.length > 0) {
-        $(".prop-tit").remove();
+        $(".property-tit-tit").empty();
+        $(".property-detail").empty()
     }
     var titArr = []
 
-    var title = Object.keys(info[0].properties)
+    var title = Object.keys(info)
     for (var i = 0; i < title.length; i++) {
         var tit = title[i]
         html = "<th class='prop-tit'>" + title[i] + "</th>"
@@ -18,7 +20,7 @@ function getProperties() {
         detail = "<tr>"
         for (k = 0; k < titArr.length; k++) {
             html2 = titArr[k].toString()
-            proprty = "<td>" +info[j].properties[html2] + "</td>";
+            proprty = "<td title="+info[j].properties[html2]+">" +info[j].properties[html2] + "</td>";
             detail += proprty;
         }
         detail += "</tr>"
@@ -68,4 +70,27 @@ function finishProperties() {
             $("#"+changeProper+" .info-fname").text($('#proper-fname').val())
         }
     }
+}
+
+function displayLabel() {
+    var label = $('#label-list').val()
+    var labels = $('#label-list option')
+
+    for (i = 0; i < labels.length; i++) {
+        if (map.getLayer(labels[i].value)) {
+            map.removeLayer(labels[i].value);
+        }
+    }
+
+    map.addLayer({
+        'id' : label,
+        'type' : 'symbol',
+        'source' : "data_"+fileNm,
+        'layout' : {
+            'text-field': ['get', label],
+            'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+            'text-radial-offset': 0.5,
+            'text-justify': 'auto',
+        }
+    })
 }

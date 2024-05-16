@@ -93,6 +93,14 @@
             </div>
             <input type="number" id="line-width" onchange="changeLineThickness()" value="2.5" title="선 굵기">
         </div>
+        <div class="colors-plan padding-10">
+            <div class="colors-item">
+                <label class="select-label">라벨 표시</label>
+                <select id="label-list" onchange="displayLabel()">
+                    <option value="none">선택해주세요</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <div id="tab3" class="tab">
@@ -103,14 +111,20 @@
         <div id="search-input" style="display: none">
             <input type="text" ng-model="test" placeholder="검색">
         </div>
-        <table class="file-class basic-font">
-            <thead>
+        <div class="padding-5">
+            <table class="file-class basic-font">
+                <thead>
                 <tr class="property-tit">
                 </tr>
-            </thead>
-            <tbody class="property-detail">
-            </tbody>
-        </table>
+                </thead>
+            </table>
+        </div>
+            <div class="padding-5 file-class property-list">
+                <table style="table-layout: fixed;" >
+                    <tbody class="property-detail">
+                    </tbody>
+                </table>
+            </div>
     </div>
 
     <div id="loading-window">

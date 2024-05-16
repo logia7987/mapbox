@@ -32,7 +32,6 @@ function polygon(data) {
             'line-width': Number(lineWidth),
         }
     });
-
 }
 
 function drawPolyline(data) {
@@ -45,6 +44,7 @@ function drawPolyline(data) {
     }
 
     dataArr[data.fileName] = data
+    newProperty[data.fileName] = data.data.features[0].properties
 
     var tData = {
         type: 'geojson',
@@ -160,12 +160,17 @@ function polygonDetail() {
 }
 
 function plusPolygon() {
+    var label = $('#label-list').val()
     var features = draw.getAll().features;
-    var obj = Object.keys(dataArr[fileNm].data.features[0].properties)
+    var obj = Object.keys(newProperty[fileNm])
     var ids = dataArr[fileNm].data.features.map(feature => feature.id);
     var maxId = Math.max.apply(null, ids)
-    var property = $('#newpolygon .modal-body form').find('input')
+    var property = $('#newpolygon .modal-body table').find('input')
     var properties = {}
+
+    if (dataArr[fileNm].data.features.length === 0) {
+        maxId = -1
+    }
 
     for (i = 0; i < property.length; i++) {
         properties[obj[i]] = property[i].value
@@ -188,4 +193,13 @@ function plusPolygon() {
             dataArr[fileNm].data.features.push(draw.getAll().features[i])
         }
     }
+    if (map.getSource('data_'+fileNm) !== undefined) {
+        map.removeLayer(label);
+        map.removeLayer('polygons_'+fileNm);
+        map.removeLayer('outline_'+fileNm);
+        map.removeSource('data_'+fileNm);
+    }
+    polygon(dataArr[fileNm].data.features)
+    getProperties()
+    displayLabel()
 }

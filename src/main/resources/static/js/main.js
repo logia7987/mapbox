@@ -258,6 +258,7 @@ function removePolygon(key) {
     }
 }
 function editShp(property) {
+    var label = $('#label-list').val()
     $('#btn-status').text("편집 모드")
     $('.mapboxgl-ctrl-group').show()
     $('.mapboxgl-gl-draw_line,.mapboxgl-gl-draw_point,.mapboxgl-gl-draw_combine,.mapboxgl-gl-draw_uncombine').hide()
@@ -271,6 +272,7 @@ function editShp(property) {
         });
     }
 
+    map.removeLayer(label);
     map.removeLayer('polygons_'+(fileNm));
     map.removeLayer('outline_'+(fileNm));
     map.removeSource('data_'+(fileNm));
@@ -298,23 +300,25 @@ function editShp(property) {
         draw.add(drawArr[i])
     }
     polygon(polygonArr);
+    displayLabel()
 }
 
 document.addEventListener('contextmenu', function (){
     var text = document.getElementById("btn-status").textContent;
 
-    if (draw.getMode() === 'simple_select' && $(".selected .fa-solid").length === 2 && text === '편집 모드' ) {
+    if (draw.getMode() === 'simple_select' && $(".selected .fa-solid").length === 2 && text === '편집 모드' && draw.getAll().features.length > 0) {
         $('#newpolygon').modal('show')
-        $('#newpolygon .modal-body form').empty()
-        var property = Object.keys(dataArr[fileNm].data.features[0].properties)
+        $('#newpolygon .modal-body table').empty()
+        var property = Object.keys(newProperty[fileNm])
         for (var i = 0; i < property.length; i++) {
-            var html = "<label>"+property[i]+"</label> <input class='' ='property' type='text'><br>"
-            $('#newpolygon .modal-body form').append(html)
+            var html = "<tr><td><label class='polygon-label' title="+property[i]+">"+property[i]+"</label></td><td><input class='property' type='text'></td></tr>"
+            $('#newpolygon .modal-body table').append(html)
         }
     }
 });
 
 function finishPoint() {
+    var label = $('#label-list').val()
     var deleteId = [];
     drawArr.forEach(function(drawElement) {
         var found = false;
@@ -351,16 +355,22 @@ function finishPoint() {
                 }
             }
         });
-        map.removeLayer('polygons_'+(fileNm));
-        map.removeLayer('outline_'+(fileNm));
-        map.removeSource('data_'+(fileNm));
+        map.removeLayer(label);
+        map.removeLayer('polygons_'+fileNm);
+        map.removeLayer('outline_'+fileNm);
+        map.removeSource('data_'+fileNm);
         polygon(dataArr[fileNm].data.features)
+        loadProperty = dataArr
+        getProperties()
         draw.deleteAll();
         propertyArr = []
         drawArr = []
+        displayLabel()
     } else if (draw.getAll().features.length === 0 && drawArr.length > 0) {
         drawArr = []
         propertyArr = []
+        loadProperty = dataArr
+        getProperties()
     } else {
         alert('편집된 부분이 없습니다')
     }
