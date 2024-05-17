@@ -191,15 +191,15 @@ function plusPolygon() {
                     type : "Polygon"
                 },
             };
-            draw.add(newFeature)
-            drawArr.push(newFeature)
-            dataArr[fileNm].data.features.push(draw.getAll().features[i])
+            map.getSource('data_'+fileNm)._options.data.features.push(newFeature)
+            var updatedFeatures = map.getSource('data_' + fileNm)._options.data.features;
+
+            // Set the updated data
+            map.getSource('data_' + fileNm).setData({
+                type: 'FeatureCollection',
+                features: updatedFeatures
+            });
         }
     }
-    if (map.getLayer('polygons_'+fileNm) !== undefined) { // 기존 레이어 지우기
-        map.removeLayer('polygons_'+fileNm);
-        map.removeLayer('outline_'+fileNm);
-        map.removeSource('data_'+fileNm);
-    }
-    polygon(dataArr[fileNm].data.features)
+
 }

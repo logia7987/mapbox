@@ -258,8 +258,8 @@ function removePolygon(key) {
     }
 }
 function editShp(property) {
-    var label = $('#label-list').val()
-    $('#btn-status').text("편집 모드")
+    // var label = $('#label-list').val()
+    var geoData = map.getSource('data_' + fileNm)._options.data.features
     $('.mapboxgl-ctrl-group').show()
     $('.mapboxgl-gl-draw_line,.mapboxgl-gl-draw_point,.mapboxgl-gl-draw_combine,.mapboxgl-gl-draw_uncombine').hide()
     if (draw.getAll().features.length > 0) {
@@ -271,36 +271,18 @@ function editShp(property) {
             }
         });
     }
-
-    map.removeLayer(label);
-    map.removeLayer('polygons_'+(fileNm));
-    map.removeLayer('outline_'+(fileNm));
-    map.removeSource('data_'+(fileNm));
-
-    var polygonArr = []
-    drawArr = []
-
-    propertyArr.push(property)
-
-    for (i = 0; i < dataArr[fileNm].data.features.length; i++) {
-        var found = false;
-        for (j = 0; j < propertyArr.length; j++) {
-            if (propertyArr[j].id === dataArr[fileNm].data.features[i].id) {
-                drawArr.push(dataArr[fileNm].data.features[i])
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            polygonArr.push(dataArr[fileNm].data.features[i]);
+    for (var i = 0; i < geoData.length; i++) {
+        if (geoData[i].id === property.id) {
+            geoData.splice(i, 1)
+            draw.add(property)
         }
     }
-
-    for (i = 0; i < drawArr.length; i++) {
-        draw.add(drawArr[i])
-    }
-    polygon(polygonArr);
-    displayLabel()
+    var updatedFeatures = geoData;
+    // Set the updated data
+    map.getSource('data_' + fileNm).setData({
+        type: 'FeatureCollection',
+        features: updatedFeatures
+    });
 }
 
 document.addEventListener('contextmenu', function (){
@@ -330,32 +312,7 @@ function changeEditMode() {
             loadProperty = dataArr
             polygonDetail()
         }
-
     } else if ( $('#btn-status').text() === '편집 모드') {
-        var labels = $('#label-list option')
-        var label = ''
-        var deleteId = [];
-        drawArr.forEach(function(drawElement) {
-            var found = false;
-            for (var i = 0; i < draw.getAll().features.length; i++) {
-                if (draw.getAll().features[i].id === drawElement.id) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                deleteId.push(drawElement.id);
-            }
-        });
-        deleteId.forEach(function(deletePolygon) {
-            for (let i = 0; i < dataArr[fileNm].data.features.length; i++) {
-                if (dataArr[fileNm].data.features[i].id === deletePolygon) {
-                    dataArr[fileNm].data.features.splice(i, 1);
-                    break
-                }
-            }
-        });
-
         $('.mapboxgl-ctrl-group').hide()
         var item = document.getElementsByClassName("file-info-item");
         $('#btn-status').text("보기 모드")
@@ -363,54 +320,29 @@ function changeEditMode() {
             item[i].classList.remove("selected");
         }
         if (draw.getAll().features.length > 0) {
-            draw.getAll().features.forEach(function(drawElement) {
-                for (var i = 0; i < dataArr[fileNm].data.features.length; i++) {
-                    if (dataArr[fileNm].data.features[i].id === drawElement.id) {
-                        dataArr[fileNm].data.features[i] = drawElement;
-                    }
-                }
-            });
-            for (i = 0; i < labels.length; i++) {  // 라벨 지우기
-                if (map.getLayer(labels[i].value) !== undefined) {
-                    map.removeLayer(labels[i].value);
-                    label = labels[i]
-                }
+            for (i = 0; i < draw.getAll().features.length; i++) {
+                map.getSource('data_' + fileNm)._options.data.features.push(draw.getAll().features[i])
             }
-
-            if (map.getLayer('polygons_'+fileNm) !== undefined) { // 기존 레이어 지우기
-                map.removeLayer('polygons_'+fileNm);
-                map.removeLayer('outline_'+fileNm);
-                map.removeSource('data_'+fileNm);
-            }
-
-            polygon(dataArr[fileNm].data.features)
-            if (label !== 'none' && label !== "") {
-                map.addLayer({
-                    'id' : label,
-                    'type' : 'symbol',
-                    'source' : "data_"+fileNm,
-                    'layout' : {
-                        'text-field': ['get', label],
-                        'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-                        'text-radial-offset': 0.5,
-                        'text-justify': 'auto',
-                    }
-                })
-                $('#label-list').value = label
-            }
-            loadProperty = dataArr
-            getProperties()
-            draw.deleteAll();
-            propertyArr = []
-            drawArr = []
-        } else if (draw.getAll().features.length === 0 && drawArr.length > 0) {
-            drawArr = []
-            propertyArr = []
-            loadProperty = dataArr
-            getProperties()
-        } else {
-            alert('편집된 부분이 없습니다')
         }
+        var updatedFeatures = map.getSource('data_' + fileNm)._options.data.features;
+        // Set the updated data
+        map.getSource('data_' + fileNm).setData({
+            type: 'FeatureCollection',
+            features: updatedFeatures
+        });
+        dataArr[fileNm].data.features = map.getSource('data_' + fileNm)._options.data.features
+        loadProperty = dataArr
+        getProperties()
+        draw.deleteAll();
+        propertyArr = []
+        drawArr = []
+    } else if (draw.getAll().features.length === 0 && drawArr.length > 0) {
+        drawArr = []
+        propertyArr = []
+        loadProperty = dataArr
+        getProperties()
+    } else {
+        alert('편집된 부분이 없습니다')
     }
 }
 
