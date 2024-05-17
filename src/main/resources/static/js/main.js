@@ -318,7 +318,8 @@ document.addEventListener('contextmenu', function (){
 });
 
 function finishPoint() {
-    var label = $('#label-list').val()
+    var labels = $('#label-list option')
+    var label = ''
     var deleteId = [];
     drawArr.forEach(function(drawElement) {
         var found = false;
@@ -355,17 +356,40 @@ function finishPoint() {
                 }
             }
         });
-        map.removeLayer(label);
-        map.removeLayer('polygons_'+fileNm);
-        map.removeLayer('outline_'+fileNm);
-        map.removeSource('data_'+fileNm);
+        for (i = 0; i < labels.length; i++) {
+            if (map.getLayer(labels[i].value) !== undefined) {
+                map.removeLayer(labels[i].value);
+                label = labels[i]
+            }
+        }
+
+        if (map.getLayer('polygons_'+fileNm) !== undefined) {
+            map.removeLayer('polygons_'+fileNm);
+            map.removeLayer('outline_'+fileNm);
+            map.removeSource('data_'+fileNm);
+        }
+
         polygon(dataArr[fileNm].data.features)
+        if (label !== 'none' && label !== "") {
+            map.addLayer({
+                'id' : label,
+                'type' : 'symbol',
+                'source' : "data_"+fileNm,
+                'layout' : {
+                    'text-field': ['get', label],
+                    'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+                    'text-radial-offset': 0.5,
+                    'text-justify': 'auto',
+                }
+            })
+            $('#label-list').value = label
+        }
         loadProperty = dataArr
         getProperties()
         draw.deleteAll();
         propertyArr = []
         drawArr = []
-        displayLabel()
+
     } else if (draw.getAll().features.length === 0 && drawArr.length > 0) {
         drawArr = []
         propertyArr = []

@@ -79,7 +79,7 @@ function plusLayers() {
             }
         });
 
-        newProperty[filename]= object
+        newProperty[filename] = object
         // var feature = {
         //     geometry: {
         //         coordinates : [],
@@ -109,17 +109,13 @@ function plusLayers() {
         }
         polygon(data.data.features)
         createLayer(data, datatype)
+
     }
 }
 
 function createLayer(data, type) {
     var html = "";
-    // if ($(".file-info").length === 0) {
-    //     html += '<div class="layer-file basic-font selected" id=\''+data.fileName+'\'>';
-    // } else {
-    //     html += '<div class= "layer-file basic-font" id=\''+data.fileName+'\'>';
-    // }
-    html += '<div class= "layer-file basic-font" id=\''+data.fileName+'\'>';
+    html += '<div class="layer-file basic-font selected" id=\''+data.fileName+'\'>';
     html += '<input type="checkbox" id="check_'+data.fileName+'" onclick="showHideLayer(\''+data.fileName+'\')" checked >';
     if (type === "Point") {
         html += '<i class="fa-brands fa-hashnode"></i>'
@@ -138,6 +134,7 @@ function createLayer(data, type) {
         '</ul></div></div>'
     $(".layer-file-list").append(html);
     fileNmList.push(data.fileName)
+    selectedLayer(html)
 }
 
 
@@ -149,10 +146,10 @@ function selectedLayer(obj) {
     }
     $("#"+obj.id).addClass("selected")
     fileNm = $('.selected .file-tit').text()
-    var title = Object.keys(newProperty[fileNm])
     var none = "<option value=\"none\">선택해주세요</option>"
     $("#label-list").empty()
     $("#label-list").append(none)
+    var title = Object.keys(newProperty[fileNm])
     for (i = 0; i < title.length; i++) {
         html = "<option value="+title[i]+">"+title[i]+"</option>"
         $("#label-list").append(html)
@@ -166,6 +163,5 @@ function selectedLayer(obj) {
         loadProperty = dataArr
         polygonDetail()
     }
-    getProperties()
     openTab(event, 'tab3')
 }

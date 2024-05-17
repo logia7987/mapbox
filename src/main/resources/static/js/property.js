@@ -2,13 +2,14 @@ function getProperties() {
     var info = newProperty[fileNm]
     var html = ""
     var html2 = ""
-    if (info.length > 0) {
-        $(".property-tit-tit").empty();
-        $(".property-detail").empty()
-    }
+    var title = Object.keys(info)
     var titArr = []
 
-    var title = Object.keys(info)
+    if (title.length > 0) {
+        $(".property-tit").empty();
+        $(".property-detail").empty()
+    }
+
     for (var i = 0; i < title.length; i++) {
         var tit = title[i]
         html = "<th class='prop-tit'>" + title[i] + "</th>"
@@ -16,11 +17,11 @@ function getProperties() {
         titArr.push(tit)
     }
 
-    for (j = 0; j < info.length; j++) {
+    for (j = 0; j < dataArr[fileNm].data.features.length; j++) {
         detail = "<tr>"
         for (k = 0; k < titArr.length; k++) {
             html2 = titArr[k].toString()
-            proprty = "<td title="+info[j].properties[html2]+">" +info[j].properties[html2] + "</td>";
+            proprty = "<td title="+dataArr[fileNm].data.features[j].properties[html2]+">" +dataArr[fileNm].data.features[j].properties[html2] + "</td>";
             detail += proprty;
         }
         detail += "</tr>"
