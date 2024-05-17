@@ -196,4 +196,10 @@ function plusPolygon() {
             dataArr[fileNm].data.features.push(draw.getAll().features[i])
         }
     }
+    if (map.getLayer('polygons_'+fileNm) !== undefined) { // 기존 레이어 지우기
+        map.removeLayer('polygons_'+fileNm);
+        map.removeLayer('outline_'+fileNm);
+        map.removeSource('data_'+fileNm);
+    }
+    polygon(dataArr[fileNm].data.features)
 }

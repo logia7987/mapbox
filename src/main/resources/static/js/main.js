@@ -317,86 +317,100 @@ document.addEventListener('contextmenu', function (){
     }
 });
 
-function finishPoint() {
-    var labels = $('#label-list option')
-    var label = ''
-    var deleteId = [];
-    drawArr.forEach(function(drawElement) {
-        var found = false;
-        for (var i = 0; i < draw.getAll().features.length; i++) {
-            if (draw.getAll().features[i].id === drawElement.id) {
-                found = true;
-                break;
-            }
+function changeEditMode() {
+    if ( $('#btn-status').text() === '보기 모드') {
+        fileNm = $('.selected .file-tit').text()
+        $('#btn-status').text("편집 모드")
+        var type = $(".selected .fa-solid").eq(0).attr("class");
+        if (type === 'fa-solid fa-ellipsis-vertical')  {
+            loadProperty = nodeDataArr
+        } else if (type === 'fa-solid fa-share-nodes') {
+            loadProperty = linkDataArr
+        } else {
+            loadProperty = dataArr
+            polygonDetail()
         }
-        if (!found) {
-            deleteId.push(drawElement.id);
-        }
-    });
-    deleteId.forEach(function(deletePolygon) {
-        for (let i = 0; i < dataArr[fileNm].data.features.length; i++) {
-            if (dataArr[fileNm].data.features[i].id === deletePolygon) {
-                dataArr[fileNm].data.features.splice(i, 1);
-                break
-            }
-        }
-    });
 
-    $('.mapboxgl-ctrl-group').hide()
-    var item = document.getElementsByClassName("file-info-item");
-    $('#btn-status').text("보기 모드")
-    for (i = 0; i < item.length; i++) {
-        item[i].classList.remove("selected");
-    }
-    if (draw.getAll().features.length > 0) {
-        draw.getAll().features.forEach(function(drawElement) {
-            for (var i = 0; i < dataArr[fileNm].data.features.length; i++) {
-                if (dataArr[fileNm].data.features[i].id === drawElement.id) {
-                    dataArr[fileNm].data.features[i] = drawElement;
+    } else if ( $('#btn-status').text() === '편집 모드') {
+        var labels = $('#label-list option')
+        var label = ''
+        var deleteId = [];
+        drawArr.forEach(function(drawElement) {
+            var found = false;
+            for (var i = 0; i < draw.getAll().features.length; i++) {
+                if (draw.getAll().features[i].id === drawElement.id) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                deleteId.push(drawElement.id);
+            }
+        });
+        deleteId.forEach(function(deletePolygon) {
+            for (let i = 0; i < dataArr[fileNm].data.features.length; i++) {
+                if (dataArr[fileNm].data.features[i].id === deletePolygon) {
+                    dataArr[fileNm].data.features.splice(i, 1);
+                    break
                 }
             }
         });
-        for (i = 0; i < labels.length; i++) {
-            if (map.getLayer(labels[i].value) !== undefined) {
-                map.removeLayer(labels[i].value);
-                label = labels[i]
-            }
-        }
 
-        if (map.getLayer('polygons_'+fileNm) !== undefined) {
-            map.removeLayer('polygons_'+fileNm);
-            map.removeLayer('outline_'+fileNm);
-            map.removeSource('data_'+fileNm);
+        $('.mapboxgl-ctrl-group').hide()
+        var item = document.getElementsByClassName("file-info-item");
+        $('#btn-status').text("보기 모드")
+        for (i = 0; i < item.length; i++) {
+            item[i].classList.remove("selected");
         }
-
-        polygon(dataArr[fileNm].data.features)
-        if (label !== 'none' && label !== "") {
-            map.addLayer({
-                'id' : label,
-                'type' : 'symbol',
-                'source' : "data_"+fileNm,
-                'layout' : {
-                    'text-field': ['get', label],
-                    'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-                    'text-radial-offset': 0.5,
-                    'text-justify': 'auto',
+        if (draw.getAll().features.length > 0) {
+            draw.getAll().features.forEach(function(drawElement) {
+                for (var i = 0; i < dataArr[fileNm].data.features.length; i++) {
+                    if (dataArr[fileNm].data.features[i].id === drawElement.id) {
+                        dataArr[fileNm].data.features[i] = drawElement;
+                    }
                 }
-            })
-            $('#label-list').value = label
-        }
-        loadProperty = dataArr
-        getProperties()
-        draw.deleteAll();
-        propertyArr = []
-        drawArr = []
+            });
+            for (i = 0; i < labels.length; i++) {  // 라벨 지우기
+                if (map.getLayer(labels[i].value) !== undefined) {
+                    map.removeLayer(labels[i].value);
+                    label = labels[i]
+                }
+            }
 
-    } else if (draw.getAll().features.length === 0 && drawArr.length > 0) {
-        drawArr = []
-        propertyArr = []
-        loadProperty = dataArr
-        getProperties()
-    } else {
-        alert('편집된 부분이 없습니다')
+            if (map.getLayer('polygons_'+fileNm) !== undefined) { // 기존 레이어 지우기
+                map.removeLayer('polygons_'+fileNm);
+                map.removeLayer('outline_'+fileNm);
+                map.removeSource('data_'+fileNm);
+            }
+
+            polygon(dataArr[fileNm].data.features)
+            if (label !== 'none' && label !== "") {
+                map.addLayer({
+                    'id' : label,
+                    'type' : 'symbol',
+                    'source' : "data_"+fileNm,
+                    'layout' : {
+                        'text-field': ['get', label],
+                        'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+                        'text-radial-offset': 0.5,
+                        'text-justify': 'auto',
+                    }
+                })
+                $('#label-list').value = label
+            }
+            loadProperty = dataArr
+            getProperties()
+            draw.deleteAll();
+            propertyArr = []
+            drawArr = []
+        } else if (draw.getAll().features.length === 0 && drawArr.length > 0) {
+            drawArr = []
+            propertyArr = []
+            loadProperty = dataArr
+            getProperties()
+        } else {
+            alert('편집된 부분이 없습니다')
+        }
     }
 }
 

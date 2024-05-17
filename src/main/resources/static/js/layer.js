@@ -134,17 +134,21 @@ function createLayer(data, type) {
         '</ul></div></div>'
     $(".layer-file-list").append(html);
     fileNmList.push(data.fileName)
-    selectedLayer(html)
+    selectedLayer(data.fileName)
 }
 
 
 function selectedLayer(obj) {
-    $('#btn-status').text("편집 모드")
     var layer = document.getElementsByClassName("layer-file");
     for (i = 0; i < layer.length; i++) {
         layer[i].classList.remove("selected");
     }
-    $("#"+obj.id).addClass("selected")
+    if ($("#"+obj.id).length > 0) {
+        $("#"+obj.id).addClass("selected")
+    } else {
+        $("#"+obj).addClass("selected")
+    }
+
     fileNm = $('.selected .file-tit').text()
     var none = "<option value=\"none\">선택해주세요</option>"
     $("#label-list").empty()
@@ -154,14 +158,6 @@ function selectedLayer(obj) {
         html = "<option value="+title[i]+">"+title[i]+"</option>"
         $("#label-list").append(html)
     }
-    var type = $(".selected .fa-solid").eq(0).attr("class");
-    if (type === 'fa-solid fa-ellipsis-vertical')  {
-        loadProperty = nodeDataArr
-    } else if (type === 'fa-solid fa-share-nodes') {
-        loadProperty = linkDataArr
-    } else {
-        loadProperty = dataArr
-        polygonDetail()
-    }
-    openTab(event, 'tab3')
+    getProperties()
+    // openTab(event, 'tab3')
 }
