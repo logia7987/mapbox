@@ -88,10 +88,10 @@ function polygonDetail() {
     $('.mapboxgl-ctrl-group').show()
     $('.mapboxgl-gl-draw_line,.mapboxgl-gl-draw_point,.mapboxgl-gl-draw_combine,.mapboxgl-gl-draw_uncombine').hide()
     if (map.getLayer('polygons_'+fileNm) !== undefined) {
-    $(".colors-item .sp-preview-inner").css("background-color", map.getPaintProperty('polygons_'+fileNm,'fill-color'))
-    $(".line-item .sp-preview-inner ").css("background-color", map.getPaintProperty('outline_'+fileNm,'line-color'))
-    $("#line-width").val(map.getPaintProperty('outline_'+fileNm,'line-width'))
-        }
+        $(".colors-item .sp-preview-inner").css("background-color", map.getPaintProperty('polygons_'+fileNm,'fill-color'))
+        $(".line-item .sp-preview-inner ").css("background-color", map.getPaintProperty('outline_'+fileNm,'line-color'))
+        $("#line-width").val(map.getPaintProperty('outline_'+fileNm,'line-width'))
+    }
     getProperties()
     openTab(event, 'tab3')
     // if (tabmenu.style.color === "#020202" || tabmenu.style.color === "" || tabmenu.style.color === "rgb(2, 2, 2)"){
@@ -179,27 +179,65 @@ function plusPolygon() {
         properties[obj[i]] = property[i].value
     }
 
-    for (i = 0; i < features.length; i++) {
-        if (features[i].properties[obj[0]] === undefined) {
-            draw.delete(features[i].id)
+    for (j = 0; j < features.length; j++) {
+        if (features[j].properties[obj[0]] === undefined) {
+            draw.delete(features[j].id)
             var newFeature = {
                 id: String(maxId + 1),
                 type: 'Feature',
                 properties: properties,
                 geometry: {
-                    coordinates: features[i].geometry.coordinates,
+                    coordinates: features[j].geometry.coordinates,
                     type : "Polygon"
                 },
             };
-            map.getSource('data_'+fileNm)._options.data.features.push(newFeature)
-            var updatedFeatures = map.getSource('data_' + fileNm)._options.data.features;
-
-            // Set the updated data
-            map.getSource('data_' + fileNm).setData({
-                type: 'FeatureCollection',
-                features: updatedFeatures
-            });
         }
     }
+    if (map.getSource('data_'+fileNm) === undefined) {
+        var tData = {
+            type: 'geojson',
+            data: {
+                type : 'FeatureCollection',
+                features : [
+                    newFeature
+                ]
+            }
+        }
+        map.addSource("data_"+fileNm, tData);
+        map.addLayer({
+            'id': 'polygons_'+fileNm,
+            'type': 'fill',
+            'source': 'data_'+fileNm,
+            'layout': {},
+            'paint': {
+                'fill-color': polygonColor,
+                'fill-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    1,
+                    0.5
+                ]
+            }
+        });
+        map.addLayer({
+            'id': 'outline_'+fileNm,
+            'type': 'line',
+            'source': 'data_'+fileNm,
+            'layout': {},
+            'paint': {
+                'line-color': lineColor,
+                'line-width': Number(lineWidth),
+            }
+        });
+    } else {
+        map.getSource('data_'+fileNm)._options.data.features.push(newFeature)
+        var updatedFeatures = map.getSource('data_' + fileNm)._options.data.features;
+        map.getSource('data_' + fileNm).setData({
+            type: 'FeatureCollection',
+            features: updatedFeatures
+        });
+        dataArr[fileNm] = map.getSource('data_' + fileNm)
+    }
+
 
 }
