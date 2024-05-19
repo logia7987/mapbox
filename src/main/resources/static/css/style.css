@@ -458,10 +458,12 @@
 }
 
 .colors-plan {
+    display: flex;
     margin: 0 10px 10px 10px;
 }
 
 #line-width {
+    margin-left: 15px;
     width: 60px;
 }
 
@@ -547,4 +549,8 @@ th, td {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.padding-30 {
+    padding: 0 20px 0 0;
 }

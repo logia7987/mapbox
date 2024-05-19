@@ -80,16 +80,6 @@ function plusLayers() {
         });
 
         newProperty[filename] = object
-        // var feature = {
-        //     geometry: {
-        //         coordinates : [],
-        //         type : "MultiPolygon"
-        //     },
-        //     id : 1,
-        //     properties: object,
-        //     type : "Feature"
-        // }
-        // data.data.features.push(feature)
 
         if ($("#layer-proper").val() === "node")  {
             datatype = "Point"
@@ -159,5 +149,4 @@ function selectedLayer(obj) {
         $("#label-list").append(html)
     }
     getProperties()
-    // openTab(event, 'tab3')
 }
