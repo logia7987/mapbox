@@ -303,22 +303,23 @@ function changeEditMode() {
     if ( $('#btn-status').text() === '보기 모드') {
         fileNm = $('.selected .file-tit').text()
         $('#btn-status').text("편집 모드")
-        var type = $(".selected .fa-solid").eq(0).attr("class");
+        // var type = $(".selected").eq(0).attr("class");
+        var type = $($(".selected").find(".fa-solid")[0]).attr("class")
+        loadProperty = dataArr
         if (type === 'fa-solid fa-ellipsis-vertical')  {
-            loadProperty = nodeDataArr
+
         } else if (type === 'fa-solid fa-share-nodes') {
-            loadProperty = linkDataArr
+            getNodeDetail()
         } else {
-            loadProperty = dataArr
             polygonDetail()
         }
     } else if ( $('#btn-status').text() === '편집 모드') {
         $('.mapboxgl-ctrl-group').hide()
-        var item = document.getElementsByClassName("file-info-item");
+        // var item = document.getElementsByClassName("file-info-item");
         $('#btn-status').text("보기 모드")
-        for (i = 0; i < item.length; i++) {
-            item[i].classList.remove("selected");
-        }
+        // for (i = 0; i < item.length; i++) {
+        //     item[i].classList.remove("selected");
+        // }
         if (draw.getAll().features.length > 0) {
             for (i = 0; i < draw.getAll().features.length; i++) {
                 map.getSource('data_' + fileNm)._options.data.features.push(draw.getAll().features[i])

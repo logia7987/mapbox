@@ -1,13 +1,14 @@
 function drawLinkLine(data) {
     let count = 0;
-    for (const key in linkDataArr) {
+    for (const key in dataArr) {
         if (key.indexOf(data.fileName) > -1) {count++;}
     }
     if (count > 0 ) {
         data.fileName = data.fileName+'_'+count
     }
 
-    linkDataArr[data.fileName] = data
+    dataArr[data.fileName] = data
+    newProperty[data.fileName] = data.data.features[0].properties
 
     var tData = {
         type: 'geojson',

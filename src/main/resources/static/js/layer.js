@@ -93,14 +93,13 @@ function plusLayers() {
 
         if ($("#layer-proper").val() === "node")  {
             datatype = "Point"
-            nodeDataArr[filename] = data
         } else if ($("#layer-proper").val() === "line") {
             datatype = "MultiLineString"
-            linkDataArr[filename] = data
         } else {
             datatype = "Polygon"
-            dataArr[filename] = data
         }
+
+        dataArr[filename] = data
 
         $("#layer-proper,  #proper-type").val('none')
         $('#layer-fileName, #proper-typenm').val('');
@@ -118,13 +117,13 @@ function createLayer(data, type) {
     html += '<div class="layer-file basic-font selected" id=\''+data.fileName+'\'>';
     html += '<input type="checkbox" id="check_'+data.fileName+'" onclick="showHideLayer(\''+data.fileName+'\')" checked >';
     if (type === "Point") {
-        html += '<i class="fa-brands fa-hashnode"></i>'
-    } else if (type === "MultiLineString") {
         html += '<i class="fa-solid fa-share-nodes"></i>'
+    } else if (type === "MultiLineString") {
+        html += '<i class="fa-brands fa-hashnode"></i>'
     } else {
         html += '<i class="fa-solid fa-draw-polygon"></i>'
     }
-    html += '<div class="file-info" onclick="selectedLayer('+data.fileName+')">';
+    html += '<div class="file-info" onclick="selectedLayer(\''+data.fileName+'\')">';
     html += '<div class="file-tit">'+data.fileName+'</div>';
     html += '</div>';
     html += '<div class="dropdown"> ' +
